@@ -19,11 +19,7 @@ function load_names()
 function get_item_id(name)
 {
 	name = name.toLowerCase();
-	for(var i in name_cache)
-	{
-		if (name_cache[i].name == name)
-			return i;
-	}
+	return name_cache.find( e => e.name == name ).id;
 }
 
 function get_item_summary(id)
@@ -70,11 +66,11 @@ module.exports.price = function(client, message, params)
 		.then( function(data) {
 
 			var columns = columnify([
-				{ name: "Overall Price:", value: data.overall, unit:"GP" },
-				{ name: "Buying Price:", value: data.buying, unit:"GP" },
-				{ name: "Amount Bought:", value: data.buyingQuantity, unit:"" },
-				{ name: "Selling Price:", value: data.selling, unit:"GP" },
-				{ name: "Amount Sold:", value: data.sellingQuantity, unit:"" },
+				{ name: "Overall Price:", value: util.format_number(data.overall), unit:"GP" },
+				{ name: "Buying Price:", value: util.format_number(data.buying), unit:"GP" },
+				{ name: "Amount Bought:", value: util.format_number(data.buyingQuantity), unit:"" },
+				{ name: "Selling Price:", value: util.format_number(data.selling), unit:"GP" },
+				{ name: "Amount Sold:", value: util.format_number(data.sellingQuantity), unit:"" },
 			], {
 				showHeaders: false,
 				config: {
