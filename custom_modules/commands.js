@@ -19,7 +19,8 @@ function load_names()
 function get_item_id(name)
 {
 	name = name.toLowerCase();
-	return name_cache.find( e => e.name == name ).id;
+	var match = name_cache.find( e => e.name == name );
+	return match ? match.id : 0;
 }
 
 function get_item_summary(id)
