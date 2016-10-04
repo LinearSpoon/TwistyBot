@@ -1,27 +1,19 @@
 // https://www.npmjs.com/package/columnify
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
+// http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
 var columnify = require('columnify');
-var cloudscraper = require('cloudscraper');
+var util = custom_require('util');
+
 var name_cache = load_names();
-
-
-function download(url)
-{
-	return new Promise(function(resolve, reject) {
-		var g = cloudscraper.get(url, function(error, response, body) {
-			if (error)
-				return reject(error);
-			return resolve(body);
-		});
-	});
-}
 
 function load_names()
 {
-	var name_cache = root_require('names.json');
-	for(var i in name_cache)
-		name_cache[i].name = name_cache[i].name.toLowerCase();
-	return name_cache;
+	var raw = root_require('names.json');
+	var ret = [];
+	for(var i in raw)
+		ret.push({id: i, name: raw[i].name.toLowerCase() });
+	util.save_file('names_processed.json', JSON.stringify(ret));
+	return ret;
 }
 
 function get_item_id(name)
@@ -36,11 +28,15 @@ function get_item_id(name)
 
 function get_item_summary(id)
 {
-	return download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id)
+	return util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id)
 		.then( body => JSON.parse(body) );
 
 }
 
+function get_similar_items(name)
+{
+	return util.fuzzy_match(name, name_cache.map(el => el.name));
+}
 
 
 module.exports.price = function(client, message, params)
@@ -52,11 +48,24 @@ module.exports.price = function(client, message, params)
 	// https://api.rsbuddy.com/grandExchange?i=7944&a=graph&g=1
 
 	var item = params.join(' ');
-	console.log('Looking up', item);
+
 	var id = get_item_id(item);
 	if (!id)
-		return message.reply('Item not found!');
+	{
+		console.log(item, 'not found. Possible matches:');
+		var guesses = get_similar_items(item).slice(0, 10);
+		guesses = columnify(guesses, {
+			showHeaders: true,
+			config: {
+				name: { minWidth: 24 },
+				value: { align: 'right' }
+			}
+		});
+		console.log(guesses);
 
+		return message.reply('Item not found! Are you looking for one of these?\n```' + guesses + '```');
+	}
+	console.log('Looking up', item);
 	return get_item_summary(id)
 		.then( function(data) {
 
