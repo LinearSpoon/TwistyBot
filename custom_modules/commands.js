@@ -1,3 +1,5 @@
+// TODO: Unhide from scarlett
+
 // https://www.npmjs.com/package/columnify
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
 // http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
@@ -5,6 +7,7 @@ var columnify = require('columnify');
 var util = custom_require('util');
 
 var name_cache = load_names();
+var name_dictionary = root_require('dictionary.js');
 
 function load_names()
 {
@@ -47,8 +50,13 @@ module.exports.price = function(client, message, params)
 	var item = params.join(' ');
 
 	var id = get_item_id(item);
-	if (!id)
+	if (!id && name_dictionary[item])
 	{
+		item = name_dictionary[item];
+		id = get_item_id(item);
+	}
+	if (!id)
+	{ // Try fuzzy string search
 		console.log(item, 'not found. Possible matches:');
 		var guesses = get_similar_items(item).slice(0, 10);
 		guesses = columnify(guesses, {
@@ -60,8 +68,9 @@ module.exports.price = function(client, message, params)
 		});
 		console.log(guesses);
 
-		return message.reply('Item not found! Are you looking for one of these?\n```' + guesses + '```');
+		return message.channel.sendMessage('Item not found! Are you looking for one of these?\n```' + guesses + '```');
 	}
+	// We have a valid item ID
 	console.log('Looking up', item);
 	return get_item_summary(id)
 		.then( function(data) {
@@ -79,12 +88,10 @@ module.exports.price = function(client, message, params)
 					value: { align: 'right' }
 				}
 			});
-			message.channel.sendMessage('```\n' + columns + '\n```' +
-				'__Graph:__ https://rsbuddy.com/exchange?id=' + id);
+			message.channel.sendMessage(
+				'Showing details for __' + item + '__:'
+				+ '```\n' + columns + '\n```'
+			 	+ '__Graph:__ https://rsbuddy.com/exchange?id=' + id);
 		})
 		.catch( err => message.channel.sendMessage(err.message) );
-
-
-	//return load_name_cache()
-	//	.catch( err => console.log(err) );
 }
