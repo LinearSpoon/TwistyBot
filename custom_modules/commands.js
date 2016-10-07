@@ -1,10 +1,11 @@
-// TODO: Unhide from scarlett
+
 
 // https://www.npmjs.com/package/columnify
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
 // http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
 var columnify = require('columnify');
 var util = custom_require('util');
+var save = custom_require('save');
 
 var name_cache = load_names();
 var name_dictionary = root_require('dictionary.js');
@@ -30,7 +31,6 @@ function get_item_summary(id)
 {
 	return util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id)
 		.then( body => JSON.parse(body) );
-
 }
 
 function get_similar_items(name)
@@ -94,4 +94,10 @@ module.exports.price = function(client, message, params)
 			 	+ '__Graph:__ https://rsbuddy.com/exchange?id=' + id);
 		})
 		.catch( err => message.channel.sendMessage(err.message) );
+}
+
+
+module.exports.poll = function(client, message, params)
+{
+
 }

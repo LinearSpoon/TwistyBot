@@ -100,3 +100,12 @@ module.exports.save_file = function(filepath, text)
 			console.warn('Error saving file:', err.message);
 	});
 };
+
+module.exports.load_file = function(filepath)
+{
+	try {
+		return fs.readFileSync(filepath, 'utf8');
+	} catch(e) {
+		return '';
+	}
+}
