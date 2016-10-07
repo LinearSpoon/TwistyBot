@@ -17,6 +17,11 @@ module.exports.format_number = function(value)
 	return parseFloat(value).toLocaleString('en');
 };
 
+module.exports.wrap_code = function(text)
+{
+	return '\n```' + text + '```';
+};
+
 module.exports.fuzzy_match = function(needle, haystack)
 {
 	// Goals:
@@ -91,8 +96,6 @@ module.exports.fuzzy_match = function(needle, haystack)
 	return haystack;
 };
 
-
-
 module.exports.save_file = function(filepath, text)
 {
 	fs.writeFile(filepath, text, function(err) {
@@ -108,4 +111,4 @@ module.exports.load_file = function(filepath)
 	} catch(e) {
 		return '';
 	}
-}
+};

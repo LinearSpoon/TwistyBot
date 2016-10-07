@@ -1,64 +1,29 @@
-
-
-// https://www.npmjs.com/package/columnify
-// https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
 // http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
-var columnify = require('columnify');
-var util = custom_require('util');
+var columnify = require('columnify');		// https://www.npmjs.com/package/columnify
+
 var save = custom_require('save');
+var players = custom_require('players');
+var items = custom_require('items');
 
-var name_cache = load_names();
-var name_dictionary = root_require('dictionary.js');
 
-function load_names()
-{
-	var raw = root_require('names.json');
-	var ret = [];
-	for(var i in raw)
-		ret.push({id: i, name: raw[i].name.toLowerCase() });
-	util.save_file('names_processed.json', JSON.stringify(ret));
-	return ret;
-}
 
-function get_item_id(name)
-{
-	name = name.toLowerCase();
-	var match = name_cache.find( e => e.name == name );
-	return match ? match.id : 0;
-}
 
-function get_item_summary(id)
-{
-	return util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id)
-		.then( body => JSON.parse(body) );
-}
-
-function get_similar_items(name)
-{
-	return util.fuzzy_match(name, name_cache.map(el => el.name));
-}
 
 
 module.exports.price = function(client, message, params)
 {
-	// https://rsbuddy.com/exchange/summary.json
-	// https://rsbuddy.com/exchange/names.json
-	// https://api.rsbuddy.com/grandExchange?a=guidePrice&i=<id>  => {"overall":222,"buying":222,"buyingQuantity":470395,"selling":221,"sellingQuantity":425068}
-	// https://api.rsbuddy.com/grandExchange?a=graph&start=1425921352106&g=1440&i=<id>  => history?
-	// https://api.rsbuddy.com/grandExchange?i=7944&a=graph&g=1
-
-	var item = params.join(' ');
-
-	var id = get_item_id(item);
-	if (!id && name_dictionary[item])
+	if (params.length != 1)
 	{
-		item = name_dictionary[item];
-		id = get_item_id(item);
+		return message.channel.sendMessage(util.wrap_code('Usage: !price <item>\n\nExamples:'
+			+ '\n!price Cannonball\n!price ags\n!price zam hilt'));
 	}
+
+	var item = params[0];
+
+	var id = items.get_item_id(item);
 	if (!id)
 	{ // Try fuzzy string search
-		console.log(item, 'not found. Possible matches:');
-		var guesses = get_similar_items(item).slice(0, 10);
+		var guesses = items.get_similar_items(item).slice(0, 10);
 		guesses = columnify(guesses, {
 			showHeaders: true,
 			config: {
@@ -66,15 +31,15 @@ module.exports.price = function(client, message, params)
 				value: { align: 'right' }
 			}
 		});
-		console.log(guesses);
+		console.log(item, 'not found. Guesses:\n', guesses);
 
-		return message.channel.sendMessage('Item not found! Are you looking for one of these?\n```' + guesses + '```');
+		return message.channel.sendMessage('Item not found! Are you looking for one of these?' + util.wrap_code(guesses));
 	}
+
 	// We have a valid item ID
 	console.log('Looking up', item);
-	return get_item_summary(id)
+	return items.get_item_summary(id)
 		.then( function(data) {
-
 			var columns = columnify([
 				{ name: "Overall Price:", value: util.format_number(data.overall), unit:"GP" },
 				{ name: "Buying Price:", value: util.format_number(data.buying), unit:"GP" },
@@ -89,15 +54,33 @@ module.exports.price = function(client, message, params)
 				}
 			});
 			message.channel.sendMessage(
-				'Showing details for __' + item + '__:'
-				+ '```\n' + columns + '\n```'
+				'Showing details for ' + items.get_item_proper_name(item) + ':' + util.wrap_code(columns)
 			 	+ '__Graph:__ https://rsbuddy.com/exchange?id=' + id);
 		})
-		.catch( err => message.channel.sendMessage(err.message) );
-}
+		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
+};
 
 
-module.exports.poll = function(client, message, params)
+module.exports.get_clan_list = function(client, message, params)
 {
+	return players.get_clan_list()
+		.then(function(list) {
+			console.log(list);
+			message.channel.sendMessage( list.join('\n') );
 
-}
+		})
+		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
+};
+
+module.exports.update = function(client, message, params)
+{
+	if (params.length != 1)
+	{
+		return message.channel.sendMessage(util.wrap_code('Usage: !update <player name>\n\nExamples:'
+			+ '\n!update twisty fork\n!update vegakargdon'));
+	}
+
+	return players.update_player(params[0])
+		.then( () => message.channel.sendMessage(util.wrap_code('Player successfully updated!')) )
+		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
+};
