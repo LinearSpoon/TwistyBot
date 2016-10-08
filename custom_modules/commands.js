@@ -104,7 +104,7 @@ module.exports.inactive = function(client, message, params)
 			function load_times(player_name) {
 				return function() {
 					return Promise.resolve()
-						.then( () => players.update_player(player_name) )
+					//	.then( () => players.update_player(player_name) )
 						.then( () => util.sleep(200) )
 						.then( () => players.player_last_change(player_name) )
 						.catch( function(err) {
