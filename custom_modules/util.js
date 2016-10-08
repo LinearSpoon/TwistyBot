@@ -1,6 +1,7 @@
 var cloudscraper = require('cloudscraper');
 var fs = require('fs');
 
+
 module.exports.download = function(url)
 {
 	return new Promise(function(resolve, reject) {
@@ -111,4 +112,38 @@ module.exports.load_file = function(filepath)
 	} catch(e) {
 		return '';
 	}
+};
+
+module.exports.sleep = function(time_ms)
+{
+	return new Promise((resolve,reject) => setTimeout(resolve, time_ms));
+}
+
+module.exports.convert_seconds_to_time_str = function(seconds)
+{
+	var temp;
+	var ts = '';
+
+	// Intentional assignment in comparison
+	if (temp = Math.floor(seconds / 604800)) {
+		ts += temp + (temp == 1 ? ' week' : ' weeks');
+		seconds %= 604800;
+	}
+	if (temp = Math.floor(seconds / 86400)) {
+		ts += (ts.length > 0 ? ', ' : '') + temp + (temp == 1 ? ' day' : ' days');
+		seconds %= 86400;
+	}
+	if (temp = Math.floor(seconds / 3600)) {
+		ts += (ts.length > 0 ? ', ' : '') + temp + (temp == 1 ? ' hour' : ' hours');
+		seconds %= 3600;
+	}
+	if (temp = Math.floor(seconds / 60)) {
+		ts += (ts.length > 0 ? ', ' : '') + temp + (temp == 1 ? ' minute' : ' minutes');
+		seconds %= 60;
+	}
+	if (seconds) {
+		ts += (ts.length > 0 ? ', ' : '') + seconds + (seconds == 1 ? ' second' : ' seconds');
+	}
+
+	return ts;
 };

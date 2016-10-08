@@ -48,3 +48,14 @@ module.exports.update_player = function(player_name)
 				throw Error('CML error: The player name was invalid. (' + player_name + ')');
 		});
 };
+
+// https://crystalmathlabs.com/tracker/api.php?type=lastchange&player=<name>
+module.exports.player_last_change = function(player_name)
+{
+	player_name = player_name.replace(/[^a-zA-Z\d]/g, '_');  // Replace spaces/etc with underscore
+	return util.download('https://crystalmathlabs.com/tracker/api.php?type=lastchange&player=' + player_name)
+		.then(function(data) {
+			check_cml_error(data);
+			return parseInt(data);
+		});
+};

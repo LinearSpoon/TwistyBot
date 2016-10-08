@@ -21,7 +21,7 @@ global.config.get = function(key) {
 
 // Load utilities
 global.util = custom_require('util');
-
+custom_require('monkey_patches');
 
 var commands = custom_require('commands');
 

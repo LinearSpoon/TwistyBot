@@ -66,7 +66,7 @@ module.exports.get_clan_list = function(client, message, params)
 	return players.get_clan_list()
 		.then(function(list) {
 			console.log(list);
-			message.channel.sendMessage( list.join('\n') );
+			message.split_channel_message( util.wrap_code(list.join('\n')) );
 
 		})
 		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
@@ -84,3 +84,67 @@ module.exports.update = function(client, message, params)
 		.then( () => message.channel.sendMessage(util.wrap_code('Player successfully updated!')) )
 		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
 };
+
+module.exports.inactive = function(client, message, params)
+{
+	if (params.length == 0)
+		params[0] = '1209600';  // 2 weeks in seconds
+	// Convert and validate
+	var time_limit = parseInt(params[0]);
+	if (isNaN(time_limit) || time_limit < 60)
+		time_limit = 1209600;
+
+	message.channel.sendMessage('Searching for inactive clanmates longer than ' + util.convert_seconds_to_time_str(time_limit)
+		+ '.\nThis will take a few minutes...');
+
+	var results = [];
+	return players.get_clan_list()
+		.then(function(list) {
+			// Generates a function that loads player last update time
+			function load_times(player_name) {
+				return function() {
+					return Promise.resolve()
+						.then( () => players.update_player(player_name) )
+						.then( () => util.sleep(200) )
+						.then( () => players.player_last_change(player_name) )
+						.catch( function(err) {
+							results.push({name:player_name, inactive_time:err.message})
+							console.log(player_name, err.message);
+						})
+						.then( function(time) {
+							time = parseInt(time);
+							if (time > time_limit)
+							{
+								results.push({name:player_name, inactive_time:util.convert_seconds_to_time_str(time)})
+								//console.log(results);
+							}
+							console.log(player_name, time);
+						})
+				};
+			}
+
+			var p = Promise.resolve();
+			for(var i = 0; i < list.length; i++)
+			{
+				p = p.then( load_times(list[i]) )
+			}
+			return p;
+		})
+		.then( function() {
+			var columns = columnify(results, {
+				showHeaders: true,
+				config: {
+					name: { minWidth: 16 }
+				}
+			});
+			message.split_channel_message(util.wrap_code(columns));
+		})
+		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
+};
+
+
+
+module.exports.longmsg = function(client, message, params)
+{
+	message.split_channel_message(Array(3000).join("a"));
+}

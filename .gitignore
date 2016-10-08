@@ -7,3 +7,4 @@ mbot.pem
 connect.sh
 names_processed.json
 save.json
+npm-debug.log
