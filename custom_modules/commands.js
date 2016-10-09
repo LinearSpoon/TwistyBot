@@ -107,18 +107,20 @@ module.exports.inactive = function(client, message, params)
 					//	.then( () => players.update_player(player_name) )
 						.then( () => util.sleep(200) )
 						.then( () => players.player_last_change(player_name) )
-						.catch( function(err) {
-							results.push({name:player_name, inactive_time:err.message})
-							console.log(player_name, err.message);
-						})
 						.then( function(time) {
+							if (isNaN(parseInt(time)))
+								console.log('NAN !!!! ', time);
 							time = parseInt(time);
-							if (time > time_limit)
+							if (!isNaN(time) && time > time_limit)
 							{
 								results.push({name:player_name, inactive_time:util.convert_seconds_to_time_str(time)})
 								//console.log(results);
 							}
 							console.log(player_name, time);
+						})
+						.catch( function(err) {
+							console.log(player_name, err.message);
+							results.push({name:player_name, inactive_time:err.message});		
 						})
 				};
 			}
@@ -134,7 +136,8 @@ module.exports.inactive = function(client, message, params)
 			var columns = columnify(results, {
 				showHeaders: true,
 				config: {
-					name: { minWidth: 16 }
+					name: { minWidth: 16 },
+					inactive_time: { align: 'left' },
 				}
 			});
 			message.split_channel_message(util.wrap_code(columns));
