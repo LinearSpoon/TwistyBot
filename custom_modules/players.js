@@ -56,6 +56,13 @@ module.exports.player_last_change = function(player_name)
 	return util.download('https://crystalmathlabs.com/tracker/api.php?type=lastchange&player=' + player_name)
 		.then(function(data) {
 			check_cml_error(data);
-			return parseInt(data);
+			// Try to parse the time
+			var ret = parseInt(data);
+			if (isNaN(ret))
+			{
+				console.warn('player_last_change', data);
+				throw Error('Could not parse CML response');
+			}
+			return ret;
 		});
 };

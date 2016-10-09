@@ -105,22 +105,24 @@ module.exports.inactive = function(client, message, params)
 				return function() {
 					return Promise.resolve()
 					//	.then( () => players.update_player(player_name) )
-						.then( () => util.sleep(200) )
+						.then( () => util.sleep(600) )
 						.then( () => players.player_last_change(player_name) )
 						.then( function(time) {
-							if (isNaN(parseInt(time)))
-								console.log('NAN !!!! ', time);
-							time = parseInt(time);
-							if (!isNaN(time) && time > time_limit)
+							if (time > time_limit)
 							{
-								results.push({name:player_name, inactive_time:util.convert_seconds_to_time_str(time)})
-								//console.log(results);
+								var to = util.convert_seconds_to_time_object(time);
+								results.push({
+									name:player_name,
+									weeks: to.weeks,
+									days: to.days,
+									hours: to.hours,
+								});
 							}
-							console.log(player_name, time);
+							console.log('OK:', player_name, time);
 						})
 						.catch( function(err) {
-							console.log(player_name, err.message);
-							results.push({name:player_name, inactive_time:err.message});		
+							console.log('error:', player_name, err.message);
+							results.push({name:player_name, weeks:err.message});
 						})
 				};
 			}
@@ -133,16 +135,23 @@ module.exports.inactive = function(client, message, params)
 			return p;
 		})
 		.then( function() {
+			if (results.length == 0)
+				return message.channel.sendMessage('Amazingly, nobody was found to be inactive. This is probably an error.');
+
 			var columns = columnify(results, {
 				showHeaders: true,
 				config: {
 					name: { minWidth: 16 },
-					inactive_time: { align: 'left' },
+					weeks: { align: 'right', minWidth: 8, maxWidth: 30 },
+					days: { align: 'right', minWidth: 8 },
+					hours: { align: 'right', minWidth: 8 },
 				}
 			});
 			message.split_channel_message(util.wrap_code(columns));
 		})
-		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
+		.catch( err => {
+			message.channel.sendMessage(util.wrap_code(err.message))
+		} );
 };
 
 

@@ -1,7 +1,10 @@
 require('discord.js/src/structures/Message.js').prototype.split_channel_message = function(text)
 {
 	if (!text || text == '')
+	{
+		console.warn('Tried to send empty message!');
 		return;
+	}
 	var discord_msg_length_limit = 1900;
 	var in_code_block = false;
 	var msgs = [];
