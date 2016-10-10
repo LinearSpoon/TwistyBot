@@ -116,13 +116,18 @@ module.exports.inactive = function(client, message, params)
 									weeks: to.weeks,
 									days: to.days,
 									hours: to.hours,
+									time: time
 								});
 							}
 							console.log('OK:', player_name, time);
 						})
 						.catch( function(err) {
 							console.log('error:', player_name, err.message);
-							results.push({name:player_name, weeks:err.message});
+							results.push({
+								name:player_name,
+								weeks:err.message,
+								time:0xFFFFFFFFFFFF, // Just some big number to force the sort
+							});
 						})
 				};
 			}
@@ -138,8 +143,10 @@ module.exports.inactive = function(client, message, params)
 			if (results.length == 0)
 				return message.channel.sendMessage('Amazingly, nobody was found to be inactive. This is probably an error.');
 
+			results.sort( (a,b) => b.time - a.time );
 			var columns = columnify(results, {
 				showHeaders: true,
+				columns: [ 'name', 'weeks', 'days', 'hours' ],
 				config: {
 					name: { minWidth: 16 },
 					weeks: { align: 'right', minWidth: 8, maxWidth: 30 },
