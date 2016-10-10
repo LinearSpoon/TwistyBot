@@ -15,6 +15,7 @@ module.exports.commands = function(client, message, params)
 		{ name: '!price', description: 'Retrieves price of items from RSBuddy.'},
 		{ name: '!inactive', description: 'Retrieves inactive clanmates from CrystalMathLabs.'},
 		{ name: '!update', description: 'Updates a single player on CrystalMathLabs.'},
+		{ name: '!butter', description: 'Enable/disable butter messages.'},
 		{ name: '!help', description: 'Display music commands.'},
 	], {
 		config: {
@@ -177,7 +178,20 @@ module.exports.inactive = function(client, message, params)
 
 
 
-module.exports.longmsg = function(client, message, params)
+module.exports.butter = function(client, message, params)
 {
-	message.split_channel_message(Array(3000).join("a"));
+	if (params.length != 1)
+	{
+		return message.channel.sendMessage(util.wrap_code('Usage: !butter <on|off>'));
+	}
+	if (params[0] == 'on')
+	{
+		global.butter = true;
+		return message.split_channel_message('Butter messages enabled.');
+	}
+	if (params[0] == 'off')
+	{
+		global.butter = false;
+		return message.split_channel_message('Butter messages disabled.');
+	}
 }

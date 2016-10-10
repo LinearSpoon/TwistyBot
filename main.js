@@ -43,6 +43,9 @@ client.on('message', function(message) {
 	if (message.author.id == client.user.id)
 		return;  // Ignore own messages
 
+	// Send butter message if appropriate
+	message_butter(message);
+
 	if (message.content[0] != '!')
 		return;  // Not a command
 
@@ -75,3 +78,20 @@ client.on('message', function(message) {
 	// Finally...
 	commands[fn].call(commands, client, message, params);
 });
+
+
+/*
+	Butter hook
+*/
+
+function message_butter(message)
+{
+	// '169889939104727040' // ButterMyButterWithButter
+	// '217934790886686730' // Twisty Fork
+	if (message.author.id == '217934790886686730' && global.butter && message.content != '!butter off')
+	{
+		var choices = config.get('butter_messages');
+		var choice = choices[Math.floor(Math.random() * choices.length)];
+		message.channel.sendMessage(choice + '\n\nNote: Disable these messages with !butter off');
+	}
+}
