@@ -9,6 +9,20 @@ var items = custom_require('items');
 
 
 
+module.exports.commands = function(client, message, params)
+{
+	var commands = columnify([
+		{ name: '!price', description: 'Retrieves price of items from RSBuddy.'},
+		{ name: '!inactive', description: 'Retrieves inactive clanmates from CrystalMathLabs.'},
+		{ name: '!update', description: 'Updates a single player on CrystalMathLabs.'},
+		{ name: '!help', description: 'Display music commands.'},
+	], {
+		config: {
+			name: { minWidth: 20 }
+		}
+	});
+	message.split_channel_message(util.wrap_code(commands));
+}
 
 module.exports.price = function(client, message, params)
 {
