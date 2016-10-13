@@ -1,13 +1,80 @@
+// TODO:
+//
+//
+
+
 // http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
 var columnify = require('columnify');		// https://www.npmjs.com/package/columnify
 
 var save = custom_require('save');
 var players = custom_require('players');
 var items = custom_require('items');
+var GoogleSpreadsheet = require('google-spreadsheet');
+var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
+
+
+module.exports.test = function(client, message, params)
+{
+	var clan_splitlist_spreadsheet = new GoogleSpreadsheet('1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs');
+	clan_splitlist_spreadsheet.useServiceAccountAuth(root_require('google_spreadsheet.json'), function(err, i) {
+		if (err)
+		{
+			console.log(err);
+			return;
+		}
+		clan_splitlist_spreadsheet.getInfo(function(err, info) {
+				if (err)
+				{
+					console.log(err);
+					return;
+				}
+	      console.log('Loaded doc: '+info.title+' by '+info.author.email);
+	      sheet = info.worksheets[0];
+	      console.log('sheet 1: '+sheet.title+' '+sheet.rowCount+'x'+sheet.colCount);
+	    });
+
+			//https://www.npmjs.com/package/google-spreadsheet
+			//https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
+	});
 
 
 
+};
 
+module.exports.stats = function(client, message, params)
+{
+	if (params.length != 1)
+	{
+		return message.channel.sendMessage(util.wrap_code('Usage: !cb <username>\n\nExamples:'
+			+ '\n!cb Twisty Fork\n!cb Vegakargdon'));
+	}
+
+	rs_hiscores(params[0])
+		.then( function(stats) {
+			var stat_array = [];
+			for(var i in stats)
+			{
+				stat_array.push({
+					skill: i,
+					rank: stats[i].rank,
+					level: stats[i].level,
+					xp: stats[i].xp
+				});
+			}
+			var columns = columnify(stat_array, {
+				config: {
+					skill: { minWidth: 14 },
+					rank: { minWidth: 8, align: 'right' },
+					level: { minWidth: 6, align: 'right' },
+					xp: { minWidth: 11, align: 'right' },
+				}
+			});
+			message.split_channel_message(util.wrap_code(columns));
+		})
+		.catch( function(err) {
+			message.channel.sendMessage(util.wrap_code(err.message));
+		});
+};
 
 module.exports.commands = function(client, message, params)
 {
@@ -16,7 +83,8 @@ module.exports.commands = function(client, message, params)
 		{ name: '!inactive', description: 'Retrieves inactive clanmates from CrystalMathLabs.'},
 		{ name: '!update', description: 'Updates a single player on CrystalMathLabs.'},
 		{ name: '!butter', description: 'Enable/disable butter messages.'},
-		{ name: '!help', description: 'Display music commands.'},
+		{ name: '!stats', description: 'Display OldSchool player stats.'},
+		{ name: '!help', description: 'Display music commands (only in the music channel).'},
 	], {
 		config: {
 			name: { minWidth: 20 }
@@ -176,8 +244,6 @@ module.exports.inactive = function(client, message, params)
 		} );
 };
 
-
-
 module.exports.butter = function(client, message, params)
 {
 	if (params.length != 1)
@@ -194,4 +260,4 @@ module.exports.butter = function(client, message, params)
 		global.butter = false;
 		return message.split_channel_message('Butter messages disabled.');
 	}
-}
+};

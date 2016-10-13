@@ -8,3 +8,4 @@ connect.sh
 names_processed.json
 save.json
 npm-debug.log
+google_spreadsheet.json

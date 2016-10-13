@@ -101,6 +101,7 @@ module.exports = {
 	'brew':'Saradomin brew(4)',
 	'rest':'Super restore(4)',
 	'restore':'Super restore(4)',
+	'super restore':'Super restore(4)',
 	'prayer pot':'Prayer potion(4)',
 	'pray pot':'Prayer potion(4)',
 	'scp':'Super combat potion(4)',

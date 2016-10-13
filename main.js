@@ -92,6 +92,6 @@ function message_butter(message)
 	{
 		var choices = config.get('butter_messages');
 		var choice = choices[Math.floor(Math.random() * choices.length)];
-		message.channel.sendMessage(choice + '\n\nNote: Disable these messages with !butter off');
+		message.channel.sendMessage(choice);
 	}
 }
