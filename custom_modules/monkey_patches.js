@@ -57,3 +57,17 @@ require('discord.js/src/structures/Message.js').prototype.split_channel_message 
 	for(var i = 0; i < msgs.length; i++)
 		this.channel.sendMessage(msgs[i]);
 };
+
+
+var columnify = require('columnify');
+require('discord.js/src/structures/Message.js').prototype.send_columns = function(columns, showHeaders, config, options)
+{
+	options = options || {};
+	options.showHeaders = showHeaders;
+
+	if (config)
+		options.config = config;
+
+	var columns = columnify(columns, options);
+	this.split_channel_message(util.wrap_code(columns));
+};

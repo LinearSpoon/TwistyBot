@@ -12,6 +12,11 @@ var items = custom_require('items');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
 
+function return_error(message, err)
+{
+	message.channel.sendMessage(util.wrap_code(err.message));
+}
+
 
 module.exports.test = function(client, message, params)
 {
@@ -45,8 +50,8 @@ module.exports.stats = function(client, message, params)
 {
 	if (params.length != 1)
 	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !cb <username>\n\nExamples:'
-			+ '\n!cb Twisty Fork\n!cb Vegakargdon'));
+		return message.channel.sendMessage(util.wrap_code('Usage: !stats <username>\n\nExamples:'
+			+ '\n!stats Twisty Fork\n!stats Vegakargdon'));
 	}
 
 	rs_hiscores(params[0])
@@ -71,27 +76,51 @@ module.exports.stats = function(client, message, params)
 			});
 			message.split_channel_message(util.wrap_code(columns));
 		})
-		.catch( function(err) {
-			message.channel.sendMessage(util.wrap_code(err.message));
-		});
+		.catch( err => return_error(message, err));
 };
+
+module.exports.cb = function(client, message, params)
+{
+	if (params.length != 1)
+	{
+		return message.channel.sendMessage(util.wrap_code('Usage: !cb <username>\n\nExamples:'
+			+ '\n!cb Twisty Fork\n!cb Vegakargdon'));
+	}
+	rs_hiscores(params[0])
+		.then(function(stats) {
+			console.log(stats);
+			var base = 0.25 * Math.floor(stats.defence.level + stats.hitpoints.level + stats.prayer.level / 2 );
+			var melee = base + 0.325 * (stats.attack.level + stats.strength.level);
+			var range = base + 0.325 * Math.floor(1.5 * stats.ranged.level);
+			var magic = base + 0.325 * Math.floor(1.5 * stats.magic.level);
+			var final = Math.max(melee, range, magic).toFixed(2);
+			message.send_columns({
+				'Combat:': final,
+				'Attack:': stats.attack.level,
+				'Defense:': stats.defense.level,
+				'Strength:': stats.strength.level,
+				'Hitpoints:': stats.hitpoints.level,
+				'Ranged:': stats.ranged.level,
+				'Prayer:': stats.prayer.level,
+				'Magic:': stats.magic.level
+			}, false, { key: { minWidth:18 }, value: { align:'right' } });
+		})
+		.catch( err => return_error(message, err));
+};
+
 
 module.exports.commands = function(client, message, params)
 {
-	var commands = columnify([
-		{ name: '!price', description: 'Retrieves price of items from RSBuddy.'},
-		{ name: '!inactive', description: 'Retrieves inactive clanmates from CrystalMathLabs.'},
-		{ name: '!update', description: 'Updates a single player on CrystalMathLabs.'},
-		{ name: '!butter', description: 'Enable/disable butter messages.'},
-		{ name: '!stats', description: 'Display OldSchool player stats.'},
-		{ name: '!help', description: 'Display music commands (only in the music channel).'},
-	], {
-		config: {
-			name: { minWidth: 20 }
-		}
-	});
-	message.split_channel_message(util.wrap_code(commands));
-}
+	message.send_columns({
+		'!price': 'Retrieves price of items from RSBuddy.',
+		'!inactive': 'Retrieves inactive clanmates from CrystalMathLabs.',
+		'!update': 'Updates a single player on CrystalMathLabs.',
+		'!butter': 'Enable/disable butter messages.',
+		'!stats': 'Display OldSchool player stats.',
+		'!stats': 'Display OldSchool player stats.',
+		'!help': 'Display music commands (only in the music channel).',
+	}, false, { key: { minWidth: 15 } });
+};
 
 module.exports.price = function(client, message, params)
 {

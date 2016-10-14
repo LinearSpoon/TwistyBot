@@ -136,5 +136,5 @@ module.exports = {
 	'visage':'Draconic visage',
 	'vissage':'Draconic visage',
 	'dbone':'Dragon bones',
-
+	'dchain':'Dragon chainbody',
 }
