@@ -117,7 +117,7 @@ module.exports.commands = function(client, message, params)
 		'!update': 'Updates a single player on CrystalMathLabs.',
 		'!butter': 'Enable/disable butter messages.',
 		'!stats': 'Display OldSchool player stats.',
-		'!stats': 'Display OldSchool player stats.',
+		'!cb': 'Display OldSchool player combat stats.',
 		'!help': 'Display music commands (only in the music channel).',
 	}, false, { key: { minWidth: 15 } });
 };
