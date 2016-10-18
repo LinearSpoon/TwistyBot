@@ -66,15 +66,14 @@ module.exports.stats = function(client, message, params)
 					xp: stats[i].xp
 				});
 			}
-			var columns = columnify(stat_array, {
-				config: {
-					skill: { minWidth: 14 },
-					rank: { minWidth: 8, align: 'right' },
-					level: { minWidth: 6, align: 'right' },
-					xp: { minWidth: 11, align: 'right' },
-				}
+
+			stat_array = stat_array.slice(0, -2);
+			message.send_columns(stat_array, true, {
+				skill: { minWidth: 14 },
+				rank: { minWidth: 8, align: 'right' },
+				level: { minWidth: 6, align: 'right' },
+				xp: { minWidth: 11, align: 'right' },
 			});
-			message.split_channel_message(util.wrap_code(columns));
 		})
 		.catch( err => return_error(message, err));
 };

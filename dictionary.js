@@ -64,6 +64,9 @@ module.exports = {
 	'torment':'Tormented bracelet',
 	'tormented':'Tormented bracelet',
 	'regen':'Regen bracelet',
+	'archer ring':'Archers ring',
+	'bring':'Berserker ring',
+	'berserk ring':'Berserker ring',
 
 	// Misc Weapons
 	'whip':'Abyssal whip',
