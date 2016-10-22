@@ -19,6 +19,8 @@ module.exports = {
 	'bcp':'Bandos chestplate',
 	'bandos chest':'Bandos chestplate',
 	'tassets':'Bandos tassets',
+	'tasseys':'Bandos tassets',
+	'tassy':'Bandos tassets',
 
 	// Zamorak drops
 	'zgs':'Zamorak godsword',
@@ -26,6 +28,7 @@ module.exports = {
 	'zam godsword':'Zamorak godsword',
 	'zspear':'Zamorakian spear',
 	'zam spear':'Zamorakian spear',
+	'z spear':'Zamorakian spear',
 	'zs':'Zamorakian spear',
 	'sotd':'Staff of the dead',
 	'zam hilt':'Zamorak hilt',
