@@ -106,7 +106,7 @@ function ts(v, cache, parents, depth)
 	{
 		case 'undefined': return chalk.gray('undefined');
 		case 'number': return chalk.cyan(v);
-		case 'string': return chalk.yellow("'" + v + "'");
+		case 'string': return chalk.yellow("'" + v.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t') + "'");
 		case 'function': return chalk.gray('function');
 		case 'boolean': return chalk.red(v ? 'true' : 'false');
 		case 'object':

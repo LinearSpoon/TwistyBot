@@ -11,6 +11,7 @@ var players = custom_require('players');
 var items = custom_require('items');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
+var rs_justice = custom_require('api_wrappers/rs_justice');
 
 function return_error(message, err)
 {
@@ -18,31 +19,32 @@ function return_error(message, err)
 }
 
 
+/*
+var clan_splitlist_spreadsheet = new GoogleSpreadsheet('1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs');
+clan_splitlist_spreadsheet.useServiceAccountAuth(root_require('google_spreadsheet.json'), function(err, i) {
+	if (err)
+	{
+		console.log(err);
+		return;
+	}
+	clan_splitlist_spreadsheet.getInfo(function(err, info) {
+			if (err)
+			{
+				console.log(err);
+				return;
+			}
+			console.log('Loaded doc: '+info.title+' by '+info.author.email);
+			sheet = info.worksheets[0];
+			console.log('sheet 1: '+sheet.title+' '+sheet.rowCount+'x'+sheet.colCount);
+		});
+
+		//https://www.npmjs.com/package/google-spreadsheet
+		//https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
+});
+*/
+
 module.exports.test = function(client, message, params)
 {
-	var clan_splitlist_spreadsheet = new GoogleSpreadsheet('1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs');
-	clan_splitlist_spreadsheet.useServiceAccountAuth(root_require('google_spreadsheet.json'), function(err, i) {
-		if (err)
-		{
-			console.log(err);
-			return;
-		}
-		clan_splitlist_spreadsheet.getInfo(function(err, info) {
-				if (err)
-				{
-					console.log(err);
-					return;
-				}
-	      console.log('Loaded doc: '+info.title+' by '+info.author.email);
-	      sheet = info.worksheets[0];
-	      console.log('sheet 1: '+sheet.title+' '+sheet.rowCount+'x'+sheet.colCount);
-	    });
-
-			//https://www.npmjs.com/package/google-spreadsheet
-			//https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
-	});
-
-
 
 };
 
@@ -60,7 +62,7 @@ module.exports.stats = function(client, message, params)
 			for(var i in stats)
 			{
 				stat_array.push({
-					skill: i,
+					skill: i.charAt(0).toUpperCase() + i.slice(1), // Capitalize first letter
 					rank: stats[i].rank,
 					level: stats[i].level,
 					xp: stats[i].xp
@@ -75,7 +77,7 @@ module.exports.stats = function(client, message, params)
 				xp: { minWidth: 11, align: 'right' },
 			});
 		})
-		.catch( err => return_error(message, err));
+		.catch( err => return_error(message, err) );
 };
 
 module.exports.cb = function(client, message, params)
@@ -288,4 +290,17 @@ module.exports.butter = function(client, message, params)
 		global.butter = false;
 		return message.split_channel_message('Butter messages disabled.');
 	}
+};
+
+
+module.exports.rsj = function(client, message, params) {
+	rs_justice(params[0])
+		.then( function(details) {
+			message.channel.sendMessage(
+				'Player: ' + details.player + '\n' +
+				'Reason: ' + details.reason + '\n' +
+				'Detail: ' + details.url
+			);
+		})
+		.catch( err => return_error(message, err) );
 };
