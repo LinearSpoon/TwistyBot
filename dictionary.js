@@ -55,7 +55,9 @@ module.exports = {
 
 	// DKS drops
 	'bring':'Berserker ring',
+	'b ring':'Berserker ring',
 	'aring':'Archers ring',
+	'a ring':'Archers ring',
 
 	// Jewelry
 	'fury':'Amulet of fury',
