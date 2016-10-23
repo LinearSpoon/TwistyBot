@@ -119,6 +119,7 @@ module.exports.commands = function(client, message, params)
 		'!butter': 'Enable/disable butter messages.',
 		'!stats': 'Display OldSchool player stats.',
 		'!cb': 'Display OldSchool player combat stats.',
+		'!rsj': 'Lookup a player on RS Justice.',
 		'!help': 'Display music commands (only in the music channel).',
 	}, false, { key: { minWidth: 15 } });
 };
@@ -294,6 +295,12 @@ module.exports.butter = function(client, message, params)
 
 
 module.exports.rsj = function(client, message, params) {
+	if (params.length != 1)
+	{
+		return message.channel.sendMessage(util.wrap_code('Usage: !rsj <player name>\n\nExamples:'
+			+ '\n!rsj i rep wih\n!rsj tades'));
+	}
+
 	rs_justice(params[0])
 		.then( function(details) {
 			message.channel.sendMessage(
