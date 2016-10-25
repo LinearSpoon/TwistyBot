@@ -12,6 +12,7 @@ var items = custom_require('items');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
 var rs_justice = custom_require('api_wrappers/rs_justice');
+var sandwiches = custom_require('sandwiches');
 
 function return_error(message, err)
 {
@@ -120,6 +121,7 @@ module.exports.commands = function(client, message, params)
 		'!stats': 'Display OldSchool player stats.',
 		'!cb': 'Display OldSchool player combat stats.',
 		'!rsj': 'Lookup a player on RS Justice.',
+		'!sandwich': 'Prepare a tasty sandwich.',
 		'!help': 'Display music commands (only in the music channel).',
 	}, false, { key: { minWidth: 15 } });
 };
@@ -310,4 +312,8 @@ module.exports.rsj = function(client, message, params) {
 			);
 		})
 		.catch( err => return_error(message, err) );
+};
+
+module.exports.sandwich = function(client, message, params) {
+	message.channel.sendMessage(util.wrap_code(sandwiches()));
 };

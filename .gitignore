@@ -1,5 +1,7 @@
 /config.js
 
+/sandwiches
+
 node_modules
 server.log
 find.sh
