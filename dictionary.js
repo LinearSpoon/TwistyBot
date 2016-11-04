@@ -145,4 +145,5 @@ module.exports = {
 	'vissage':'Draconic visage',
 	'dbone':'Dragon bones',
 	'dchain':'Dragon chainbody',
+	'heart':'Imbued heart',
 }
