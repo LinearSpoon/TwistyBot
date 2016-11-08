@@ -53,13 +53,10 @@ module.exports = {
 	'spec':'Spectral spirit shield',
 	'spectral':'Spectral spirit shield',
 
-	// DKS drops
-	'bring':'Berserker ring',
+	// Jewelry
 	'b ring':'Berserker ring',
 	'aring':'Archers ring',
 	'a ring':'Archers ring',
-
-	// Jewelry
 	'fury':'Amulet of fury',
 	'glory':'Amulet of glory(4)',
 	'torture':'Amulet of torture',
@@ -72,6 +69,8 @@ module.exports = {
 	'archer ring':'Archers ring',
 	'bring':'Berserker ring',
 	'berserk ring':'Berserker ring',
+	'zerker ring':'Berserker ring',
+	'ros', 'Ring of sufferin',
 
 	// Misc Weapons
 	'whip':'Abyssal whip',
@@ -89,9 +88,6 @@ module.exports = {
 	'dscim':'Dragon scimitar',
 	'dbow':'Dark bow',
 	'rcb':'Rune crossbow',
-
-	// Misc shields
-	'dfs':'Dragonfire shield',
 
 	// Misc boots
 	'eternal':'Eternal boots',
@@ -146,4 +142,5 @@ module.exports = {
 	'dbone':'Dragon bones',
 	'dchain':'Dragon chainbody',
 	'heart':'Imbued heart',
+	'dfs':'Dragonfire shield',
 }
