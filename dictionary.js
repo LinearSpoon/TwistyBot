@@ -70,7 +70,7 @@ module.exports = {
 	'bring':'Berserker ring',
 	'berserk ring':'Berserker ring',
 	'zerker ring':'Berserker ring',
-	'ros', 'Ring of sufferin',
+	'ros': 'Ring of suffering',
 
 	// Misc Weapons
 	'whip':'Abyssal whip',

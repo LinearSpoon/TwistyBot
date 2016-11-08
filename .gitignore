@@ -1,13 +1,7 @@
-/config.js
-
-/sandwiches
+*.log
+*.pem
+*.sh
 
 node_modules
-server.log
-find.sh
-mbot.pem
-connect.sh
-names_processed.json
-save.json
-npm-debug.log
-google_spreadsheet.json
+compiled
+config

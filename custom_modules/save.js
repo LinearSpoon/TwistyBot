@@ -1,6 +1,6 @@
 var util = custom_require('util');
 
-var save_path = global.server_directory + '/save.json';
+var save_path = global.server_directory + '/config/save_data.json';
 var save_data;
 
 

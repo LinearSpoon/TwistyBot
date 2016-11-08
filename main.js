@@ -11,7 +11,7 @@ custom_require('kill_nodes');		// Windows - kill existing node instances
 
 
 // Load config
-global.config = root_require('config.js');
+global.config = root_require('config/config.js');
 // Check missing keys
 global.config.get = function(key) {
 	if (typeof config[key] === 'undefined')
@@ -25,6 +25,9 @@ custom_require('monkey_patches');
 
 var commands = custom_require('commands');
 
+
+
+
 const Discord = require('discord.js');
 const client = new Discord.Client();
 client.login(config.get('token'));
@@ -32,7 +35,6 @@ client.login(config.get('token'));
 client.on('ready', function() {
 	console.log('I am ready!');
 });
-
 
 // Parse command and execute
 client.on('message', function(message) {
@@ -43,13 +45,14 @@ client.on('message', function(message) {
 	if (message.author.id == client.user.id)
 		return;  // Ignore own messages
 
-	// Send butter message if appropriate
-	message_butter(message);
-
 	if (message.content[0] != '!')
 		return;  // Not a command
 
-	console.log(message);
+	console.log('Possible command:', message.content);
+	console.log('>Author: ', message.author.username, '(' + message.author.id + ')');
+	console.log('>Guild:  ', message.channel.guild.name, '(' + message.channel.guild.id + ')');
+	console.log('>Channel:', message.channel.name, '(' + message.channel.id + ')');
+
 	var fn = message.content.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
@@ -57,41 +60,6 @@ client.on('message', function(message) {
 	if (typeof commands[fn] !== 'function')
 	 	return;  // Not a valid command
 
-	var hide_from = config.get('hide_from_users');
-
-	if (hide_from.length > 0)
-	{ // We have to check if certain members are online...
-		return message.channel.guild.fetchMembers().then( function(guild) {
-			//console.log(guild.members.array().map(el => el.user));
-			var member = guild.members.array().find(function(el) {
-				return (el.user.status != 'offline' && hide_from.indexOf(el.user.id) != -1);
-			});
-			if (member)
-			{
-				console.log('We are hiding from ' + member.user.username);
-				return;
-			}
-
-			commands[fn].call(commands, client, message, params);
-		})
-	}
 	// Finally...
 	commands[fn].call(commands, client, message, params);
 });
-
-
-/*
-	Butter hook
-*/
-
-function message_butter(message)
-{
-	// '169889939104727040' // ButterMyButterWithButter
-	// '217934790886686730' // Twisty Fork
-	if (message.author.id == '169889939104727040' && global.butter && message.content != '!butter off')
-	{
-		var choices = config.get('butter_messages');
-		var choice = choices[Math.floor(Math.random() * choices.length)];
-		message.channel.sendMessage(choice);
-	}
-}

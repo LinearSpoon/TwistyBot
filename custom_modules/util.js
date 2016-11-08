@@ -1,13 +1,14 @@
-var cloudscraper = require('cloudscraper');
 var fs = require('fs');
-
+var request = require('request');
 
 module.exports.download = function(url)
 {
 	return new Promise(function(resolve, reject) {
-		var g = cloudscraper.get(url, function(error, response, body) {
-			if (error)
-				return reject(error);
+		request(url, function(err, res, body) {
+			if (err)
+				return reject(err);
+			if (res.statusCode != 200)
+				return reject(new Error('HTML Status Code: ' + res.statusCode));
 			return resolve(body);
 		});
 	});

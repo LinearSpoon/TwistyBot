@@ -25,7 +25,7 @@ function update_cache()
 	rsj_cache = [];
 	rsj_cache.last_update = Date.now();
 	return new Promise(function(resolve, reject) {
-		require('request')('http://rsjustice.com/', function(err, res, body) {
+		request('http://rsjustice.com/', function(err, res, body) {
 			if (err)
 				return reject(err);
 			if (res.statusCode != 200)

@@ -7,7 +7,7 @@
 var columnify = require('columnify');		// https://www.npmjs.com/package/columnify
 
 var save = custom_require('save');
-var players = custom_require('players');
+var CrystalMathLabs = custom_require('api_wrappers/CrystalMathLabs');
 var items = custom_require('items');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
@@ -117,7 +117,6 @@ module.exports.commands = function(client, message, params)
 		'!price': 'Retrieves price of items from RSBuddy.',
 		'!inactive': 'Retrieves inactive clanmates from CrystalMathLabs.',
 		'!update': 'Updates a single player on CrystalMathLabs.',
-		'!butter': 'Enable/disable butter messages.',
 		'!stats': 'Display OldSchool player stats.',
 		'!cb': 'Display OldSchool player combat stats.',
 		'!rsj': 'Lookup a player on RS Justice.',
@@ -179,7 +178,7 @@ module.exports.price = function(client, message, params)
 
 module.exports.get_clan_list = function(client, message, params)
 {
-	return players.get_clan_list()
+	return CrystalMathLabs.get_clan_list()
 		.then(function(list) {
 			console.log(list);
 			message.split_channel_message( util.wrap_code(list.join('\n')) );
@@ -196,7 +195,7 @@ module.exports.update = function(client, message, params)
 			+ '\n!update twisty fork\n!update vegakargdon'));
 	}
 
-	return players.update_player(params[0])
+	return CrystalMathLabs.update_player(params[0])
 		.then( () => message.channel.sendMessage(util.wrap_code('Player successfully updated!')) )
 		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
 };
@@ -214,15 +213,15 @@ module.exports.inactive = function(client, message, params)
 		+ '.\nThis will take a few minutes...');
 
 	var results = [];
-	return players.get_clan_list()
+	return CrystalMathLabs.get_clan_list()
 		.then(function(list) {
 			// Generates a function that loads player last update time
 			function load_times(player_name) {
 				return function() {
 					return Promise.resolve()
-					//	.then( () => players.update_player(player_name) )
+					//	.then( () => CrystalMathLabs.update_player(player_name) )
 						.then( () => util.sleep(600) )
-						.then( () => players.player_last_change(player_name) )
+						.then( () => CrystalMathLabs.player_last_change(player_name) )
 						.then( function(time) {
 							if (time > time_limit)
 							{
@@ -276,25 +275,6 @@ module.exports.inactive = function(client, message, params)
 			message.channel.sendMessage(util.wrap_code(err.message))
 		} );
 };
-
-module.exports.butter = function(client, message, params)
-{
-	if (params.length != 1)
-	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !butter <on|off>'));
-	}
-	if (params[0] == 'on')
-	{
-		global.butter = true;
-		return message.split_channel_message('Butter messages enabled.');
-	}
-	if (params[0] == 'off')
-	{
-		global.butter = false;
-		return message.split_channel_message('Butter messages disabled.');
-	}
-};
-
 
 module.exports.rsj = function(client, message, params) {
 	if (params.length != 1)

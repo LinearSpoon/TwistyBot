@@ -29,10 +29,9 @@ var skills_order = [
 
 module.exports = function(username) {
 	var url = 'http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=' + encodeURIComponent(username);
-	console.log(url);
+	//console.log(url);
 	return new Promise(function(resolve, reject) {
 		request(url, function(err, res, body) {
-			console.log('rs_hiscores');
 			if (err)
 				return reject(err);
 			if (res.statusCode == 404)
