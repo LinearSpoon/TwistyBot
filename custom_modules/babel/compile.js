@@ -64,8 +64,7 @@ module.exports.compile_file = function(jsx_filepath, options)
 		try {
 			compiled = babel.transformFileSync(jsx_filepath, options).code;
 		} catch(err) {
-			console.warn(err.message);
-			console.log(err.codeFrame);
+			console.log(err.message + '\n' + err.codeFrame);
 			// Don't send bad code
 			compiled = ''; //, js_filepath = get_compiled_filepath('compiler_error.jsx') ;
 		}

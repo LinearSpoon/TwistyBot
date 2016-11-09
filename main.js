@@ -8,7 +8,7 @@ global.root_require   = name => require(global.server_directory + '/' + name);
 
 custom_require('console_hook');	// This must be the first require
 custom_require('kill_nodes');		// Windows - kill existing node instances
-
+custom_require('babel/compile_require');
 
 // Load config
 global.config = root_require('config/config.js');

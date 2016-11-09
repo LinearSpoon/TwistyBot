@@ -6,13 +6,17 @@
 // http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
 var columnify = require('columnify');		// https://www.npmjs.com/package/columnify
 
-var save = custom_require('save');
-var CrystalMathLabs = custom_require('api_wrappers/CrystalMathLabs');
+var json_config = custom_require('json_config');
 var items = custom_require('items');
-var GoogleSpreadsheet = require('google-spreadsheet');
+
+var CrystalMathLabs = custom_require('api_wrappers/CrystalMathLabs');
 var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
 var rs_justice = custom_require('api_wrappers/rs_justice');
+var google_spreadsheet = custom_require('api_wrappers/spreadsheet');
+
 var sandwiches = custom_require('sandwiches');
+var rs_functions = custom_require('rs_functions');
+
 
 function return_error(message, err)
 {
@@ -20,34 +24,12 @@ function return_error(message, err)
 }
 
 
-/*
-var clan_splitlist_spreadsheet = new GoogleSpreadsheet('1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs');
-clan_splitlist_spreadsheet.useServiceAccountAuth(root_require('google_spreadsheet.json'), function(err, i) {
-	if (err)
-	{
-		console.log(err);
-		return;
-	}
-	clan_splitlist_spreadsheet.getInfo(function(err, info) {
-			if (err)
-			{
-				console.log(err);
-				return;
-			}
-			console.log('Loaded doc: '+info.title+' by '+info.author.email);
-			sheet = info.worksheets[0];
-			console.log('sheet 1: '+sheet.title+' '+sheet.rowCount+'x'+sheet.colCount);
-		});
-
-		//https://www.npmjs.com/package/google-spreadsheet
-		//https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
-});
-*/
 
 module.exports.test = function(client, message, params)
 {
 
 };
+
 
 module.exports.stats = function(client, message, params)
 {
@@ -90,14 +72,8 @@ module.exports.cb = function(client, message, params)
 	}
 	rs_hiscores(params[0])
 		.then(function(stats) {
-			console.log(stats);
-			var base = 0.25 * Math.floor(stats.defence.level + stats.hitpoints.level + stats.prayer.level / 2 );
-			var melee = base + 0.325 * (stats.attack.level + stats.strength.level);
-			var range = base + 0.325 * Math.floor(1.5 * stats.ranged.level);
-			var magic = base + 0.325 * Math.floor(1.5 * stats.magic.level);
-			var final = Math.max(melee, range, magic).toFixed(2);
 			message.send_columns({
-				'Combat:': final,
+				'Combat:': rs_functions.combat_level(stats),
 				'Attack:': stats.attack.level,
 				'Defense:': stats.defense.level,
 				'Strength:': stats.strength.level,
@@ -276,22 +252,29 @@ module.exports.inactive = function(client, message, params)
 		} );
 };
 
-module.exports.rsj = function(client, message, params) {
+module.exports.rsj = async function(client, message, params) {
 	if (params.length != 1)
 	{
 		return message.channel.sendMessage(util.wrap_code('Usage: !rsj <player name>\n\nExamples:'
 			+ '\n!rsj i rep wih\n!rsj tades'));
 	}
 
-	rs_justice(params[0])
-		.then( function(details) {
-			message.channel.sendMessage(
-				'Player: ' + details.player + '\n' +
-				'Reason: ' + details.reason + '\n' +
-				'Detail: ' + details.url
-			);
-		})
-		.catch( err => return_error(message, err) );
+	try
+	{
+		var details = await rs_justice.lookup(params[0]);
+		if (!details)
+			throw Error('Player not found.'); // lazy
+
+		message.channel.sendMessage(
+			'Player: ' + details.player + '\n' +
+			'Reason: ' + details.reason + '\n' +
+			'Detail: ' + details.url
+		);
+	}
+	catch(err)
+	{
+		return_error(message, err);
+	}
 };
 
 module.exports.sandwich = function(client, message, params) {

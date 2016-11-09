@@ -161,4 +161,4 @@ module.exports.convert_seconds_to_time_object = function(seconds)
 	to.minutes = Math.floor(seconds / 60);
 	to.seconds = seconds % 60;
 	return to;
-}
+};
