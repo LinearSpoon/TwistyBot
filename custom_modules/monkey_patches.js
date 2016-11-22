@@ -69,5 +69,5 @@ require('discord.js/src/structures/Message.js').prototype.send_columns = functio
 		options.config = config;
 
 	var columns = columnify(columns, options);
-	this.split_channel_message(util.wrap_code(columns));
+	this.split_channel_message(util_old.wrap_code(columns));
 };

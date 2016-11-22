@@ -17,8 +17,9 @@ for(var i in names_raw)
 	 	search_name: names_raw[i].name.toLowerCase(),
 	});
 }
-delete names_raw;
+names_raw = undefined; // delete names_raw throws a warning..whatever no need to keep it around
 
+// Returns full item name based on an abbreviation or name with incorrect case
 module.exports.get_item_proper_name = function(name)
 {
 	var search_name = name.toLowerCase();
@@ -26,6 +27,7 @@ module.exports.get_item_proper_name = function(name)
 	if (match)
 		return match.name;
 
+	// Dictionary search last to give priority to the real item name
 	if (name_dictionary[search_name])
 		return name_dictionary[search_name];
 
@@ -35,15 +37,16 @@ module.exports.get_item_proper_name = function(name)
 module.exports.get_item_id = function(name)
 {
 	name = module.exports.get_item_proper_name(name);
-	console.log('proper name = ', name);
+	// console.log('proper name = ', name);
 	var match = name_cache.find( e => e.name == name );
 	return match ? match.id : 0;
 };
 
-module.exports.get_item_summary = function(id)
+module.exports.get_item_summary = async function(id)
 {
-	return util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id)
-		.then( body => JSON.parse(body) );
+	// {"overall":207,"buying":207,"buyingQuantity":477196,"selling":207,"sellingQuantity":502450}
+	var body = await util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id);
+	return JSON.parse(body);
 };
 
 module.exports.get_similar_items = function(name)

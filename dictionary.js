@@ -50,6 +50,7 @@ module.exports = {
 	'arc':'Arcane spirit shield',
 	'arcane':'Arcane spirit shield',
 	'ass':'Arcane spirit shield',
+	'sss':'Spectral spirit shield',
 	'spec':'Spectral spirit shield',
 	'spectral':'Spectral spirit shield',
 

@@ -20,21 +20,20 @@ global.config.get = function(key) {
 };
 
 // Load utilities
-global.util = custom_require('util');
+global.util = custom_require('util/_loader.js');
+global.apis = custom_require('apis/_loader.js');
+
+// ???
 custom_require('monkey_patches');
 
-var commands = custom_require('commands');
-
-
+// Load commands
+var commands = custom_require('commands/_loader.js');
 
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
 client.login(config.get('token'));
-
-client.on('ready', function() {
-	console.log('I am ready!');
-});
+client.on('ready', () => console.log('Ready!'));
 
 // Parse command and execute
 client.on('message', function(message) {
@@ -60,6 +59,21 @@ client.on('message', function(message) {
 	if (typeof commands[fn] !== 'function')
 	 	return;  // Not a valid command
 
-	// Finally...
-	commands[fn].call(commands, client, message, params);
+	message.channel.startTyping();
+	commands[fn].call(commands, params)
+		.then( function(text) {
+			if (!text)
+				return; // Nothing to send
+			console.log('Command response:', text);
+			message.channel.sendMessage(text);
+		})
+		.catch( function(err) {
+			// Something terrible happened
+			message.channel.sendMessage(util.dm.code_block(err.message));
+		 	console.warn(err.stack)
+		})
+		.then( function() {
+			// Always stop typing!
+			message.channel.stopTyping();
+		});
 });

@@ -1,182 +1,6 @@
-// TODO:
-//
-//
 
 
-// http://hydrabolt.github.io/discord.js/#!/docs/tag/master/class/Collection
-var columnify = require('columnify');		// https://www.npmjs.com/package/columnify
-
-var json_config = custom_require('json_config');
-var items = custom_require('items');
-
-var CrystalMathLabs = custom_require('api_wrappers/CrystalMathLabs');
-var rs_hiscores = custom_require('api_wrappers/rs_hiscores');
-var rs_justice = custom_require('api_wrappers/rs_justice');
-var google_spreadsheet = custom_require('api_wrappers/spreadsheet');
-
-var sandwiches = custom_require('sandwiches');
-var rs_functions = custom_require('rs_functions');
-
-
-function return_error(message, err)
-{
-	message.channel.sendMessage(util.wrap_code(err.message));
-}
-
-
-
-module.exports.test = function(client, message, params)
-{
-
-};
-
-
-module.exports.stats = function(client, message, params)
-{
-	if (params.length != 1)
-	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !stats <username>\n\nExamples:'
-			+ '\n!stats Twisty Fork\n!stats Vegakargdon'));
-	}
-
-	rs_hiscores(params[0])
-		.then( function(stats) {
-			var stat_array = [];
-			for(var i in stats)
-			{
-				stat_array.push({
-					skill: i.charAt(0).toUpperCase() + i.slice(1), // Capitalize first letter
-					rank: stats[i].rank,
-					level: stats[i].level,
-					xp: stats[i].xp
-				});
-			}
-
-			stat_array = stat_array.slice(0, -2);
-			message.send_columns(stat_array, true, {
-				skill: { minWidth: 14 },
-				rank: { minWidth: 8, align: 'right' },
-				level: { minWidth: 6, align: 'right' },
-				xp: { minWidth: 11, align: 'right' },
-			});
-		})
-		.catch( err => return_error(message, err) );
-};
-
-module.exports.cb = function(client, message, params)
-{
-	if (params.length != 1)
-	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !cb <username>\n\nExamples:'
-			+ '\n!cb Twisty Fork\n!cb Vegakargdon'));
-	}
-	rs_hiscores(params[0])
-		.then(function(stats) {
-			message.send_columns({
-				'Combat:': rs_functions.combat_level(stats),
-				'Attack:': stats.attack.level,
-				'Defense:': stats.defense.level,
-				'Strength:': stats.strength.level,
-				'Hitpoints:': stats.hitpoints.level,
-				'Ranged:': stats.ranged.level,
-				'Prayer:': stats.prayer.level,
-				'Magic:': stats.magic.level
-			}, false, { key: { minWidth:18 }, value: { align:'right' } });
-		})
-		.catch( err => return_error(message, err));
-};
-
-
-module.exports.commands = function(client, message, params)
-{
-	message.send_columns({
-		'!price': 'Retrieves price of items from RSBuddy.',
-		'!inactive': 'Retrieves inactive clanmates from CrystalMathLabs.',
-		'!update': 'Updates a single player on CrystalMathLabs.',
-		'!stats': 'Display OldSchool player stats.',
-		'!cb': 'Display OldSchool player combat stats.',
-		'!rsj': 'Lookup a player on RS Justice.',
-		'!sandwich': 'Prepare a tasty sandwich.',
-		'!help': 'Display music commands (only in the music channel).',
-	}, false, { key: { minWidth: 15 } });
-};
-
-module.exports.price = function(client, message, params)
-{
-	if (params.length != 1)
-	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !price <item>\n\nExamples:'
-			+ '\n!price Cannonball\n!price ags\n!price zam hilt'));
-	}
-
-	var item = params[0];
-
-	var id = items.get_item_id(item);
-	if (!id)
-	{ // Try fuzzy string search
-		var guesses = items.get_similar_items(item).slice(0, 10);
-		guesses = columnify(guesses, {
-			showHeaders: true,
-			config: {
-				name: { minWidth: 24 },
-				value: { align: 'right' }
-			}
-		});
-		console.log(item, 'not found. Guesses:\n', guesses);
-
-		return message.channel.sendMessage('Item not found! Are you looking for one of these?' + util.wrap_code(guesses));
-	}
-
-	// We have a valid item ID
-	console.log('Looking up', item);
-	return items.get_item_summary(id)
-		.then( function(data) {
-			var columns = columnify([
-				{ name: "Overall Price:", value: util.format_number(data.overall), unit:"GP" },
-				{ name: "Buying Price:", value: util.format_number(data.buying), unit:"GP" },
-				{ name: "Amount Bought:", value: util.format_number(data.buyingQuantity), unit:"" },
-				{ name: "Selling Price:", value: util.format_number(data.selling), unit:"GP" },
-				{ name: "Amount Sold:", value: util.format_number(data.sellingQuantity), unit:"" },
-			], {
-				showHeaders: false,
-				config: {
-					name: { minWidth: 18 },
-					value: { align: 'right' }
-				}
-			});
-			message.channel.sendMessage(
-				'Showing details for ' + items.get_item_proper_name(item) + ':' + util.wrap_code(columns)
-			 	+ '__Graph:__ https://rsbuddy.com/exchange?id=' + id);
-		})
-		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
-};
-
-
-module.exports.get_clan_list = function(client, message, params)
-{
-	return CrystalMathLabs.get_clan_list()
-		.then(function(list) {
-			console.log(list);
-			message.split_channel_message( util.wrap_code(list.join('\n')) );
-
-		})
-		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
-};
-
-module.exports.update = function(client, message, params)
-{
-	if (params.length != 1)
-	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !update <player name>\n\nExamples:'
-			+ '\n!update twisty fork\n!update vegakargdon'));
-	}
-
-	return CrystalMathLabs.update_player(params[0])
-		.then( () => message.channel.sendMessage(util.wrap_code('Player successfully updated!')) )
-		.catch( err => message.channel.sendMessage(util.wrap_code(err.message)) );
-};
-
-module.exports.inactive = function(client, message, params)
+module.exports.inactive = async function(client, message, params)
 {
 	if (params.length == 0)
 		params[0] = '1209600';  // 2 weeks in seconds
@@ -185,7 +9,7 @@ module.exports.inactive = function(client, message, params)
 	if (isNaN(time_limit) || time_limit < 60)
 		time_limit = 1209600;
 
-	message.channel.sendMessage('Searching for inactive clanmates longer than ' + util.convert_seconds_to_time_str(time_limit)
+	message.channel.sendMessage('Searching for inactive clanmates longer than ' + util_old.convert_seconds_to_time_str(time_limit)
 		+ '.\nThis will take a few minutes...');
 
 	var results = [];
@@ -196,12 +20,12 @@ module.exports.inactive = function(client, message, params)
 				return function() {
 					return Promise.resolve()
 					//	.then( () => CrystalMathLabs.update_player(player_name) )
-						.then( () => util.sleep(600) )
+						.then( () => util_old.sleep(600) )
 						.then( () => CrystalMathLabs.player_last_change(player_name) )
 						.then( function(time) {
 							if (time > time_limit)
 							{
-								var to = util.convert_seconds_to_time_object(time);
+								var to = util_old.convert_seconds_to_time_object(time);
 								results.push({
 									name:player_name,
 									weeks: to.weeks,
@@ -245,38 +69,9 @@ module.exports.inactive = function(client, message, params)
 					hours: { align: 'right', minWidth: 8 },
 				}
 			});
-			message.split_channel_message(util.wrap_code(columns));
+			message.split_channel_message(util_old.wrap_code(columns));
 		})
 		.catch( err => {
-			message.channel.sendMessage(util.wrap_code(err.message))
+			message.channel.sendMessage(util_old.wrap_code(err.message))
 		} );
-};
-
-module.exports.rsj = async function(client, message, params) {
-	if (params.length != 1)
-	{
-		return message.channel.sendMessage(util.wrap_code('Usage: !rsj <player name>\n\nExamples:'
-			+ '\n!rsj i rep wih\n!rsj tades'));
-	}
-
-	try
-	{
-		var details = await rs_justice.lookup(params[0]);
-		if (!details)
-			throw Error('Player not found.'); // lazy
-
-		message.channel.sendMessage(
-			'Player: ' + details.player + '\n' +
-			'Reason: ' + details.reason + '\n' +
-			'Detail: ' + details.url
-		);
-	}
-	catch(err)
-	{
-		return_error(message, err);
-	}
-};
-
-module.exports.sandwich = function(client, message, params) {
-	message.channel.sendMessage(util.wrap_code(sandwiches()));
 };

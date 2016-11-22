@@ -120,7 +120,7 @@ function ts(v, cache, parents, depth)
 			if (v == null)
 				return chalk.red('null');
 
-			if (v.constructor.name == "Collection")
+			if (v.constructor && v.constructor.name == "Collection")
 				return chalk.red('Collection');
 
 			var s = get_cached(v, cache);
