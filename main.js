@@ -69,11 +69,22 @@ client.on('message', function(message) {
 		return message.channel.stopTyping();
 	}
 
+	// Add report Date to output!
 	p.then( function(text) {
 		if (!text)
 			return; // Nothing to send
 		console.log('Command response:', text);
-		message.channel.sendMessage(text);
+		if (typeof text == "string" && text.length > 2000)
+		{ // We need to break this up into smaller pieces
+			var pieces = split_send_message(text);
+			for(var i = 0; i < pieces.length; i++)
+				message.channel.sendMessage(pieces[i]);
+		}
+		else
+		{
+			// Easy
+			message.channel.sendMessage(text);
+		}
 	})
 	.catch( function(err) {
 		// Something terrible happened
@@ -85,3 +96,53 @@ client.on('message', function(message) {
 		message.channel.stopTyping();
 	});
 });
+
+function split_send_message(text)
+{
+	var markdown = [
+		{ token: '```', used: false},
+		{ token: '`', used: false},
+		{ token: '~~', used: false},
+		{ token: '***', used: false},
+		{ token: '**', used: false},
+		{ token: '*', used: false},
+		{ token: '__', used: false},
+	];
+	var pieces = text.split(/(```|`|\n|__|~~|\*\*\*|\*\*|\*)/);
+	var all_messages = [];
+	var current_message = "";
+	for(var i = 0; i < pieces.length; i++)
+	{
+		if (current_message.length + pieces[i].length > 15)
+		{ // Adding this piece would be too long, split the message here
+			// Repair the markdown tags...
+			for(var j = 0; j < markdown.length; j++) // Go forwards
+			{
+				if (markdown[j].used)
+					current_message += markdown[j].token;
+			}
+			// Save the current message
+			all_messages.push(current_message);
+			// Prepare a new message and restore tags
+			current_message = '';
+			for(var j = markdown.length - 1; j >= 0; j--) // Go backwards
+			{
+				if (markdown[j].used)
+					current_message += markdown[j].token;
+			}
+		}
+		var tag = markdown.find(el => el.token == pieces[i]);
+		if (tag)
+		{ // We've found a tag, toggle it
+			tag.used = ~tag.used;
+		}
+		// Add the current piece
+		current_message += pieces[i];
+	}
+	// Push the last message
+	all_messages.push(current_message);
+	// Add message count
+	for(var i = 0; i < all_messages.length; i++)
+		all_messages[i] += '\n\nMessage ' + i + ' of ' + all_messages.length + '.';
+	return all_messages;
+}

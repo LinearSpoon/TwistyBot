@@ -1,5 +1,5 @@
 // https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
-
+var dateformat = require('dateformat');
 var inactive_threshold = 1000 * 60 * 60 * 24  *14; // Length of time required to appear on the inactive report
 var history_file       = global.server_directory + '/storage/player_history.json';
 var report_file        = global.server_directory + '/storage/latest_report.json';
@@ -36,7 +36,7 @@ async function get_clan_list()
 	var user_col  = 2;
 	var cmb_col   = 4;
 	var first_row = 5;
-	var last_row  = first_row + 200;
+	var last_row  = 240;
 	var first_col = Math.min(id_col, user_col, cmb_col);
 	var last_col  = Math.max(id_col, user_col, cmb_col)
 
@@ -220,7 +220,7 @@ function find_missing(clan_list)
 function format_reports(reports)
 {
 	const one_day = 1000 * 60 * 60 * 24;
-	var report_str = '';
+	var report_str = 'Report time: ' + dateformat(reports.time_finished, 'mmm d, h:ss TT\n\n');
 
 	report_str += 'Inactive members: ' + reports.inactive.length + '\n'
 		 + util.dm.table(reports.inactive.map(member => [member.id, member.name, Math.floor((Date.now() - member.last_seen) / one_day)]),
@@ -230,7 +230,7 @@ function format_reports(reports)
 		 + reports.rs_justice.map(member => member.id + ': ' + member.name + ' ' + member.details.url).join('\n');
 
 
-	report_str += '\n\nMembers who changed combat level: ' + reports.cmb_changed.length + '\n'
+	report_str += '\n\n\nMembers who changed combat level: ' + reports.cmb_changed.length + '\n'
 		+ util.dm.table(reports.cmb_changed.map(member => [member.id, member.name, member.old_cb + '->' + member.new_cb]),
  		[3, 15], ['left', 'left', 'left'], ['ID', 'Name', 'Change']);
 
