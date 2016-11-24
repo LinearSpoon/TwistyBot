@@ -58,5 +58,5 @@ module.exports.combat_level = function(stats) {
 	var melee = base + 0.325 * (stats.attack.level + stats.strength.level);
 	var range = base + 0.325 * Math.floor(1.5 * stats.ranged.level);
 	var magic = base + 0.325 * Math.floor(1.5 * stats.magic.level);
-	return Math.max(melee, range, magic).toFixed(2);
+	return +Math.max(melee, range, magic).toFixed(2);
 };

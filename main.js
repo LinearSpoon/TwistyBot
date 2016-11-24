@@ -60,20 +60,28 @@ client.on('message', function(message) {
 	 	return;  // Not a valid command
 
 	message.channel.startTyping();
-	commands[fn].call(commands, params)
-		.then( function(text) {
-			if (!text)
-				return; // Nothing to send
-			console.log('Command response:', text);
-			message.channel.sendMessage(text);
-		})
-		.catch( function(err) {
-			// Something terrible happened
-			message.channel.sendMessage(util.dm.code_block(err.message));
-		 	console.warn(err.stack)
-		})
-		.then( function() {
-			// Always stop typing!
-			message.channel.stopTyping();
-		});
+	var p = commands[fn].call(commands, params);
+
+	if (typeof p.then !== 'function')
+	{ // Oops check
+		console.error('Add async to', fn);
+		message.channel.sendMessage(p);
+		return message.channel.stopTyping();
+	}
+
+	p.then( function(text) {
+		if (!text)
+			return; // Nothing to send
+		console.log('Command response:', text);
+		message.channel.sendMessage(text);
+	})
+	.catch( function(err) {
+		// Something terrible happened
+		message.channel.sendMessage(util.dm.code_block(err.message));
+	 	console.warn(err.stack)
+	})
+	.then( function() {
+		// Always stop typing!
+		message.channel.stopTyping();
+	});
 });
