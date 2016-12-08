@@ -7,7 +7,6 @@ global.custom_require = name => require(global.server_directory + '/custom_modul
 global.root_require   = name => require(global.server_directory + '/' + name);
 
 custom_require('console_hook');	// This must be the first require
-custom_require('kill_nodes');		// Windows - kill existing node instances
 custom_require('babel/compile_require');
 
 // Load config
@@ -20,20 +19,26 @@ global.config.get = function(key) {
 };
 
 // Load utilities
-global.util = custom_require('util/_loader.js');
-global.apis = custom_require('apis/_loader.js');
-
-// ???
-custom_require('monkey_patches');
+global.util = custom_require('util');
+global.apis = custom_require('apis');
 
 // Load commands
-var commands = custom_require('commands/_loader.js');
-
+var commands = custom_require('commands');
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
-client.login(config.get('token'));
-client.on('ready', () => console.log('Ready!'));
+
+client.on('ready', () => console.log('Event: ready'));
+client.on('disconnect', () => console.warn('Event: disconnected'));
+client.on('guildMemberAdd', member => console.log('Event: new member', member));
+client.on('guildUnavailable', guild => console.log('Event: guild unavailable', guild));
+client.on('messageDelete', message => console.log('Event: message deleted', messageDelete));
+client.on('messageDeleteBulk', message_coll => console.log('Event: messages deleted', message_coll.array()));
+client.on('messageUpdate', (old_message,new_message) => console.log('Event: message changed', new_message));
+client.on('reconnecting', () => console.log('Event: reconnecting'));
+client.on('warn', msg => console.warn('Event: warning', msg));
+client.on('error', err => console.error('Event: warning', err));
+
 
 // Parse command and execute
 client.on('message', function(message) {
@@ -44,13 +49,13 @@ client.on('message', function(message) {
 	if (message.author.id == client.user.id)
 		return;  // Ignore own messages
 
-	if (message.content[0] != '!')
-		return;  // Not a command
-
 	console.log('Possible command:', message.content);
 	console.log('>Author: ', message.author.username, '(' + message.author.id + ')');
 	console.log('>Guild:  ', message.channel.guild.name, '(' + message.channel.guild.id + ')');
 	console.log('>Channel:', message.channel.name, '(' + message.channel.id + ')');
+
+	if (message.content[0] != '!')
+		return;  // Not a command
 
 	var fn = message.content.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
@@ -113,7 +118,7 @@ function split_send_message(text)
 	var current_message = "";
 	for(var i = 0; i < pieces.length; i++)
 	{
-		if (current_message.length + pieces[i].length > 15)
+		if (current_message.length + pieces[i].length > 1900)
 		{ // Adding this piece would be too long, split the message here
 			// Repair the markdown tags...
 			for(var j = 0; j < markdown.length; j++) // Go forwards
@@ -143,6 +148,54 @@ function split_send_message(text)
 	all_messages.push(current_message);
 	// Add message count
 	for(var i = 0; i < all_messages.length; i++)
-		all_messages[i] += '\n\nMessage ' + i + ' of ' + all_messages.length + '.';
+		all_messages[i] += '\nMessage ' + (i+1) + ' of ' + all_messages.length + '.\n';
 	return all_messages;
+}
+
+// Detect and politely ask previous instances of node to shutdown
+var ipc = require('node-ipc');
+var server_id = 'TwistyBot';
+ipc.config.silent = true;
+ipc.config.id = server_id;
+ipc.config.maxRetries = 0;
+
+ipc.serve(function() {
+	ipc.server.on('kill', function(data,socket) {
+		console.log('Received kill message. Bye bye!');
+		stop_server(socket);
+	});
+});
+
+ipc.connectTo(server_id, function() {
+	ipc.of[server_id].on('connect', function() {
+		console.log('Found previous instance of', server_id, 'server.');
+		// Send kill event and wait for going_away
+		ipc.of[server_id].emit('kill');
+	});
+
+	ipc.of[server_id].on('error', function(err) {
+		console.log('Could not find another instance of', server_id, 'server.');
+		start_server();
+	});
+
+	ipc.of[server_id].on('going_away', function(data) {
+		console.log('Previous server has shutdown. Starting server...');
+		start_server();
+	});
+});
+
+
+function start_server()
+{
+	ipc.server.start();
+	client.login(config.get('token'));
+}
+
+function stop_server(notify_socket)
+{
+	if (notify_socket)
+		ipc.server.emit(notify_socket, 'going_away');
+	ipc.server.stop();
+	console.log('Stopping process.');
+	process.exit();
 }
