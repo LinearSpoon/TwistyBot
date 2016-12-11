@@ -32,11 +32,14 @@ module.exports = async function(params)
 async function get_clan_list()
 {
 	// Specific to the clan spreadsheet:
+	console.log('Loading clan list...');
+	var ws_info = await apis.GoogleSS.sheet_info(config.get('clan_spreadsheet'));
+	//console.log(ws_info.worksheets);
 	var id_col    = 1;
 	var user_col  = 2;
 	var cmb_col   = 4;
 	var first_row = 5;
-	var last_row  = 240;
+	var last_row  = ws_info.worksheets[0].rowCount;
 	var first_col = Math.min(id_col, user_col, cmb_col);
 	var last_col  = Math.max(id_col, user_col, cmb_col)
 
@@ -220,6 +223,7 @@ function find_missing(clan_list)
 function format_reports(reports)
 {
 	const one_day = 1000 * 60 * 60 * 24;
+	console.log('Formatting report...');
 	var report_str = 'Report time: ' + dateformat(reports.time_finished, 'mmm d, h:ss TT\n\n');
 
 	report_str += 'Inactive members: ' + reports.inactive.length + '\n'

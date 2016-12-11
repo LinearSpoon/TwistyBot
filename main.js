@@ -32,7 +32,7 @@ client.on('ready', () => console.log('Event: ready'));
 client.on('disconnect', () => console.warn('Event: disconnected'));
 client.on('guildMemberAdd', member => console.log('Event: new member', member));
 client.on('guildUnavailable', guild => console.log('Event: guild unavailable', guild));
-client.on('messageDelete', message => console.log('Event: message deleted', messageDelete));
+client.on('messageDelete', message => console.log('Event: message deleted', message));
 client.on('messageDeleteBulk', message_coll => console.log('Event: messages deleted', message_coll.array()));
 client.on('messageUpdate', (old_message,new_message) => console.log('Event: message changed', new_message));
 client.on('reconnecting', () => console.log('Event: reconnecting'));
@@ -93,8 +93,9 @@ client.on('message', function(message) {
 	})
 	.catch( function(err) {
 		// Something terrible happened
+		console.log(err);
 		message.channel.sendMessage(util.dm.code_block(err.message));
-	 	console.warn(err.stack)
+	 	console.warn(err.stack);
 	})
 	.then( function() {
 		// Always stop typing!
