@@ -7,7 +7,7 @@ var report_file        = global.server_directory + '/storage/latest_report.json'
 // Set up to automatically run at 1am every night
 var CronJob = require('cron').CronJob;
 // sec min hours day month dayofwk
-var job = new CronJob('00 0 1 * * *', generate_reports, null, true);
+//var job = new CronJob('00 0 1 * * *', generate_reports, null, true);
 
 
 
