@@ -54,6 +54,8 @@ module.exports.lookup_player = async function(username) {
 };
 
 module.exports.combat_level = function(stats) {
+	if (typeof stats === 'undefined')
+		return 0;
 	var base = 0.25 * Math.floor(stats.defence.level + stats.hitpoints.level + stats.prayer.level / 2 );
 	var melee = base + 0.325 * (stats.attack.level + stats.strength.level);
 	var range = base + 0.325 * Math.floor(1.5 * stats.ranged.level);

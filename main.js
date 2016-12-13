@@ -22,6 +22,8 @@ global.config.get = function(key) {
 global.util = custom_require('util');
 global.apis = custom_require('apis');
 
+global.database = custom_require('dbpool');
+
 // Load commands
 var commands = custom_require('commands');
 
@@ -32,13 +34,20 @@ client.on('ready', () => console.log('Event: ready'));
 client.on('disconnect', () => console.warn('Event: disconnected'));
 client.on('guildMemberAdd', member => console.log('Event: new member', member));
 client.on('guildUnavailable', guild => console.log('Event: guild unavailable', guild));
-client.on('messageDelete', message => console.log('Event: message deleted', message));
-client.on('messageDeleteBulk', message_coll => console.log('Event: messages deleted', message_coll.array()));
-client.on('messageUpdate', (old_message,new_message) => console.log('Event: message changed', new_message));
+client.on('messageDelete', message => log_message('Event: message deleted', message));
+client.on('messageDeleteBulk', message_coll => message_coll.array().forEach(message => log_message('Event: messages deleted', message)));
+client.on('messageUpdate', (old_message,new_message) => log_message('Event: message changed', new_message));
 client.on('reconnecting', () => console.log('Event: reconnecting'));
 client.on('warn', msg => console.warn('Event: warning', msg));
 client.on('error', err => console.error('Event: warning', err));
 
+function log_message(explanation, message)
+{
+	console.log(explanation + ':', message.content);
+	console.log('  ' + message.author.username);
+	console.log('  ' + message.channel.guild.name + '.' + message.channel.name);
+	console.log('  ' + message.id);
+}
 
 // Parse command and execute
 client.on('message', function(message) {
@@ -49,10 +58,7 @@ client.on('message', function(message) {
 	if (message.author.id == client.user.id)
 		return;  // Ignore own messages
 
-	console.log('Possible command:', message.content);
-	console.log('>Author: ', message.author.username, '(' + message.author.id + ')');
-	console.log('>Guild:  ', message.channel.guild.name, '(' + message.channel.guild.id + ')');
-	console.log('>Channel:', message.channel.name, '(' + message.channel.id + ')');
+	log_message('Possible command', message);
 
 	if (message.content[0] != '!')
 		return;  // Not a command
