@@ -1,4 +1,4 @@
-var dateformat = require('dateformat');
+var moment = require('moment-timezone');
 
 module.exports = async function(params) {
 	if (!params[1])
@@ -20,8 +20,8 @@ module.exports = async function(params) {
 		util.printf('%-15s %6s %14s %8s\n', 'Date', 'Level', 'Xp', 'Rank') +	history.map(function(row) {
 			var details = JSON.parse(row.hiscores)[params[1]];
 			return util.printf('%-6s %8s %6d %14s %8s',
-				dateformat(row.timestamp, 'mmm d'),
-				dateformat(row.timestamp, 'h:MM TT'),
+				moment(row.timestamp).format('MMM D'),
+				moment(row.timestamp).format('h:mm A'),
 				details.level,
 				util.format_number(details.xp),
 				util.format_number(details.rank));

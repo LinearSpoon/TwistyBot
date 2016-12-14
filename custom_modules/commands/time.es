@@ -1,6 +1,6 @@
 var moment = require("moment-timezone");
 
-const time_format = 'MMM D, h:mm A z';
+const time_format = 'MMM D, hh:mm A z';
 //console.log(moment.tz.names())
 
 module.exports = async function(params) {

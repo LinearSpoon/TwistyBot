@@ -3,9 +3,14 @@ const ten_minutes = 1000 * 60 * 10;
 const five_hours = 1000 * 60 * 60 * 5;
 const one_day = 1000 * 60 * 60 * 24;
 
+var moment = require('moment-timezone');
+
 module.exports = function(clan_list) {
 	var high_limit = Date.now() - one_day + ten_minutes;
 	var low_limit = Date.now() - one_day - five_hours;
+
+	console.log(moment(low_limit).format('MMM D h:mm A'))
+	console.log(moment(high_limit).format('MMM D h:mm A'))
 
 	// Find members who have a history record in the valid time range and save it
 	var filtered_clan = clan_list

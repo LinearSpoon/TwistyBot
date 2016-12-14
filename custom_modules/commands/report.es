@@ -1,249 +1,113 @@
+
+// Data sources
+var get_clan_list = custom_require('report/sources/clan_list');
+var get_clan_hiscores = custom_require('report/sources/rshiscores');
+var get_clan_rsjustice = custom_require('report/sources/rsjustice');
+
+// Report sections
+var find_inactive = custom_require('report/sections/inactives');
+var find_rsjustice = custom_require('report/sections/rsjustice');
+var find_missing = custom_require('report/sections/missing');
+var find_cb_changed = custom_require('report/sections/cb_changed');
+var find_xp_gains = custom_require('report/sections/xp_gains');
+
 // https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
 var dateformat = require('dateformat');
-var inactive_threshold = 1000 * 60 * 60 * 24  *14; // Length of time required to appear on the inactive report
-var history_file       = global.server_directory + '/storage/player_history.json';
-var report_file        = global.server_directory + '/storage/latest_report.json';
 
-// Set up to automatically run at 1am every night
-var CronJob = require('cron').CronJob;
-// sec min hours day month dayofwk
-//var job = new CronJob('00 0 1 * * *', generate_reports, null, true);
-
+if (config.get('auto_update_report'))
+{
+	// Set up to automatically run at 1am every night
+	var CronJob = require('cron').CronJob;
+	// sec min hours day month dayofwk
+	var job = new CronJob('00 0 */4 * * *', update_report, null, true);
+}
 
 
 module.exports = async function(params)
 {
-	// A parameter to force update the report
 	if (params[0] == 'update')
-		return format_reports(await generate_reports());
+		await update_report();
 
-	// Check if we have a good cached report
-	var reports = await util.load_json_file(report_file, null);
-	if (!reports || Date.now() - reports.time_finished > 1000 * 60 * 60 * 20)
-		reports = await generate_reports();
+	var report = await load_report_data();
 
-	return format_reports(reports);
+	console.log('Formatting report...');
+	var report_str = 'Report time: ' + dateformat(report.end_date, 'mmm d, h:MM TT')
+		+ '\n\n' + find_inactive(report.clan_list)
+		+ '\n\n' + find_rsjustice(report.clan_list)
+		+ '\n\n' + find_cb_changed(report.clan_list)
+		+ '\n\n' + find_missing(report.clan_list)
+		+ '\n\n' + find_xp_gains(report.clan_list);
+
+	return report_str;
 }
 
-// Returns array of clan members
-//   member.id => spreadsheet row id
-//   member.name => player name
-//   member.cb => combat listed on the sheet
-async function get_clan_list()
+async function update_report()
 {
-	// Specific to the clan spreadsheet:
-	console.log('Loading clan list...');
-	var ws_info = await apis.GoogleSS.sheet_info(config.get('clan_spreadsheet'));
-	//console.log(ws_info.worksheets);
-	var id_col    = 1;
-	var user_col  = 2;
-	var cmb_col   = 4;
-	var first_row = 5;
-	var last_row  = ws_info.worksheets[0].rowCount;
-	var first_col = Math.min(id_col, user_col, cmb_col);
-	var last_col  = Math.max(id_col, user_col, cmb_col)
+	console.log('Begin report update...');
+	var report = {start_date: Date.now()};
+	report.clan_list = await get_clan_list(); //75,4
+	// Load all data
+	await Promise.all([
+		get_clan_hiscores(report.clan_list),
+		get_clan_rsjustice(report.clan_list),
+	]);
+	report.end_date = Date.now();
 
-	var cells = await apis.GoogleSS.read_cells(config.get('clan_spreadsheet'), 1, first_col, last_col, first_row, last_row);
+	await util.save_json_file(global.server_directory + '/storage/latest_report.json', report);
+	console.log('Report ready.');
+}
 
-	var clan_list = [];
-	for(var i = first_row; i < last_row; i++)
+async function load_report_data()
+{
+	var report = await util.load_json_file(global.server_directory + '/storage/latest_report.json', []);
+	var hiscores_history = await database.query('SELECT * FROM hiscores_history');
+	var players = await database.query('SELECT * FROM players');
+	for(var i = 0; i < report.clan_list.length; i++)
 	{
-		var player_name = cells[user_col][i].value;
-		if (player_name == '')
-			continue; // Row is blank
-
-		clan_list.push({
-			id: cells[id_col][i].numericValue,
-			name: player_name.replace(/[^a-zA-Z0-9_ -]/g,''),
-			cb: cells[cmb_col][i].numericValue
+		var member = report.clan_list[i];
+		// Find player_id for this member
+		var player = players.find( p => p.name.toLowerCase() == member.name.toLowerCase() );
+		if (!player)
+		{
+			console.log('Could not find player id for', member.name);
+			continue;
+		}
+		// Extract history entries for this player
+		member.history = [];
+		hiscores_history.forEach(function(row) {
+			if (row.player_id == player.id)
+			{
+				row.hiscores = JSON.parse(row.hiscores);
+				member.history.push(row);
+			}
 		});
 	}
-
-	console.log('Loaded clan list.', clan_list.length, 'members.');
-	return clan_list;
+	return report;
 }
 
-// Checks each member for RSJustice infractions
-async function check_rsjustice(clan_list)
-{
-	for(var i = 0; i < clan_list.length; i++)
-	{
-		var member = clan_list[i];
-		try {
-			// We don't need to delay each request here, due to caching after the first lookup
-			member.rsjustice = await apis.RSJustice.lookup(member.name);
-		} catch(e) {
-			// Request error probably, wait a bit and retry
-			console.warn('RSJ error during report: (' + member.name + ')' + e.message);
-			await util.sleep(5000);
-			i = i - 1;
-		}
-	}
-	console.log('Loaded RSJustice.');
-}
-
-// Loads the stats of each member
-async function check_rshiscores(clan_list)
-{
-	for(var i = 0; i < clan_list.length; i++)
-	{
-		var member = clan_list[i];
-		try {
-			console.log('RSHiscores:', member.id, member.name);
-			member.rshiscores = await apis.RuneScape.lookup_player(member.name);
-			// Calculate their combat level if we got stats back
-			if (member.rshiscores)
-				member.calculated_cb = Math.floor(apis.RuneScape.combat_level(member.rshiscores));
-		} catch(e) {
-			// Request error, wait a bit and retry
-			console.warn('RSHS error during report: (' + member.name + ')' + e.message);
-			i = i - 1;
-		}
-		// Always wait before sending another request
-		await util.sleep(5000);
-	}
-	console.log('Loaded RSHiscores');
-}
-
-// Load historic data for clan members if available
-async function check_history(clan_list)
-{
-	var history = await util.load_json_file(history_file);
+// Leftover code to load old history files into database
+async function load_history_file(clan_list) {
+	var history = await util.load_json_file(global.server_directory + '/storage/player_history.json');
 	if (!history.length)
 	{
 		console.warn('History not found. Giving up.');
 		return;
 	}
+
 	for(var i = 0; i < clan_list.length; i++)
 	{
 		var member = clan_list[i];
 		// Members who changed their name will lose their history
 		var name = member.name.toLowerCase();
-		member.history = history.find( e => e.name.toLowerCase() == name);
+		var hist = history.find( e => e.name.toLowerCase() == name);
+		if (hist)
+		{
+			await database.query('INSERT INTO hiscores_history SET ' +
+				'player_id = (SELECT id FROM players WHERE name = ? LIMIT 1), ' +
+				'timestamp = ?, hiscores = ?;', member.name, hist.last_seen, JSON.stringify(hist.rshiscores));
+		}
 	}
-
-	console.log('History loaded.');
-}
-
-async function generate_reports()
-{
-	console.log('Begin report.');
-	var start_date = Date.now();
-	var clan_list = await get_clan_list();
-	// All lookups are from different sources so can run in parallel
-	await Promise.all([
-		check_rsjustice(clan_list),
-		check_rshiscores(clan_list),
-		check_history(clan_list)
-	]);
-	// All data should be loaded here
-	// member.name, member.id, member.cb, member.rsjustice, member.rshiscores, member.history
-
-	var reports = { time_finished: Date.now(), time_taken: Date.now() - start_date };
-	reports.inactive = find_inactive(clan_list);
-	reports.cmb_changed = find_cb_changed(clan_list);
-	reports.rs_justice = find_rs_justice(clan_list);
-	reports.missing = find_missing(clan_list);
-
-	// Save full data
-	await util.save_json_file(report_file, reports);
-
-	// Remove members who were not on hiscores
-	clan_list = clan_list.filter(member => typeof member.rshiscores != 'undefined');
-	// Strip unnecessary fields
-	clan_list = clan_list.map(function(member) {
-		return {
-			name: member.name,
-			rshiscores: member.rshiscores,
-			last_seen: member.last_seen
-		};
-	});
-	// Save history
-	await util.save_json_file(history_file, clan_list);
-
-	console.log('Report finished in', reports.time_taken / 60000, 'minutes.');
-	return reports;
-}
-
-
-// Each of these functions should return a filtered clan list of the players matched by the report criteria
-function find_inactive(clan_list)
-{
-	var now = Date.now();
-	return clan_list.filter(function(member) {
-		if (typeof member.rshiscores == 'undefined')
-			return false; // Reported elsewhere
-
-		if (typeof member.history == 'undefined')
-		{ // This is a new member - can't be inactive yet
-			//console.log('Last seen', member.name, 'never');
-			member.last_seen = now;
-			return false;
-		}
-
-		if (member.rshiscores.overall.xp != member.history.rshiscores.overall.xp)
-		{ // Member has gained xp, so is active
-			//console.log('Last seen', member.name, 'now');
-			member.last_seen = now;
-			return false;
-		}
-
-		//console.log('Last seen', member.name, 'some time ago');
-		// Member has not gained any xp
-		member.last_seen = member.history.last_seen;
-		return (now - member.history.last_seen > inactive_threshold);
-	}).map(function(member) {
-		return { id: member.id, name: member.name, last_seen: member.last_seen };
-	});
-}
-
-function find_cb_changed(clan_list)
-{
-	return clan_list.filter(function(member) {
-		return member.rshiscores && member.calculated_cb != member.cb;
-	}).map(function(member) {
-		return { id: member.id, name: member.name, old_cb: member.cb, new_cb: member.calculated_cb };
-	});
-}
-
-function find_rs_justice(clan_list)
-{
-	return clan_list.filter(member => typeof member.rsjustice !== 'undefined').map(function(member) {
-		return { id: member.id, name: member.name, details: member.rsjustice };
-	});
-}
-
-function find_missing(clan_list)
-{
-	return clan_list.filter(member => typeof member.rshiscores == 'undefined').map(function(member) {
-		return { id: member.id, name: member.name };
-	});
-}
-
-function format_reports(reports)
-{
-	const one_day = 1000 * 60 * 60 * 24;
-	console.log('Formatting report...');
-	var report_str = 'Report time: ' + dateformat(reports.time_finished, 'mmm d, h:MM TT\n\n');
-
-	report_str += 'Inactive members: ' + reports.inactive.length + '\n'
-		 + util.dm.table(reports.inactive.map(member => [member.id, member.name, Math.floor((Date.now() - member.last_seen) / one_day)]),
-		 [3, 15], ['left', 'left', 'left'], ['ID', 'Name', 'Days']);
-
-	report_str += '\n\nMembers on RSJustice: ' + reports.rs_justice.length + '\n'
-		 + reports.rs_justice.map(member => member.id + ': ' + member.name + ' ' + member.details.url).join('\n');
-
-
-	report_str += '\n\n\nMembers who changed combat level: ' + reports.cmb_changed.length + '\n'
-		+ util.dm.table(reports.cmb_changed.map(member => [member.id, member.name, member.old_cb + '->' + member.new_cb]),
- 		[3, 15], ['left', 'left', 'left'], ['ID', 'Name', 'Change']);
-
-	report_str += '\n\nMembers not on hiscores: ' + reports.missing.length + '\n'
-		+ util.dm.table(reports.missing.map(member => [member.id, member.name]),
- 		[3, 15], ['left', 'left'], ['ID', 'Name']);
-
-	return report_str;
-}
+};
 
 // TODO:
 // Search forum posts

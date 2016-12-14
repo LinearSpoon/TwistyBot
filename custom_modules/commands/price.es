@@ -7,23 +7,22 @@ module.exports = async function(params) {
 	var id = apis.RSBuddy.get_item_id(item);
 	if (!id)
 	{ // Try fuzzy string search
-		var guesses = apis.RSBuddy.get_similar_items(item).slice(0, 10).map(el => [el.name, el.score]);
-		return 'Item not found! Are you looking for one of these?' +
-			util.dm.table(guesses, [24], [], ['Item', 'Score']);
+		var guesses = apis.RSBuddy.get_similar_items(item).slice(0, 10).map(el => util.printf('%-25s %3d', el.name, el.score));
+		return 'Item not found! Are you looking for one of these?\n' +
+			util.dm.code_block('Item                    Score\n' + guesses.join('\n'));
 	}
 
 	// We have a valid item ID
 	console.log('Looking up', item);
 	var details = await apis.RSBuddy.get_item_summary(id);
-	var table_data = [
-		['Overall Price:', util.format_number(details.overall), 'GP'],
-		['Buying Price:', util.format_number(details.buying), 'GP'],
-		['Amount Bought:', util.format_number(details.buyingQuantity), ''],
-		['Amount Bought:', util.format_number(details.selling), 'GP'],
-		['Amount Sold:', util.format_number(details.sellingQuantity), '']
-	];
+	var price_data =
+		util.printf('%-14s %13s GP\n', 'Overall Price:', util.format_number(details.overall)) +
+		util.printf('%-14s %13s GP\n', 'Buying Price:', util.format_number(details.buying)) +
+		util.printf('%-14s %13s\n', 'Amount Bought:', util.format_number(details.buyingQuantity)) +
+		util.printf('%-14s %13s GP\n', 'Selling Price:', util.format_number(details.overall)) +
+		util.printf('%-14s %13s\n', 'Amount Sold:', util.format_number(details.sellingQuantity));
 
 	return 'Showing details for ' + apis.RSBuddy.get_item_proper_name(item) + ':'
-		+ util.dm.table(table_data, [18], ['left', 'right'])
+		+ util.dm.code_block(price_data)
 		+ util.dm.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + id;
 };

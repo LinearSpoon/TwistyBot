@@ -1,3 +1,5 @@
+const fmt = '%-10s %7d %7s\n';
+
 module.exports = async function(params) {
 	if (params.length != 1)
 	{
@@ -10,18 +12,17 @@ module.exports = async function(params) {
 	if (!stats)
 		throw Error('Player not found.');
 
-	var table_data = [
-		['Combat:', apis.RuneScape.combat_level(stats), '-'],
-		['Attack:', stats.attack.level, find_next_cb_level(stats, 'attack')],
-		['Defense:', stats.defense.level, find_next_cb_level(stats, 'defense')],
-		['Strength:', stats.strength.level, find_next_cb_level(stats, 'strength')],
-		['Hitpoints:', stats.hitpoints.level, find_next_cb_level(stats, 'hitpoints')],
-		['Ranged:', stats.ranged.level, find_next_cb_level(stats, 'ranged')],
-		['Prayer:', stats.prayer.level, find_next_cb_level(stats, 'prayer')],
-		['Magic:', stats.magic.level, find_next_cb_level(stats, 'magic')],
-	];
-
-	return util.dm.table(table_data, [10, 7, 7], ['left', 'right', 'right'], ['Stat', 'Level', 'Next']);
+	return util.dm.code_block(
+		'Stat         Level    Next\n' +
+		util.printf(fmt, 'Combat:', apis.RuneScape.combat_level(stats), '-') +
+		util.printf(fmt, 'Attack:', stats.attack.level, find_next_cb_level(stats, 'attack')) +
+		util.printf(fmt, 'Defense:', stats.defense.level, find_next_cb_level(stats, 'defense')) +
+		util.printf(fmt, 'Strength:', stats.strength.level, find_next_cb_level(stats, 'strength')) +
+		util.printf(fmt, 'Hitpoints:', stats.hitpoints.level, find_next_cb_level(stats, 'hitpoints')) +
+		util.printf(fmt, 'Ranged:', stats.ranged.level, find_next_cb_level(stats, 'ranged')) +
+		util.printf(fmt, 'Prayer:', stats.prayer.level, find_next_cb_level(stats, 'prayer')) +
+		util.printf(fmt, 'Magic:', stats.magic.level, find_next_cb_level(stats, 'magic'))
+	);
 };
 
 
