@@ -29,7 +29,7 @@ module.exports = async function(params)
 	var report = await load_report_data();
 
 	console.log('Formatting report...');
-	var report_str = 'Report time: ' + dateformat(report.end_date, 'mmm d, h:ss TT')
+	var report_str = 'Report time: ' + dateformat(report.end_date, 'mmm d, h:MM TT')
 		+ '\n\n' + find_inactive(report.clan_list)
 		+ '\n\n' + find_rsjustice(report.clan_list)
 		+ '\n\n' + find_cb_changed(report.clan_list)

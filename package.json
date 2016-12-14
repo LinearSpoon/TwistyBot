@@ -12,6 +12,8 @@
     "cron": "^1.1.1",
     "discord.js": "^9.3.0",
     "google-spreadsheet": "^2.0.3",
+    "moment": "^2.17.1",
+    "moment-timezone": "^0.5.10",
     "mysql": "^2.12.0",
     "node-ipc": "^8.9.2",
     "printf": "^0.2.5"

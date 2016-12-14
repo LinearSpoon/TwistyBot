@@ -21,7 +21,7 @@ module.exports = async function(params) {
 			var details = JSON.parse(row.hiscores)[params[1]];
 			return util.printf('%-6s %8s %6d %14s %8s',
 				dateformat(row.timestamp, 'mmm d'),
-				dateformat(row.timestamp, 'h:ss TT'),
+				dateformat(row.timestamp, 'h:MM TT'),
 				details.level,
 				util.format_number(details.xp),
 				util.format_number(details.rank));

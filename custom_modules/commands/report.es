@@ -224,7 +224,7 @@ function format_reports(reports)
 {
 	const one_day = 1000 * 60 * 60 * 24;
 	console.log('Formatting report...');
-	var report_str = 'Report time: ' + dateformat(reports.time_finished, 'mmm d, h:ss TT\n\n');
+	var report_str = 'Report time: ' + dateformat(reports.time_finished, 'mmm d, h:MM TT\n\n');
 
 	report_str += 'Inactive members: ' + reports.inactive.length + '\n'
 		 + util.dm.table(reports.inactive.map(member => [member.id, member.name, Math.floor((Date.now() - member.last_seen) / one_day)]),
