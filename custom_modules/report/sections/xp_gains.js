@@ -1,10 +1,11 @@
 // Find members who had haven't gained xp for more than two weeks
-const three_hours = 1000 * 60 * 60 * 3;
+const ten_minutes = 1000 * 60 * 10;
+const five_hours = 1000 * 60 * 60 * 5;
 const one_day = 1000 * 60 * 60 * 24;
 
 module.exports = function(clan_list) {
-	var low_limit = Date.now() - one_day - three_hours;
-	var high_limit = Date.now() - one_day + three_hours;
+	var high_limit = Date.now() - one_day + ten_minutes;
+	var low_limit = Date.now() - one_day - five_hours;
 
 	// Find members who have a history record in the valid time range and save it
 	var filtered_clan = clan_list
@@ -17,8 +18,8 @@ module.exports = function(clan_list) {
 			if (valid_records.length == 0)
 				return false;
 
-			// Take the oldest valid record
-			member.comp_record = valid_records.reduce( (a,b) => a.timestamp < b.timestamp ? a : b );
+			// Take the newest valid record
+			member.comp_record = valid_records.reduce( (a,b) => a.timestamp > b.timestamp ? a : b );
 			return member.comp_record;
 		});
 
@@ -49,7 +50,7 @@ module.exports = function(clan_list) {
 			name = winner.member.name;
 		}
 
-		return util.printf('%-14s %-12s    %10d', winner.skill, name, xp_diff);
+		return util.printf('%-14s %-12s    %10s', winner.skill, name, util.format_number(xp_diff));
 	});
 
 	return 'Exp gains in the past day: ' + util.dm.code_block('\nSkill          Name             Gained Xp\n' + report.join('\n'));
