@@ -47,10 +47,11 @@ module.exports = function(clan_list) {
 	}
 
 	report = report.map(function(winner) {
-		console.log(winner);
-		var xp_diff = 0; var name = 'Nobody';
+		//console.log(winner);
+		var xp_diff = -1; var name = 'Nobody';
 		if (winner.member)
 		{
+			console.log(winner.member.rshiscores[winner.skill].xp)
 			xp_diff = winner.member.rshiscores[winner.skill].xp - winner.member.comp_record.hiscores[winner.skill].xp;
 			name = winner.member.name;
 		}

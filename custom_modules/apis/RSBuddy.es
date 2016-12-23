@@ -45,11 +45,31 @@ module.exports.get_item_id = function(name)
 module.exports.get_item_summary = async function(id)
 {
 	// {"overall":207,"buying":207,"buyingQuantity":477196,"selling":207,"sellingQuantity":502450}
-	var body = await util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id);
-	return JSON.parse(body);
+	var body = JSON.parse(await util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id));
+
+	// Match the format of history api
+	return {
+		overallPrice: body.overall,
+		buyingPrice: body.buying,
+		sellingPrice: body.selling,
+		buyingCompleted: body.buyingQuantity,
+		sellingCompleted: body.sellingQuantity
+	};
 };
 
 module.exports.get_similar_items = function(name)
 {
 	return util.fuzzy_match(name, name_cache.map(el => el.name));
 };
+
+module.exports.get_item_history = async function(id, start, interval)
+{
+	// https://api.rsbuddy.com/grandExchange?a=graph&start=<timestamp>&g=<hours between datapoints>&i=<id>
+	// [{"ts":1481923200000,"buyingPrice":211,"buyingCompleted":407766,"sellingPrice":212,"sellingCompleted":475813,"overallPrice":212,"overallCompleted":883579}, ...]
+	var url = 'https://api.rsbuddy.com/grandExchange?a=graph&i=' + id;
+	if (start)
+		url += '&start=' + start;
+	if (interval)
+		url += '&g=' + interval;
+	return JSON.parse(await util.download(url));
+}

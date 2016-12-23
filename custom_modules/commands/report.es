@@ -9,7 +9,8 @@ var find_inactive = custom_require('report/sections/inactives');
 var find_rsjustice = custom_require('report/sections/rsjustice');
 var find_missing = custom_require('report/sections/missing');
 var find_cb_changed = custom_require('report/sections/cb_changed');
-var find_xp_gains = custom_require('report/sections/xp_gains');
+var find_daily_xp_gains = custom_require('report/sections/daily_xp_gains');
+var find_weekly_xp_gains = custom_require('report/sections/weekly_xp_gains');
 
 // https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
 var dateformat = require('dateformat');
@@ -36,7 +37,8 @@ module.exports = async function(params)
 		+ '\n\n' + find_rsjustice(report.clan_list)
 		+ '\n\n' + find_cb_changed(report.clan_list)
 		+ '\n\n' + find_missing(report.clan_list)
-		+ '\n\n' + find_xp_gains(report.clan_list);
+		+ '\n\n' + find_daily_xp_gains(report.clan_list)
+		+ '\n\n' + find_weekly_xp_gains(report.clan_list);
 
 	return report_str;
 }
@@ -84,30 +86,6 @@ async function load_report_data()
 	}
 	return report;
 }
-
-// Leftover code to load old history files into database
-async function load_history_file(clan_list) {
-	var history = await util.load_json_file(global.server_directory + '/storage/player_history.json');
-	if (!history.length)
-	{
-		console.warn('History not found. Giving up.');
-		return;
-	}
-
-	for(var i = 0; i < clan_list.length; i++)
-	{
-		var member = clan_list[i];
-		// Members who changed their name will lose their history
-		var name = member.name.toLowerCase();
-		var hist = history.find( e => e.name.toLowerCase() == name);
-		if (hist)
-		{
-			await database.query('INSERT INTO hiscores_history SET ' +
-				'player_id = (SELECT id FROM players WHERE name = ? LIMIT 1), ' +
-				'timestamp = ?, hiscores = ?;', member.name, hist.last_seen, JSON.stringify(hist.rshiscores));
-		}
-	}
-};
 
 // TODO:
 // Search forum posts

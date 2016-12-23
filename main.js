@@ -154,8 +154,8 @@ function split_send_message(text)
 	// Push the last message
 	all_messages.push(current_message);
 	// Add message count
-	for(var i = 0; i < all_messages.length; i++)
-		all_messages[i] += '\nMessage ' + (i+1) + ' of ' + all_messages.length + '.\n';
+	//for(var i = 0; i < all_messages.length; i++)
+	//	all_messages[i] += '\nMessage ' + (i+1) + ' of ' + all_messages.length + '.\n';
 	return all_messages;
 }
 
