@@ -16,7 +16,8 @@
     "moment-timezone": "^0.5.10",
     "mysql": "^2.12.0",
     "node-ipc": "^8.9.2",
-    "printf": "^0.2.5"
+    "printf": "^0.2.5",
+    "vega": "^2.6.3"
   },
   "devDependencies": {},
   "scripts": {

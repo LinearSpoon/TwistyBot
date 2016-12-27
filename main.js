@@ -71,7 +71,7 @@ client.on('message', function(message) {
 	 	return;  // Not a valid command
 
 	message.channel.startTyping();
-	var p = commands[fn].call(commands, params);
+	var p = commands[fn].call(commands, message, params);
 
 	if (typeof p.then !== 'function')
 	{ // Oops check
@@ -83,8 +83,12 @@ client.on('message', function(message) {
 	// Add report Date to output!
 	p.then( function(text) {
 		if (!text)
+		{
+			console.log('Command did not respond');
 			return; // Nothing to send
+		}
 		console.log('Command response:', text);
+
 		if (typeof text == "string" && text.length > 2000)
 		{ // We need to break this up into smaller pieces
 			var pieces = split_send_message(text);
