@@ -7,7 +7,7 @@ module.exports = async function(message, params) {
 
 	var details = await apis.RSJustice.lookup(params[0]);
 	if (!details)
-		throw Error('Player not found.'); // lazy
+		return util.dm.code_block('Player not found.');
 
 	return 'Player: ' + details.player +
 		'\nReason: ' + details.reason +
