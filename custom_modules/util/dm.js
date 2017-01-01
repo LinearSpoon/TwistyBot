@@ -39,25 +39,3 @@ module.exports.code_block = function(text) {
 module.exports.inline_code = function(text) {
 	return '`' + text + '`';
 };
-
-
-var columnify = require('columnify'); // https://www.npmjs.com/package/columnify
-module.exports.table = function(data, widths, aligns, header)
-{
-	var options = { showHeaders: false, config: {} };
-	widths = widths || []; aligns = aligns || []; header = header || [];
-
-	if (header.length > 0)
-		data.unshift(header); // Prepend header to table data
-
-	var count = Math.max(widths.length,aligns.length);
-	for(var i = 0; i < count; i++)
-	{
-		options.config[i] = {
-			minWidth: widths[i] ? widths[i] : 0,
-			align: aligns[i] ? aligns[i] : 'left'
-		};
-	}
-	
-	return '```' + columnify(data, options) + '```';
-};

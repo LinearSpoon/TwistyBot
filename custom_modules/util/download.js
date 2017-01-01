@@ -7,7 +7,10 @@ module.exports = function(url) {
 			if (err)
 				return reject(err);
 			if (res.statusCode != 200)
+			{
+				console.error(body)
 				return reject(Error('Bad request (' + res.statusCode + ': ' + res.statusMessage + ')'));
+			}
 			return resolve(body);
 		});
 	});

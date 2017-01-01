@@ -13,7 +13,7 @@ var find_daily_xp_gains = custom_require('report/sections/daily_xp_gains');
 var find_weekly_xp_gains = custom_require('report/sections/weekly_xp_gains');
 
 // https://docs.google.com/spreadsheets/d/1N2fzS9Bd_BZ7EwzWbS8YRDGQipIo8DCDlHYmJUEmXAs/edit#gid=0
-var dateformat = require('dateformat');
+var moment = require('moment-timezone');
 
 if (config.get('auto_update_report'))
 {
@@ -24,7 +24,7 @@ if (config.get('auto_update_report'))
 }
 
 
-module.exports = async function(params)
+module.exports = async function(message, params)
 {
 	if (params[0] == 'update')
 		await update_report();
@@ -32,7 +32,7 @@ module.exports = async function(params)
 	var report = await load_report_data();
 
 	console.log('Formatting report...');
-	var report_str = 'Report time: ' + dateformat(report.end_date, 'mmm d, h:MM TT')
+	var report_str = 'Report time: ' + moment(report.end_date).format('MMM D, h:mm A')
 		+ '\n\n' + find_inactive(report.clan_list)
 		+ '\n\n' + find_rsjustice(report.clan_list)
 		+ '\n\n' + find_cb_changed(report.clan_list)

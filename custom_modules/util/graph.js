@@ -1,14 +1,45 @@
-var vega = require('vega');
+var node_canvas = require('canvas');
+var ChartjsNode = require('chartjs-node');
 
-var canvas;
+var moment = require('moment-timezone');
 
-vega.parse.spec('line_chart.json', function(err, chart) {
-	if (err)
-		return console.log(err);
-	var view = chart({ renderer: "canvas" }).update();
-	canvas = view.canvas();
-});
+
+// http://www.chartjs.org/docs/
+const line_chart_options = {
+	defaultFontColor: 'white',
+	defaultColor: 'white',
+	elements: {
+		line: {
+			backgroundColor: 'transparent',
+			borderColor: 'red'
+		}
+	},
+	scales: {
+		xAxes: [{
+			type: 'linear',
+			position: 'bottom',
+			gridLines: {
+				color: 'white'
+			},
+			ticks: {
+				callback: function(v,i,a) { return moment(v).format('MMM D, h:mm A'); }
+			}
+		}],
+		yAxes: [{
+			gridLines: {
+				color: 'white'
+			}
+		}],
+	}
+};
+
+
+
+
 
 module.exports.line_chart = function(data) {
-	return 	canvas.toBuffer();
+	var chartNode = new ChartjsNode(600, 300);
+	return chartNode
+		.drawChart({type:'line', data: data, options: line_chart_options})
+		.then( () => chartNode.getImageBuffer('image/png') );
 };

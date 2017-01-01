@@ -1,4 +1,4 @@
-module.exports = async function(params) {
+module.exports = async function(message, params) {
 	if (params.length != 1)
 	{
 		throw Error('Usage: !rsj <player name>\n\nExamples:'

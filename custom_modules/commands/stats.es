@@ -1,4 +1,4 @@
-module.exports = async function(params) {
+module.exports = async function(message, params) {
 	if (params.length != 1)
 	{
 		throw Error('Usage: !stats <username>\n\nExamples:'
@@ -10,17 +10,16 @@ module.exports = async function(params) {
 	if (!stats)
 		throw Error('Player not found.');
 
-	var table_header = ['Skill', 'Rank', 'Level', 'XP'];
+	var output = 'Skill              Rank  Level            XP';
 	var table_data = []
 	for(var skill of apis.RuneScape.skills)
 	{
-		table_data.push([
+		output += util.printf('\n%-12s %10s %6s %13s',
 			skill.charAt(0).toUpperCase() + skill.slice(1), // Capitalize first letter
 			stats[skill].rank,
 			stats[skill].level,
-			util.format_number(stats[skill].xp)
-		]);
+			util.format_number(stats[skill].xp));
 	}
 
-	return util.dm.table(table_data, [14, 8, 6, 13], ['left', 'right', 'right', 'right'], table_header);
+	return util.dm.code_block(output);
 };

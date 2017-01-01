@@ -1,4 +1,4 @@
-module.exports = async function(params) {
+module.exports = async function(message, params) {
 	if (params.length != 1)
 		throw Error('Usage: !price <item>\n\nExamples:\n!price Cannonball\n!price ags\n!price zam hilt');
 

@@ -20,7 +20,7 @@ async function update_cache()
 	if (rsj_cache.length > 0 && Date.now() - rsj_cache.last_update < 1000 * 3600)
 		return; // Do not update if cache less than 1 hour old
 
-	var body = await util.download('http://rsjustice.com/');
+	var body = await util.download('http://rsjustice.com/index/');
 
 	// I hate HTML
 	var $ = cheerio.load(body);
@@ -35,7 +35,8 @@ async function update_cache()
 	});
 
 	if (rsj_cache.length == 0)
-		console.warn('RSJ cache update probably broken.');
+		console.warn('RSJ cache update probably broken.', body);
 
 	rsj_cache.last_update = Date.now();
+	console.log('RSJ cache became:', rsj_cache);
 }

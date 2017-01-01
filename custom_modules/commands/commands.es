@@ -1,8 +1,9 @@
 const fmt = '%-13s %-s\n';
-module.exports = async function(params) {
+module.exports = async function(message, params) {
 	return util.dm.code_block(
 		util.printf(fmt, '!price', 'Retrieves price of items from RSBuddy.') +
 		util.printf(fmt, '!update', 'Updates a single player on CrystalMathLabs.') +
+		util.printf(fmt, '!ttm', 'Check hours to max stats with efficient training.') +
 		util.printf(fmt, '!stats', 'Display OldSchool player stats.') +
 		util.printf(fmt, '!cb', 'Display OldSchool player combat stats.') +
 		util.printf(fmt, '!rsj', 'Lookup a player on RS Justice.') +

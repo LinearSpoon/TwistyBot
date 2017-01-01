@@ -3,7 +3,7 @@ var moment = require("moment-timezone");
 const time_format = 'MMM D, hh:mm A z';
 //console.log(moment.tz.names())
 
-module.exports = async function(params) {
+module.exports = async function(message, params) {
 	var now = moment();
 
 	return util.dm.code_block(
