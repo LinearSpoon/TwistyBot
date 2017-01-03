@@ -163,50 +163,16 @@ function split_send_message(text)
 	return all_messages;
 }
 
-// Detect and politely ask previous instances of node to shutdown
-var ipc = require('node-ipc');
-var server_id = 'TwistyBot';
-ipc.config.silent = true;
-ipc.config.id = server_id;
-ipc.config.maxRetries = 0;
-
-ipc.serve(function() {
-	ipc.server.on('kill', function(data,socket) {
-		console.log('Received kill message. Bye bye!');
-		stop_server(socket);
-	});
-});
-
-ipc.connectTo(server_id, function() {
-	ipc.of[server_id].on('connect', function() {
-		console.log('Found previous instance of', server_id, 'server.');
-		// Send kill event and wait for going_away
-		ipc.of[server_id].emit('kill');
-	});
-
-	ipc.of[server_id].on('error', function(err) {
-		console.log('Could not find another instance of', server_id, 'server.');
-		start_server();
-	});
-
-	ipc.of[server_id].on('going_away', function(data) {
-		console.log('Previous server has shutdown. Starting server...');
-		start_server();
-	});
-});
-
-
-function start_server()
+// These functions must return a promise
+function start_servers()
 {
-	ipc.server.start();
 	client.login(config.get('token'));
+	return Promise.resolve();
 }
 
-function stop_server(notify_socket)
+function stop_servers()
 {
-	if (notify_socket)
-		ipc.server.emit(notify_socket, 'going_away');
-	ipc.server.stop();
-	console.log('Stopping process.');
-	process.exit();
+	return Promise.resolve();
 }
+
+custom_require('singleinstance')(start_servers, stop_servers);

@@ -1,7 +1,4 @@
-var cheerio = require('cheerio');
-
 const one_hour = 1000 * 60 * 60;
-
 
 var cache = {
 	error: null, // Last error
@@ -11,18 +8,39 @@ var cache = {
 };
 
 // if player is found => details object
-//   details.url
-//   details.player
-//   details.reason
 // if player is not found => undefined
 // other error => throw
-module.exports.lookup = async function(username) {
+module.exports.lookup = async function(username, channel_id) {
 	await update_cache();
 	if (cache.error)
 		throw cache.error;
+
+	var include_private = is_channel_private(channel_id);
+	console.log('include private:', include_private);
 	username = username.toLowerCase();
-	return cache.players.find( e => e.player.toLowerCase() == username);
+	return to_detail_object(
+		cache.players.find(function(e) {
+			return e.title.toLowerCase() == username
+				&& ((include_private && e.status == 'private')
+				|| e.status == 'publish');
+		})
+	);
 };
+
+function to_detail_object(post)
+{ // {"id":123,"date":Date ,"modified":Date ,"title":"name","reason":"...)","status":"publish|private"
+	if (!post)
+		return;
+
+	return {
+		id: post.id,
+		url: 'http://rsjustice.com/' + post.link,
+		player: post.title,
+		reason: post.reason,
+		date_created: new Date(post.date + 'Z'),
+		date_modified: new Date(post.modified + 'Z')
+	};
+}
 
 async function update_cache()
 {
@@ -31,27 +49,10 @@ async function update_cache()
 
 	try
 	{
-		var res = await util.request('http://rsjustice.com/index/');
-		// A kludge because RSJ returns 404 even when the page loads successfully
-		if (res.statusCode != 200 && res.statusCode != 404)
-			throw Error('Bad request: (' + res.statusCode + ' ' + res.statusMessage + ')');
-		var players = [];
-		// Parse the page for players
-		var $ = cheerio.load(res.body);
-		$('div .su-tabs-pane.su-clearfix > ul.lcp_catlist:last-of-type > li').each(function(i,e) {
-				var data = $(this).children();
-				players.push({
-					url: data.attr('href'),
-					player: data.attr('title'),
-					reason: data.get(0).next.data.trim()
-				});
-		});
-		if (players.length == 0)
-			throw Error('Unable to parse RSJustice HTML');
-		// Else, players loaded successfully
+		cache.players = JSON.parse(await util.download(config.get('rsj_api')));
+		//cache.players = root_require('./bot.json');
 		cache.error = null;
 		cache.attempts = 0;
-		cache.players = players;
 		cache.next_update = Date.now() + one_hour;
 	}
 	catch(e)
@@ -69,7 +70,16 @@ async function update_cache()
 	}
 }
 
+// Returns true if we are holding our requests for a while
 module.exports.is_limited = function() {
 	return cache.error // There was an error
 		&& Date.now() < cache.next_update; // and the last attempt was less than an hour ago
 };
+
+// Returns true if passed channel id is allowed to see private RSJ posts
+function is_channel_private(channel_id)
+{
+	return config.get('rsj_private_channels').indexOf(channel_id) > -1;
+}
+
+module.exports.is_channel_private = is_channel_private;

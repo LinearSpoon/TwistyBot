@@ -1,32 +1,12 @@
-var Module           = require('module');
-var fs               = require('fs');
-var path             = require('path');
-var compiler         = custom_require('babel/compile');
+var fs = require('fs');
+var compiler = custom_require('babel/compile');
 
+const compiler_settings = { presets: ['es2017'] };
 
-var originalRequire = Module.prototype.require;
-
-// Hook require function to compile jsx
-Module.prototype.require = function()
-{
-	var filepath = arguments[0];
-	if (path.extname(filepath) == '')
-	{
-		try {
-			// See if the path exists with .es extension
-			var es_filepath = filepath + '.es';
-			fs.accessSync(es_filepath, fs.F_OK);
-			filepath = es_filepath;
-		} catch(err) {
-			// Do nothing
-		}
-	}
-
-	// Check if this file needs compiled
-	if (path.extname(filepath) == '.es')
-	{
-		arguments[0] = compiler.compile_file(filepath, { presets: ["es2017"] });
-	}
-
-	return originalRequire.apply(this, arguments);
+// See: https://nodejs.org/api/globals.html#globals_require_extensions
+require.extensions['.es'] = function(_module, _filename) {
+	//console.old('Require es: ' , _module._compile);
+	var compiled_path = compiler.compile_file(_filename, compiler_settings);
+	var compiled_code = fs.readFileSync(compiled_path, 'utf8')
+	return _module._compile(compiled_code, _filename);
 };

@@ -144,4 +144,7 @@ module.exports = {
 	'dchain':'Dragon chainbody',
 	'heart':'Imbued heart',
 	'dfs':'Dragonfire shield',
+	'dpick':'Dragon pickaxe',
+	'd pick':'Dragon pickaxe',
+	'd pick':'Dragon pickaxe',
 }

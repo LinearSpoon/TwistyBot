@@ -5,11 +5,14 @@ module.exports = async function(message, params) {
 			+ '\n!rsj i rep wih\n!rsj tades');
 	}
 
-	var details = await apis.RSJustice.lookup(params[0]);
+	var details = await apis.RSJustice.lookup(params[0], message.channel.id);
 	if (!details)
 		return util.dm.code_block('Player not found.');
 
 	return 'Player: ' + details.player +
-		'\nReason: ' + details.reason +
-		'\nDetail: ' + details.url;
+		'\nPublished: ' + util.approximate_time(Date.now() - details.date_created) + ' ago' +
+		'\nLast updated: ' + util.approximate_time(Date.now() - details.date_modified) + ' ago' +
+		'\nDescription:  ' + details.reason +
+		'\n' + util.dm.underline('RSJ link') + ': ' + details.url +
+		'\n' + util.dm.underline('RSOF link') + ': http://services.runescape.com/m=forum/users.ws?lookup=find&searchname=' + encodeURIComponent(details.player);
 };

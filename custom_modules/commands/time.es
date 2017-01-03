@@ -7,7 +7,7 @@ module.exports = async function(message, params) {
 	var now = moment();
 
 	return util.dm.code_block(
-		'TwistyBot:   ' + now.tz('UTC').format(time_format) +
+		'Bot Time:    ' + now.tz('UTC').format(time_format) +
 		'\nEastern US:  ' + now.tz('America/New_York').format(time_format) +
 		'\nCentral US:  ' + now.tz('America/Chicago').format(time_format) +
 		'\nMountain US: ' + now.tz('America/Phoenix').format(time_format) +
