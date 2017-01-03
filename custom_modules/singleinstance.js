@@ -1,6 +1,6 @@
 var ipc = require('node-ipc');
 
-var app_id = __filename; // Needs to be the same every run but unique to this project
+var app_id = __filename.replace(/\/|\.js/g, ''); // Needs to be the same every run but unique to this project
 ipc.config.id = app_id;
 ipc.config.silent = true;
 ipc.config.maxRetries = 0;

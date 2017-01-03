@@ -1,4 +1,4 @@
-const one_hour = 1000 * 60 * 60;
+const five_minutes = 1000 * 60 * 5;
 
 var cache = {
 	error: null, // Last error
@@ -28,7 +28,7 @@ module.exports.lookup = async function(username, channel_id) {
 };
 
 function to_detail_object(post)
-{ // {"id":123,"date":Date ,"modified":Date ,"title":"name","reason":"...)","status":"publish|private"
+{
 	if (!post)
 		return;
 
@@ -53,7 +53,7 @@ async function update_cache()
 		//cache.players = root_require('./bot.json');
 		cache.error = null;
 		cache.attempts = 0;
-		cache.next_update = Date.now() + one_hour;
+		cache.next_update = Date.now() + five_minutes;
 	}
 	catch(e)
 	{ // Some error occurred, log it and rethrow
@@ -62,8 +62,8 @@ async function update_cache()
 		{
 			// Too many failures since the last update
 			// Set update time so that no requests are made for an hour
-			e = Error('Too many failed RSJustice lookups. Giving up for an hour.');
-			cache.next_update = Date.now() + one_hour;
+			e = Error('Too many failed RSJustice lookups. Try again in 5 minutes.');
+			cache.next_update = Date.now() + five_minutes;
 		}
 		cache.error = e;
 		throw e;
