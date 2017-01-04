@@ -29,17 +29,16 @@ module.exports = async function(message, params) {
 		};
 	});
 
-
-	message.channel.sendFile(util.graph.line_chart(history), 'history.png', 'Xp');
+	//message.channel.sendFile(util.graph.line_chart(history), 'history.png', 'Xp');
 
 	return 'Here are my records for ' + player[0].name + '(' + params[1] + '):\n' + util.dm.code_block(
 		util.printf('%-15s %6s %14s %8s\n', 'Date', 'Level', 'Xp', 'Rank') +	history.map(function(row) {
 			return util.printf('%-6s %8s %6d %14s %8s',
 				moment(row.timestamp).format('MMM D'),
 				moment(row.timestamp).format('h:mm A'),
-				details.level,
-				util.format_number(details.xp),
-				util.format_number(details.rank));
+				row.details.level,
+				util.format_number(row.details.xp),
+				util.format_number(row.details.rank));
 		}).join('\n'));
 
 };
