@@ -29,12 +29,9 @@ module.exports = async function(message, params) {
 		details = history[history.length - 1];
 
 		// Add a little warning
-		command_response += util.dm.bold('Warning') + ': This item is currently inactive. Here are the latest prices from ';
-		var time_diff = Date.now() - details.ts;
-		if (time_diff < 7200000) // 2 hours
-			command_response += Math.floor(time_diff / 60000) + ' minutes ago.\n';
-		else
-			command_response +=  Math.floor(time_diff / 3600000) + ' hours ago.\n';
+		command_response +=
+			util.dm.bold('Warning') + ': This item is currently inactive. Here are the latest prices from ' +
+			util.approximate_time(Date.now() - details.ts) + ' ago:\n';
 	}
 
 	var price_data =

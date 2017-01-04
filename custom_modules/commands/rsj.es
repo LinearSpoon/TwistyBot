@@ -5,7 +5,7 @@ module.exports = async function(message, params) {
 			+ '\n!rsj i rep wih\n!rsj tades');
 	}
 
-	var details = await apis.RSJustice.lookup(params[0], message.channel.id);
+	var details = await apis.RSJustice.lookup(params[0], util.message_in(message, 'rsj_private_channels'));
 	if (!details)
 		return util.dm.code_block('Player not found.');
 
@@ -13,6 +13,6 @@ module.exports = async function(message, params) {
 		'\nPublished: ' + util.approximate_time(Date.now() - details.date_created) + ' ago' +
 		'\nLast updated: ' + util.approximate_time(Date.now() - details.date_modified) + ' ago' +
 		'\nDescription:  ' + details.reason +
-		'\n' + util.dm.underline('RSJ link') + ': ' + details.url +
-		'\n' + util.dm.underline('RSOF link') + ': http://services.runescape.com/m=forum/users.ws?lookup=find&searchname=' + encodeURIComponent(details.player);
+		'\n' + util.dm.underline('Link') + ': ' + details.url;
+		//\n' + util.dm.underline('RSOF link') + ': http://services.runescape.com/m=forum/users.ws?lookup=find&searchname=' + encodeURIComponent(details.player);
 };

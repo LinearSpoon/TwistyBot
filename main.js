@@ -51,24 +51,26 @@ function log_message(explanation, message)
 
 // Parse command and execute
 client.on('message', function(message) {
-	var allowed_channels = config.get('channels');
-	if (allowed_channels.length > 0 && allowed_channels.indexOf(message.channel.id) == -1)
-		return;  // Only listen to allowed channels
+	if (config.get('whitelist_channels').length > 0 && !util.message_in(message, 'whitelist_channels'))
+		return; // Only listen to allowed channels
+
+	if (util.message_in(message, 'blacklist_channels'))
+		return; // Do not listen in blocked channels
 
 	if (message.author.id == client.user.id)
-		return;  // Ignore own messages
+		return; // Ignore own messages
 
 	log_message('Possible command', message);
 
 	if (message.content[0] != '!')
-		return;  // Not a command
+		return; // Not a command
 
 	var fn = message.content.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
 
 	if (typeof commands[fn] !== 'function')
-	 	return;  // Not a valid command
+	 	return; // Not a valid command
 
 	message.channel.startTyping();
 	var p = commands[fn].call(commands, message, params);
@@ -170,9 +172,4 @@ function start_servers()
 	return Promise.resolve();
 }
 
-function stop_servers()
-{
-	return Promise.resolve();
-}
-
-custom_require('singleinstance')(start_servers, stop_servers);
+custom_require('singleinstance')(start_servers, () => Promise.resolve());

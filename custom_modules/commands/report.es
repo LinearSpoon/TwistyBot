@@ -26,6 +26,9 @@ if (config.get('auto_update_report'))
 
 module.exports = async function(message, params)
 {
+	if (!util.message_in(message, 'deities_channels'))
+		return;
+
 	if (params[0] == 'update')
 		await update_report();
 

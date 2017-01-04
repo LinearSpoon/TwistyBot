@@ -10,14 +10,12 @@ var cache = {
 // if player is found => details object
 // if player is not found => undefined
 // other error => throw
-module.exports.lookup = async function(username, channel_id) {
+module.exports.lookup = async function(username, include_private) {
 	await update_cache();
 	if (cache.error)
 		throw cache.error;
 
-	var include_private = is_channel_private(channel_id);
-	console.log('include private:', include_private);
-	username = username.toLowerCase();
+	username = username.toLowerCase().replace(/[-_]/g,' ');
 	return to_detail_object(
 		cache.players.find(function(e) {
 			return e.title.toLowerCase() == username
@@ -75,11 +73,3 @@ module.exports.is_limited = function() {
 	return cache.error // There was an error
 		&& Date.now() < cache.next_update; // and the last attempt was less than an hour ago
 };
-
-// Returns true if passed channel id is allowed to see private RSJ posts
-function is_channel_private(channel_id)
-{
-	return config.get('rsj_private_channels').indexOf(channel_id) > -1;
-}
-
-module.exports.is_channel_private = is_channel_private;

@@ -1,6 +1,9 @@
 var moment = require('moment-timezone');
 
 module.exports = async function(message, params) {
+	if (!util.message_in(message, 'deities_channels'))
+		return;
+
 	if (!params[1])
 		params[1] = 'overall';
 
