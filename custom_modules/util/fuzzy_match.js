@@ -23,8 +23,8 @@ module.exports = function(needle, haystack)
 
 	for(var z in haystack)
 	{
-		var a = needle;
-		var b = haystack[z];
+		var a = needle.toLowerCase();
+		var b = haystack[z].toLowerCase();
 		// initialize matrix
 		var mat = [];
 		if (a[0] == b[0])

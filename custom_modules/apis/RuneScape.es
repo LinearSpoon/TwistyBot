@@ -32,7 +32,7 @@ module.exports.skills = skills_order;
 // if player doesn't exist => undefined
 // other error => throw
 module.exports.lookup_player = async function(username) {
-	var url = 'http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=' + encodeURIComponent(username.replace(/[^a-zA-Z0-9 \-]/g,''));
+	var url = 'http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=' + encodeURIComponent(username.replace(/[^a-zA-Z0-9 \-_]/g,''));
 	//console.log(url);
 	var res = await util.request(url);
 	if (res.statusCode == 404)

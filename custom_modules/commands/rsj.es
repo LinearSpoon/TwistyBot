@@ -5,9 +5,18 @@ module.exports = async function(message, params) {
 			+ '\n!rsj i rep wih\n!rsj tades');
 	}
 
-	var details = await apis.RSJustice.lookup(params[0], util.message_in(message, 'rsj_private_channels'));
+	var name = params[0];
+	var include_private = util.message_in(message, 'rsj_private_channels');
+
+	var details = await apis.RSJustice.lookup(name, include_private);
 	if (!details)
-		return util.dm.code_block('Player not found.');
+	{
+		return 'Player not found! Are you looking for one of these fine individuals?\n' +
+			util.dm.code_block(
+				'Name               Score\n' +
+				apis.RSJustice.get_similar_names(name, include_private).map(e => util.printf('%-18s %5d', e.name, e.score)).join('\n')
+			);
+	}
 
 	return 'Player: ' + details.player +
 		'\nPublished: ' + util.approximate_time(Date.now() - details.date_created) + ' ago' +

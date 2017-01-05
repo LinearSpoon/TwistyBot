@@ -16,27 +16,19 @@ module.exports.lookup = async function(username, include_private) {
 		throw cache.error;
 
 	username = username.toLowerCase().replace(/[-_]/g,' ');
-	return to_detail_object(
-		cache.players.find(function(e) {
-			return e.title.toLowerCase() == username
-				&& ((include_private && e.status == 'private')
-				|| e.status == 'publish');
-		})
-	);
+	return get_posts(include_private).find(e => e.player.toLowerCase() == username);
 };
 
 function to_detail_object(post)
 {
-	if (!post)
-		return;
-
 	return {
 		id: post.id,
 		url: 'http://rsjustice.com/' + post.link,
 		player: post.title,
 		reason: post.reason,
 		date_created: new Date(post.date + 'Z'),
-		date_modified: new Date(post.modified + 'Z')
+		date_modified: new Date(post.modified + 'Z'),
+		status: post.status
 	};
 }
 
@@ -47,7 +39,8 @@ async function update_cache()
 
 	try
 	{
-		cache.players = JSON.parse(await util.download(config.get('rsj_api')));
+		var raw_data = await util.download(config.get('rsj_api'));
+		cache.players = JSON.parse(raw_data).map(to_detail_object);
 		//cache.players = root_require('./bot.json');
 		cache.error = null;
 		cache.attempts = 0;
@@ -73,3 +66,14 @@ module.exports.is_limited = function() {
 	return cache.error // There was an error
 		&& Date.now() < cache.next_update; // and the last attempt was less than an hour ago
 };
+
+// Find closest matches to the passed name
+module.exports.get_similar_names = function(name, include_private)
+{
+	return util.fuzzy_match(name, get_posts(include_private).map(e => e.player)).slice(0, 5);
+};
+
+function get_posts(include_private)
+{
+	return cache.players.filter(e => (include_private && e.status == 'private') || e.status == 'publish');
+}

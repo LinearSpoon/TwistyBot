@@ -59,7 +59,7 @@ module.exports.get_item_summary = async function(id)
 
 module.exports.get_similar_items = function(name)
 {
-	return util.fuzzy_match(name, name_cache.map(el => el.name));
+	return util.fuzzy_match(name, name_cache.map(el => el.name)).slice(0, 10);
 };
 
 module.exports.get_item_history = async function(id, start, interval)

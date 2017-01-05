@@ -7,7 +7,7 @@ module.exports = async function(message, params) {
 	var id = apis.RSBuddy.get_item_id(item);
 	if (!id)
 	{ // Try fuzzy string search
-		var guesses = apis.RSBuddy.get_similar_items(item).slice(0, 10).map(el => util.printf('%-28s %3d', el.name, el.score));
+		var guesses = apis.RSBuddy.get_similar_items(item).map(el => util.printf('%-28s %3d', el.name, el.score));
 		return 'Item not found! Are you looking for one of these?\n' +
 			util.dm.code_block('Item                       Score\n' + guesses.join('\n'));
 	}
