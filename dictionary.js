@@ -146,5 +146,19 @@ module.exports = {
 	'dfs':'Dragonfire shield',
 	'dpick':'Dragon pickaxe',
 	'd pick':'Dragon pickaxe',
-	'd pick':'Dragon pickaxe',
+
+	// Raids raids raids
+	'twisty bow':'Twisted bow',
+	'claws':'Dragon claws',
+	'dclaws':'Dragon claws',
+	'd claws':'Dragon claws',
+	'maul':'Elder maul',
+	'dragon crossbow':'Dragon hunter crossbow',
+	'dragon cbow':'Dragon hunter crossbow',
+	'twisty buckler':'Twisted buckler',
+	'kodai':'Kodai wand',
+	'bulwark':"Dinh's bulwark",
+	'rigour':"Prayer scroll",
+	'augury':"Prayer scroll",
+	'preserve':"Prayer scroll",
 }

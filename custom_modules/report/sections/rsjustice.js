@@ -5,7 +5,5 @@ module.exports = function(clan_list) {
 		.map(member => member.id + ': ' + member.name + ' ' + member.rsjustice.url);
 
 	var output = 'Members on RSJustice: ' + report.length + '\n' + report.join('\n');
-	if (apis.RSJustice.is_limited())
-		output += util.dm.bold('Warning: RSJustice api is currently limited, report may not include all members.\n');
 	return output;
 };
