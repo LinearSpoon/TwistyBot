@@ -36,7 +36,9 @@ function to_detail_object(post)
 		date_created: new Date(post.date + 'Z'),
 		date_modified: new Date(post.modified + 'Z'),
 		status: post.status,
-		previous_names: post.tags.filter(e => e.toLowerCase() != post.title.toLowerCase())
+		previous_names: post.tags
+			.filter(e => e.toLowerCase() != post.title.toLowerCase())
+			.map(e => e.replace(/[-_]/g,' '))
 	};
 }
 
