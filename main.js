@@ -32,38 +32,39 @@ const client = new Discord.Client();
 
 client.on('ready', () => console.log('Event: ready'));
 client.on('disconnect', () => console.warn('Event: disconnected'));
-client.on('guildMemberAdd', member => console.log('Event: new member', member));
-client.on('guildUnavailable', guild => console.log('Event: guild unavailable', guild));
-client.on('messageDelete', message => log_message('Event: message deleted', message));
-client.on('messageDeleteBulk', message_coll => message_coll.array().forEach(message => log_message('Event: messages deleted', message)));
-client.on('messageUpdate', (old_message,new_message) => log_message('Event: message changed', new_message));
+client.on('guildMemberAdd', member => console.log('[New member]', member.guild.name + ':', member.user.username));
+client.on('guildUnavailable', guild => console.log('[Guild unavailable]', guild.name));
+client.on('messageDelete', message => log_message('Del', message));
+client.on('messageDeleteBulk', message_coll => message_coll.array().forEach(message => log_message('Del', message)));
+client.on('messageUpdate', (old_message,new_message) => log_message('Mod', new_message));
 client.on('reconnecting', () => console.log('Event: reconnecting'));
 client.on('warn', msg => console.warn('Event: warning', msg));
 client.on('error', err => console.error('Event: warning', err));
 
 function log_message(explanation, message)
 {
-	console.log(explanation + ':', message.content);
-	console.log('  ' + message.author.username);
-	console.log('  ' + message.channel.guild.name + '.' + message.channel.name);
-	console.log('  ' + message.id);
+	console.log('[' + explanation + ']',
+		'[' + message.channel.guild.name + '.' + message.channel.name + ']',
+		message.author.username + ':',
+		message.content);
+	//console.log('  ' + message.id);
 }
 
 // Parse command and execute
 client.on('message', function(message) {
+	if (message.author.id == client.user.id)
+		return; // Ignore own messages
+
+	log_message('New', message);
+
+	if (message.content[0] != '!')
+		return; // Not a command
+
 	if (config.get('whitelist_channels').length > 0 && !util.message_in(message, 'whitelist_channels'))
 		return; // Only listen to allowed channels
 
 	if (util.message_in(message, 'blacklist_channels'))
 		return; // Do not listen in blocked channels
-
-	if (message.author.id == client.user.id)
-		return; // Ignore own messages
-
-	log_message('Possible command', message);
-
-	if (message.content[0] != '!')
-		return; // Not a command
 
 	var fn = message.content.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command

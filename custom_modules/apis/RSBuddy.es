@@ -4,8 +4,8 @@
 // https://api.rsbuddy.com/grandExchange?a=graph&start=1425921352106&g=1440&i=<id>  => history?
 // https://api.rsbuddy.com/grandExchange?i=7944&a=graph&g=1
 
-var name_dictionary = root_require('dictionary.js');	// Dictionary of alternate item names (key=alt name, value=real name)
-var names_raw = root_require('names.json');		// cached from: https://rsbuddy.com/exchange/names.json
+var name_dictionary = root_require('price_data/dictionary.js');	// Dictionary of alternate item names (key=alt name, value=real name)
+var names_raw = root_require('price_data/names.json');		// cached from: https://rsbuddy.com/exchange/names.json
 
 // Transform raw names into an array
 var name_cache = [];
@@ -20,7 +20,7 @@ for(var i in names_raw)
 names_raw = undefined; // delete names_raw throws a warning..whatever no need to keep it around
 
 // Returns full item name based on an abbreviation or name with incorrect case
-module.exports.get_item_proper_name = function(name)
+function get_item_proper_name(name)
 {
 	var search_name = name.toLowerCase();
 	var match = name_cache.find( e => e.search_name == search_name );
@@ -32,17 +32,17 @@ module.exports.get_item_proper_name = function(name)
 		return name_dictionary[search_name];
 
 	return '';
-};
+}
 
-module.exports.get_item_id = function(name)
+function get_item_id(name)
 {
-	name = module.exports.get_item_proper_name(name);
+	name = get_item_proper_name(name);
 	// console.log('proper name = ', name);
 	var match = name_cache.find( e => e.name == name );
 	return match ? match.id : 0;
 };
 
-module.exports.get_item_summary = async function(id)
+async function get_item_summary(id)
 {
 	// {"overall":207,"buying":207,"buyingQuantity":477196,"selling":207,"sellingQuantity":502450}
 	var body = JSON.parse(await util.download('https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id));
@@ -57,12 +57,12 @@ module.exports.get_item_summary = async function(id)
 	};
 };
 
-module.exports.get_similar_items = function(name)
+function get_similar_items(name)
 {
 	return util.fuzzy_match(name, name_cache.map(el => el.name)).slice(0, 10);
 };
 
-module.exports.get_item_history = async function(id, start, interval)
+async function get_item_history(id, start, interval)
 {
 	// https://api.rsbuddy.com/grandExchange?a=graph&start=<timestamp>&g=<hours between datapoints>&i=<id>
 	// [{"ts":1481923200000,"buyingPrice":211,"buyingCompleted":407766,"sellingPrice":212,"sellingCompleted":475813,"overallPrice":212,"overallCompleted":883579}, ...]
@@ -72,4 +72,69 @@ module.exports.get_item_history = async function(id, start, interval)
 	if (interval)
 		url += '&g=' + interval;
 	return JSON.parse(await util.download(url));
-}
+};
+
+// valid => name is linked to an actual item
+// found => details contains price data
+// inactive => is the price old?
+async function get_item_details(name)
+{
+	var proper_name = get_item_proper_name(name);
+	var match = name_cache.find( e => e.name == proper_name );
+	// if exact match is not found, return a list of similar items
+	if (!match)
+	{
+		return {
+			name: name,
+			valid: false,
+			found: false,
+			similar_items: get_similar_items(name)
+		};
+	}
+
+	var id = match.id;
+	var details = await get_item_summary(id);
+	if (details.overallPrice == 0 && details.buyingPrice == 0 && details.sellingPrice == 0)
+	{ // Price is inactive, get the latest price from history API
+		var history = await get_item_history(id);
+		if (history.length == 0)
+		{	// History lookup failed
+			return {
+				name: proper_name,
+				id: id,
+				valid: true,
+				found: false,
+				inactive: true,
+			};
+		}
+		// History already sorted oldest to newest
+		details = history[history.length - 1];
+
+		return {
+			name: proper_name,
+			id: id,
+			valid: true,
+			found: true,
+			inactive: true,
+			details: details,
+			time: details.ts,
+		};
+	}
+
+	return {
+		name: proper_name,
+		id: id,
+		valid: true,
+		found: true,
+		inactive: false,
+		details: details,
+	};
+};
+
+// Export everything useful
+module.exports.get_item_proper_name = get_item_proper_name;
+module.exports.get_item_id = get_item_id;
+module.exports.get_item_summary = get_item_summary;
+module.exports.get_similar_items = get_similar_items;
+module.exports.get_item_history = get_item_history;
+module.exports.get_item_details = get_item_details;

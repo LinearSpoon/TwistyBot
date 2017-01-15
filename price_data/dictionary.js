@@ -160,5 +160,7 @@ module.exports = {
 	'bulwark':"Dinh's bulwark",
 	'rigour':"Prayer scroll",
 	'augury':"Prayer scroll",
-	'preserve':"Prayer scroll",
+	'preserve':"Torn prayer scroll",
+	'ancestral top':"Ancestral robe top",
+	'ancestral bottom':"Ancestral robe bottom",
 }

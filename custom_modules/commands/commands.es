@@ -8,6 +8,7 @@ module.exports = async function(message, params) {
 		util.printf(fmt, '!cb', 'Display OldSchool player combat stats.') +
 		util.printf(fmt, '!rsj', 'Lookup a player on RS Justice.') +
 		util.printf(fmt, '!time', 'Display the current time in different time zones.');
+		util.printf(fmt, '!split', 'Calculates split amounts.');
 
 	if (util.message_in(message, 'deities_channels'))
 	{

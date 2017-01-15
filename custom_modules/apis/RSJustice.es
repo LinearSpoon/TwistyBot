@@ -47,13 +47,13 @@ async function update_cache()
 	const time_format = 'YYYY-MM-DD%20HH:mm:ss';
 	// Build url to request posts since last update
 	var url = config.get('rsj_api') + '&after=' + last_update.format(time_format);
-	console.log(url);
 	var now = moment().tz('UTC');
 	var posts = JSON.parse(await util.download(url));
 	// Store returned posts indexed by id
 	for(var i in posts)
 		cache[posts[i].id] = to_detail_object(posts[i]);
-	console.log('Updated RSJ cache with', posts.length, 'new posts.');
+	if (posts.length > 0)
+		console.log('Updated RSJ cache with', posts.length, 'new posts.');
 	//console.log(posts);
 	last_update = now;
 }
