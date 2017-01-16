@@ -3,6 +3,8 @@ var moment = require("moment-timezone");
 const time_format = 'MMM D, hh:mm A z';
 console.log(moment.tz.names())
 
+// https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+// https://www.timeanddate.com/time/map/
 module.exports = async function(message, params) {
 	var now = moment();
 
@@ -14,6 +16,7 @@ module.exports = async function(message, params) {
 		'\nPacific US:    ' + now.tz('America/Los_Angeles').format(time_format) +
 		'\nJagex:         ' + now.tz('Europe/London').format(time_format) +
 		'\nNE Australia:  ' + now.tz('Australia/Brisbane').format(time_format) +
+		'\nSE Australia:  ' + now.tz('Australia/Melbourne').format(time_format) +
 		'\nAsk for other time zones if you want to see them here'
 	);
 };
