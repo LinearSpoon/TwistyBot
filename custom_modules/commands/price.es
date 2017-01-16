@@ -1,35 +1,46 @@
 var item_groups = root_require('price_data/item_groups');
 
 module.exports = async function(message, params) {
-	if (params.length != 1)
-		throw Error('Usage: !price <item>\n\nExamples:\n!price Cannonball\n!price ags\n!price zam hilt');
+	if (params.length == 0)
+		throw Error('Usage: !price <item>\n\nExamples:\n' +
+			'!price Cannonball\n' +
+			'!price ags, sgs, heart\n' +
+			'!price zilyana\n' +
+			'!price zam hilt');
 
-	var name = params[0];
-
-	var items = item_groups[name.toLowerCase()];
-	if (items)
-	{ // Multiple items to check
-		var command_response;
-		for(var i = 0; i < items.length; i++)
-		{
-			try
-			{
-				var result = await apis.RSBuddy.get_item_details(items[i]);
-				command_response += '\n' + short_detail(result);
-			}
-			catch(err)
-			{
-				command_response += '\nError: ' + err.message;
-			}
-			await util.sleep(400);
-		}
-
-		return 'Showing details for an item set.' + util.dm.code_block(command_response);
+	var items = [];
+	for(var i = 0; i < params.length; i++)
+	{
+		var group = item_groups[params[i].toLowerCase()];
+		if (group)
+			items = items.concat(group);
+		else
+			items.push(params[i]);
 	}
 
-	// Single item to check
-	var result = await apis.RSBuddy.get_item_details(name);
-	return full_detail(result);
+	if (items.length == 1)
+	{ // Show full detail for single item checks
+		var result = await apis.RSBuddy.get_item_details(items[0]);
+		return full_detail(result);
+	}
+
+	// Multiple items to check
+	var command_response;
+	for(var i = 0; i < items.length; i++)
+	{
+		try
+		{
+			var result = await apis.RSBuddy.get_item_details(items[i]);
+			command_response += '\n' + short_detail(result);
+		}
+		catch(err)
+		{
+			command_response += '\nError: ' + err.message;
+		}
+		await util.sleep(400);
+	}
+
+	return 'Showing details for an item set.' + util.dm.code_block(command_response);
 };
 
 function full_detail(result)
@@ -76,5 +87,5 @@ function short_detail(result)
 	if (!result.found)
 		return 'Price data not found: ' + result.name;
 
-	return util.printf('%-26s %13s GP', result.name, util.format_number(result.details.overallPrice || 0));
+	return util.printf('%-28s %13s GP', result.name, util.format_number(result.details.overallPrice || 0));
 }
