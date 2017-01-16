@@ -1,6 +1,6 @@
 var item_groups = root_require('price_data/item_groups');
 
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	if (params.length == 0)
 		throw Error('Usage: !price <item>\n\nExamples:\n' +
 			'!price Cannonball\n' +

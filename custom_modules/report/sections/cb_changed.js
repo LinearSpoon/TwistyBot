@@ -2,10 +2,10 @@
 module.exports = function(clan_list) {
 	var report = clan_list
 		.filter(function(member) {
-			if (!member.rshiscores)
+			if (!member.history || member.history.length == 0)
 				return false;
 
-			member.new_cb = Math.floor(apis.RuneScape.combat_level(member.rshiscores));
+			member.new_cb = Math.floor(apis.RuneScape.combat_level(member.history[0].hiscores));
 			return member.cb != member.new_cb;
 		})
 		.map(member => util.printf('%-3d %-12s    %-3d->%-3d', member.id, member.name, member.cb, member.new_cb));

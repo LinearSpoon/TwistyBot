@@ -1,6 +1,7 @@
 var moment = require('moment-timezone');
+const two_weeks = 14 * 24 * 60 * 60 * 1000;
 
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	if (!util.message_in(message, 'deities_channels'))
 		return;
 
@@ -17,7 +18,7 @@ module.exports = async function(message, params) {
 	if (player.length == 0)
 		throw Error("Player not found.");
 
-	var history = await database.query('SELECT * FROM hiscores_history WHERE player_id = ?;', player[0].id);
+	var history = await database.query('SELECT * FROM hiscores_history WHERE player_id = ? AND timestamp > ?;', player[0].id, Date.now() - two_weeks);
 
 	// Transform history object for graph rendering
 	history = history.map(function(row) {

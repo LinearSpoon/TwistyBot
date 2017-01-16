@@ -1,5 +1,5 @@
 const fmt = '%-13s %-s\n';
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	var commands =
 		util.printf(fmt, '!price', 'Retrieves price of items from RSBuddy.') +
 		util.printf(fmt, '!update', 'Updates a single player on CrystalMathLabs.') +

@@ -1,11 +1,11 @@
 var moment = require("moment-timezone");
 
 const time_format = 'MMM D, hh:mm A z';
-console.log(moment.tz.names())
+//console.log(moment.tz.names())
 
 // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 // https://www.timeanddate.com/time/map/
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	var now = moment();
 
 	return util.dm.code_block(

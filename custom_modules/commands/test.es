@@ -9,7 +9,7 @@ for(var i = 0; i < 5000; i++)
 		long_string += 'x';
 }
 
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	var data = {
 		datasets: [
 			{

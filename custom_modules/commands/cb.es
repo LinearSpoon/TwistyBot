@@ -1,6 +1,6 @@
 const fmt = '%-10s %7d %7s\n';
 
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	if (params.length != 1)
 	{
 		throw Error('Usage: !cb <username>\n\nExamples:'

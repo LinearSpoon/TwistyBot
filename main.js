@@ -30,7 +30,17 @@ var commands = custom_require('commands');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-client.on('ready', () => console.log('Event: ready'));
+client.on('ready', function() {
+	// List joined channels
+	var channels = client.channels.array();
+	for(var i = 0; i < channels.length; i++)
+	{
+		var channel = channels[i];
+		if (channel.type != 'text')
+			continue;
+		console.log(util.printf('%-35s %s', channel.guild.name + '.' + channel.name, channel.id));
+	}
+});
 client.on('disconnect', () => console.warn('Event: disconnected'));
 client.on('guildMemberAdd', member => console.log('[New member]', member.guild.name + ':', member.user.username));
 client.on('guildUnavailable', guild => console.log('[Guild unavailable]', guild.name));
@@ -74,7 +84,7 @@ client.on('message', function(message) {
 	 	return; // Not a valid command
 
 	message.channel.startTyping();
-	var p = commands[fn].call(commands, message, params);
+	var p = commands[fn].call(commands, client, message, params);
 
 	if (typeof p.then !== 'function')
 	{ // Oops check

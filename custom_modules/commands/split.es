@@ -1,4 +1,4 @@
-module.exports = async function(message, params) {
+module.exports = async function(client, message, params) {
 	if (params.length != 2)
 	{
 		throw Error('Usage: !split <amount>, <players>\n\nExamples:'

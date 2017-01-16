@@ -7,22 +7,23 @@ module.exports = function(clan_list) {
 
 	var report = clan_list
 		.filter(function(member) {
-			if (!member.history || !member.rshiscores)
+			if (!member.history || member.history.length == 0)
 				return false;
 
-			var current_xp = member.rshiscores.overall.xp;
-			// Keep if their xp is the same as recorded more than two seeks ago
+			var current_xp = member.history[0].hiscores.overall.xp;
+			// Keep if their xp is the same as recorded more than two weeks ago
 			return member.history.find(record => current_xp == record.hiscores.overall.xp && record.timestamp < limit);
 		})
 		.map(function(member) {
 			// The last time their xp changed should be the oldest record matching their current xp
-			var current_xp = member.rshiscores.overall.xp;
+			var current_xp = member.history[0].hiscores.overall.xp;
 			var newest = member.history
 				.filter(record => current_xp == record.hiscores.overall.xp)
 				.reduce( (a,b) => a.timestamp > b.timestamp ? b : a );
 
-			return util.printf('%-3d %-12s    %-3d', member.id, member.name, Math.floor((Date.now() - newest.timestamp) / one_day) );
+
+			return util.printf('%-3d %-12s    %-14s', member.id, member.name, util.approximate_time(Date.now(), newest.timestamp) + ' ago');
 		});
 
-	return 'Inactive members: ' + report.length + util.dm.code_block('\nID  Name            Days\n' + report.join('\n'));
+	return 'Inactive members: ' + report.length + util.dm.code_block('\nID  Name            Last seen\n' + report.join('\n'));
 };
