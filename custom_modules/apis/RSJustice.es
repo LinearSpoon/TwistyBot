@@ -25,9 +25,16 @@ async function initialize_cache()
 	}
 }
 
+function to_searchable_name(name)
+{
+	return name.replace(/[-_]/g,' ').toLowerCase();
+}
+
 // Convert raw post to something more convenient
 function to_detail_object(post)
 {
+	var search_name = to_searchable_name(post.title);
+	var search_tags = post.tags.map(to_searchable_name);
 	return {
 		id: post.id,
 		url: 'http://rsjustice.com/' + post.link,
@@ -37,8 +44,9 @@ function to_detail_object(post)
 		date_modified: new Date(post.modified + 'Z'),
 		status: post.status,
 		previous_names: post.tags
-			.filter(e => e.toLowerCase() != post.title.toLowerCase())
-			.map(e => e.replace(/[-_]/g,' '))
+			.filter(e => to_searchable_name(e) != search_name), // Remove current name
+		_name: search_name,
+		_previous_names: search_tags,
 	};
 }
 
@@ -74,15 +82,14 @@ function get_posts(include_private)
 // other error => throw
 module.exports.lookup = async function(username, include_private) {
 	await cache_promise;
-	username = username.toLowerCase().replace(/[-_]/g,' ');
+	username = to_searchable_name(username);
 	var matches = [];
 	var posts = get_posts(include_private).forEach(function(post) {
 		// Check if player is currently known by this name
-		if (post.player.toLowerCase() == username)
+		if (post._name == username)
 			return matches.unshift(post);
 		// Check if player was previously known by this name
-		var name_history = post.previous_names.map(e => e.toLowerCase());
-		if (name_history.indexOf(username) > -1)
+		if (post._previous_names.indexOf(username) > -1)
 			return matches.push(post);
 	});
 
@@ -92,6 +99,12 @@ module.exports.lookup = async function(username, include_private) {
 // Find closest matches to the passed name
 module.exports.get_similar_names = function(name, include_private)
 {
-
-	return util.fuzzy_match(name, get_posts(include_private).map(e => e.player)).slice(0, 5);
+	return util.fuzzy_match(
+		name, // needle
+		get_posts(include_private).map(e => e.player), // haystack
+		{ // weights
+			insert: 10,
+			multiple_insert: 10,
+			delete: 12
+		}).slice(0, 5);
 };

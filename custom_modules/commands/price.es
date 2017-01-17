@@ -47,9 +47,9 @@ function full_detail(result)
 {
 	if (!result.valid)
 	{
-		var guesses = result.similar_items.map(el => util.printf('%-30s %3d', el.name, el.score));
+		var guesses = result.similar_items.map(el => util.printf('%-32s %3d', el.name, el.score));
 		return 'Item not found! Are you looking for one of these?\n' +
-			util.dm.code_block('Item                       Score\n' + guesses.join('\n'));
+			util.dm.code_block('Item                           Score\n' + guesses.join('\n'));
 	}
 
 	var command_response = 'Showing details for ' + result.name + ':\n';

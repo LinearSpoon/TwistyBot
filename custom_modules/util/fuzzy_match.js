@@ -1,8 +1,15 @@
-module.exports = function(needle, haystack)
+module.exports = function(needle, haystack, weights)
 {
-	// Goals:
-	// Start of word matches are valuable "mit", "mithril" > "scimitar"
-	// trigrams?
+	if (!weights)
+		weights = {};
+
+	if (!weights.delete) weights.delete = 20;
+	if (!weights.insert) weights.insert = 7;
+	if (!weights.multiple_insert) weights.multiple_insert = 1;
+	if (!weights.substitution) weights.substitution = 10;
+	if (!weights.typo_distance) weights.typo_distance = 5;
+	if (!weights.transpose) weights.transpose = 10;
+
 	function d(score, source) { return {score:score, source:source}; }
 
 	var keymap = {
@@ -19,7 +26,7 @@ module.exports = function(needle, haystack)
 		if (!k1 || !k2)
 			return 50;
 
-		return 5 * (Math.abs(k2[0] - k1[0]) + Math.abs(k2[1] - k1[1]));
+		return weights.typo_distance * (Math.abs(k2[0] - k1[0]) + Math.abs(k2[1] - k1[1]));
 	}
 
 	for(var z in haystack)
@@ -31,13 +38,13 @@ module.exports = function(needle, haystack)
 		if (a[0] == b[0])
 			mat.push([ d(0, 'match') ]);
 		else
-			mat.push([ d(10, 'delete') ]);
+			mat.push([ d(weights.delete, 'delete') ]);
 
 		for(var x = 1; x < a.length; x++)
-			mat.push([ d(mat[0][0].score + 20 * x, 'delete') ]);
+			mat.push([ d(mat[0][0].score + weights.delete * x, 'delete') ]);
 
 		for(var y = 1; y < b.length; y++)
-			mat[0].push( d(mat[0][0].score + 7 + y, 'insert') );
+			mat[0].push( d(mat[0][0].score + weights.insert + weights.multiple_insert * y, 'insert') );
 
 		// begin filling
 		for(var x = 1; x < a.length; x++)
@@ -46,20 +53,20 @@ module.exports = function(needle, haystack)
 			{
 				var scores = [];
 
-				// left + 20
-				scores.push( d(mat[x-1][y].score + 23, 'delete') );
+				// left + 23
+				scores.push( d(mat[x-1][y].score + weights.delete, 'delete') );
 
 				if (a[x] == b[y]) // up+left
 					scores.push( d(mat[x-1][y-1].score, 'match') );
 				else // up+left + 10 + keyboard distance
-					scores.push( d(mat[x-1][y-1].score + 10 + kbd_distance(a[x], b[y]), 'substitution') );
+					scores.push( d(mat[x-1][y-1].score + weights.substitution + kbd_distance(a[x], b[y]), 'substitution') );
 
 				// up + 10 first, 1 following
-				scores.push( d(mat[x][y-1].score + (mat[x][y-1].source == 'insert' ? 1 : 7), 'insert') );
+				scores.push( d(mat[x][y-1].score + (mat[x][y-1].source == 'insert' ? weights.multiple_insert : weights.insert), 'insert') );
 
 				// up2+left2 + 10
 				if (x > 1 && y > 1 && a[x] == b[y-1] && a[x-1] == b[y])
-					scores.push( d(mat[x-2][y-2].score + 10, 'transpose') );
+					scores.push( d(mat[x-2][y-2].score + weights.transpose, 'transpose') );
 
 				// Compute min score
 				mat[x][y] = scores.reduce( (a, b) => a.score < b.score ? a : b );

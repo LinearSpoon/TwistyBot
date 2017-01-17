@@ -30,15 +30,22 @@ var commands = custom_require('commands');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+var first_run = true;
 client.on('ready', function() {
-	// List joined channels
-	var channels = client.channels.array();
-	for(var i = 0; i < channels.length; i++)
+	console.log('Event: ready');
+	if (first_run)
 	{
-		var channel = channels[i];
-		if (channel.type != 'text')
-			continue;
-		console.log(util.printf('%-35s %s', channel.guild.name + '.' + channel.name, channel.id));
+		// List joined channels
+		var channels = client.channels.array();
+		for(var i = 0; i < channels.length; i++)
+		{
+			var channel = channels[i];
+			if (channel.type != 'text')
+				continue;
+			console.log(util.printf('%-35s %s', channel.guild.name + '.' + channel.name, channel.id));
+		}
+
+		first_run = false;
 	}
 });
 client.on('disconnect', () => console.warn('Event: disconnected'));
@@ -53,11 +60,27 @@ client.on('error', err => console.error('Event: warning', err));
 
 function log_message(explanation, message)
 {
-	console.log('[' + explanation + ']',
-		'[' + message.channel.guild.name + '.' + message.channel.name + ']',
-		message.author.username + ':',
-		message.cleanContent);
-	//	message.content);
+	if (message.channel.type == 'text')
+	{
+		console.log('[' + explanation + ']',
+			'[' + message.channel.guild.name + '.' + message.channel.name + ']',
+			message.author.username + ':',
+			message.cleanContent);
+	}
+	else if (message.channel.type == 'dm')
+	{
+		console.log('[' + explanation + ']',
+			'[Private Message]',
+			message.author.username + ':',
+			message.cleanContent);
+	}
+	else if (message.channel.type == 'group')
+	{
+		console.log('[' + explanation + ']',
+			'[Group Message]',
+			message.author.username + ':',
+			message.cleanContent);
+	}
 }
 
 // Parse command and execute
@@ -70,11 +93,23 @@ client.on('message', function(message) {
 	if (message.content[0] != '!')
 		return; // Not a command
 
-	if (config.get('whitelist_channels').length > 0 && !util.message_in(message, 'whitelist_channels'))
-		return; // Only listen to allowed channels
+	if (message.channel.type == 'text')
+	{
+		if (config.get('whitelist_channels').length > 0 && !util.message_in(message, 'whitelist_channels'))
+			return; // Only listen to allowed channels
 
-	if (util.message_in(message, 'blacklist_channels'))
-		return; // Do not listen in blocked channels
+		if (util.message_in(message, 'blacklist_channels'))
+			return; // Do not listen in blocked channels
+	}
+	else if (message.channel.type == 'dm' || message.channel.type == 'group')
+	{
+		if (!config.get('allow_dm'))
+			return; // Ignore private messages unless specified
+	}
+	else
+	{
+		return; // always ignore message.channel.type == 'voice'
+	}
 
 	var fn = message.content.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
