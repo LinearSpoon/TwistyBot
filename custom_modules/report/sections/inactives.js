@@ -7,7 +7,7 @@ module.exports = function(clan_list) {
 
 	var report = clan_list
 		.filter(function(member) {
-			if (!member.history || member.history.length == 0)
+			if (member.history.length == 0)
 				return false;
 
 			var current_xp = member.history[0].hiscores.overall.xp;

@@ -2,7 +2,7 @@
 module.exports = function(clan_list) {
 	var report = clan_list
 		.filter(function(member) {
-			if (!member.history || member.history.length == 0)
+			if (member.history.length == 0)
 				return false;
 
 			member.new_cb = Math.floor(apis.RuneScape.combat_level(member.history[0].hiscores));

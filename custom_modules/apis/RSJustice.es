@@ -69,8 +69,8 @@ function get_posts(include_private)
 	return posts;
 }
 
-// if player is found => details object
-// if player is not found => undefined
+// if player is found => [ details, ... ]
+// if player is not found => []
 // other error => throw
 module.exports.lookup = async function(username, include_private) {
 	await cache_promise;

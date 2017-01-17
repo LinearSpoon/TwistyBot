@@ -56,8 +56,8 @@ function log_message(explanation, message)
 	console.log('[' + explanation + ']',
 		'[' + message.channel.guild.name + '.' + message.channel.name + ']',
 		message.author.username + ':',
-		message.content);
-	//console.log('  ' + message.id);
+		message.cleanContent);
+	//	message.content);
 }
 
 // Parse command and execute

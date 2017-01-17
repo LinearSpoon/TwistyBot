@@ -15,9 +15,6 @@ module.exports = function(clan_list) {
 	// Find members who have a history record in the valid time range and save it
 	var filtered_clan = clan_list
 		.filter(function(member) {
-			if (!member.history || member.history.length == 0)
-				return false;
-
 			// Do they have a record in the time range?
 			// The history is sorted from newest to oldest, so comp_record will always be the newest valid record
 			var comp_record = member.history.find(record => record.timestamp > low_limit && record.timestamp < high_limit);

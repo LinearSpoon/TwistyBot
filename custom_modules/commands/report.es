@@ -81,11 +81,16 @@ async function load_report_data()
 	for(var i = 0; i < report.clan_list.length; i++)
 	{
 		var member = report.clan_list[i];
+
+		// Check them on RSJ
+	 	member.rsjustice = await apis.RSJustice.lookup(member.name);
+
 		// Find player_id for this member
 		var player = players.find( p => p.name.toLowerCase() == member.name.toLowerCase() );
 		if (!player)
 		{
-			console.log('Could not find player id for', member.name);
+			console.warn('Could not find player id for', member.name);
+			member.history = [];
 			continue;
 		}
 		// Extract history entries for this player, sorted from newest to oldest
@@ -93,9 +98,6 @@ async function load_report_data()
 			.filter(row => row.player_id == player.id)
 			.map(row => ({ timestamp: row.timestamp, hiscores: JSON.parse(row.hiscores) }))
 			.sort( (a,b) => b.timestamp - a.timestamp );
-
-		// Also check them on RSJ
-	 	member.rsjustice = []; //await apis.RSJustice.lookup(member.name);
 	}
 	return report;
 }
