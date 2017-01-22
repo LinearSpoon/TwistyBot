@@ -28,6 +28,8 @@ module.exports = function(t1, t2) {
 	{
 		elapsed_months = elapsed_months - 1;
 	}
+	if (elapsed_months > 48)
+		return Math.floor(elapsed_months / 12) + ' years';
 
 	if (elapsed_months > 4)
 		return elapsed_months + ' months';

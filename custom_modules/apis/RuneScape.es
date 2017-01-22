@@ -1,3 +1,6 @@
+var cheerio = require('cheerio');
+var moment = require('moment-timezone');
+
 var skills_order = [
 	'overall',
 	'attack',
@@ -32,7 +35,7 @@ module.exports.skills = skills_order;
 // if player doesn't exist => undefined
 // other error => throw
 module.exports.lookup_player = async function(username) {
-	var url = 'http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=' + encodeURIComponent(username.replace(/[^a-zA-Z0-9 \-_]/g,''));
+	var url = 'http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=' + url_encode_username(username);
 	//console.log(url);
 	var res = await util.request(url);
 	if (res.statusCode == 404)
@@ -62,3 +65,32 @@ module.exports.combat_level = function(stats) {
 	var magic = base + 0.325 * Math.floor(1.5 * stats.magic.level);
 	return +Math.max(melee, range, magic).toFixed(2);
 };
+
+
+const forum_base = 'http://services.runescape.com/m=forum/'
+module.exports.forum_profile = async function(username) {
+	var url = forum_base + 'users.ws?lookup=view&searchname=' + url_encode_username(username);
+	var selector = '#forums--userview > div > div.contents > main > section.threads-list > article';
+
+	var body = await util.download( {url:url, encoding:'ascii'} );
+	var $ = cheerio.load(body);
+	var posts = [];
+	$(selector).each(function(i, e) {
+		posts.push({
+			section: $(e).find('div.thread-plate__details > p > a.thread-plate__forum-name').text(),
+			thread: $(e).find('div.thread-plate__details > h3 > a').text(),
+			date: moment.tz($(e).find('a.thread-plate__last-posted').text(), 'DD-MMM-YYYY HH:mm:ss', 'Europe/London').toDate(),
+			thread_link: forum_base + $(e).find('div.thread-plate__details > h3 > a').attr('href'),
+			showuser_link: forum_base + $(e).find('a.thread-plate__post-by-user').attr('href').replace('%A0','%20'),
+		});
+	});
+
+	posts.profile = url;
+	posts.name = $('#searchname').val();
+	posts.avatar = 'http://services.runescape.com/m=avatar-rs/' + url_encode_username(username) + '/chat.png'
+	return posts;
+}
+
+function url_encode_username(username) {
+	return encodeURIComponent(username.replace(/[^a-zA-Z0-9 \-_]/g,''));
+}

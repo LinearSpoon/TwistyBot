@@ -25,13 +25,15 @@ module.exports = async function(client, message, params) {
 	}
 
 	// Multiple items to check
-	var command_response;
+	var command_response, total_price = 0;
 	for(var i = 0; i < items.length; i++)
 	{
 		try
 		{
 			var result = await apis.RSBuddy.get_item_details(items[i]);
 			command_response += '\n' + short_detail(result);
+			if (result.found)
+				total_price += result.details.overallPrice;
 		}
 		catch(err)
 		{
@@ -40,7 +42,8 @@ module.exports = async function(client, message, params) {
 		await util.sleep(400);
 	}
 
-	return 'Showing details for an item set.' + util.dm.code_block(command_response);
+	return 'Showing details for an item set.' + util.dm.code_block(command_response +
+		util.printf('\n\n%-28s %13s GP', 'Total price:', util.format_number(total_price)));
 };
 
 function full_detail(result)
