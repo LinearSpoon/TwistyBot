@@ -11,6 +11,8 @@ module.exports = async function(client, message, params) {
 	var items = [];
 	for(var i = 0; i < params.length; i++)
 	{
+		if (params[i] == '')
+			continue
 		var group = item_groups[params[i].toLowerCase()];
 		if (group)
 			items = items.concat(group);
@@ -25,7 +27,7 @@ module.exports = async function(client, message, params) {
 	}
 
 	// Multiple items to check
-	var command_response, total_price = 0;
+	var command_response = '', total_price = 0;
 	for(var i = 0; i < items.length; i++)
 	{
 		try
