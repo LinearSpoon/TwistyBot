@@ -131,7 +131,7 @@ module.exports = {
 	'dragon (e)':'Dragon bolts (e)',
 	'onyx e':'Onyx bolts (e)',
 	'onyx (e)':'Onyx bolts (e)',
-
+.
 	// Hats
 	'nezzy':'Helm of neitiznot',
 	'serp':'Serpetine helm (uncharged)',
