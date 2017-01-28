@@ -6,3 +6,8 @@ node_modules
 compiled
 config
 storage
+
+# helper scripts
+page_scrape.js
+request_test.js
+update_names.js

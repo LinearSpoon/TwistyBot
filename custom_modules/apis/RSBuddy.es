@@ -2,7 +2,7 @@
 // https://rsbuddy.com/exchange/summary.json
 // https://api.rsbuddy.com/grandExchange?a=guidePrice&i=<id>  => {"overall":222,"buying":222,"buyingQuantity":470395,"selling":221,"sellingQuantity":425068}
 // https://api.rsbuddy.com/grandExchange?a=graph&start=1425921352106&g=1440&i=<id>  => history?
-// https://api.rsbuddy.com/grandExchange?i=7944&a=graph&g=1
+// https://api.rsbuddy.com/grandExchange?i=20997&a=graph&g=1
 
 var name_dictionary = root_require('price_data/dictionary.js');	// Dictionary of alternate item names (key=alt name, value=real name)
 var names_raw = root_require('price_data/names.json');		// cached from: https://rsbuddy.com/exchange/names.json
