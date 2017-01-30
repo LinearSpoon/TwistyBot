@@ -1,14 +1,24 @@
-module.exports = async function(client, message, params) {
-	if (params.length != 1)
-	{
-		throw Error('Usage: !stats <username>\n\nExamples:'
-			+ '\n!stats Twisty Fork'
-			+ '\n!stats Vegakargdon');
-	}
+module.exports.help = {
+	name: 'stats',
+	text: 'Display OldSchool player stats.',
+	category: 'RuneScape'
+};
+module.exports.params = {
+	min: 1,
+	max: 1,
+	help:
+`Usage: !stats <username>
 
+Examples:
+!stats Twisty Fork
+!stats Vegakargdon`
+};
+module.exports.whitelist = null;
+
+module.exports.command = async function(client, message, params) {
 	var stats = await apis.RuneScape.lookup_player(params[0]);
 	if (!stats)
-		throw Error('Player not found.');
+		return util.dm.code_block('Player not found.');
 
 	var output = 'Skill               Rank  Level            XP';
 	var table_data = []

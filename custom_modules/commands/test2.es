@@ -1,5 +1,17 @@
 const Discord = require('discord.js');
-module.exports = async function(client, message, params) {
+module.exports.help = {
+	name: 'test2',
+	text: 'A test command.',
+	category: 'Admin'
+};
+module.exports.params = {
+	min: 0,
+	max: 0,
+	help: `Usage: !test2`
+};
+module.exports.whitelist = config.get('admin_channels');
+
+module.exports.command = async function(client, message, params) {
 	var e = new Discord.RichEmbed();
 	e.setAuthor('Twisty Fork', message.author.avatarURL, 'http://pngimg.com/upload/spoon_PNG3043.png');
 	e.addField('field1', 'value1', true);

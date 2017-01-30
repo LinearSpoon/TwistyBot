@@ -9,7 +9,20 @@ for(var i = 0; i < 5000; i++)
 		long_string += 'x';
 }
 
-module.exports = async function(client, message, params) {
+module.exports.help = {
+	name: 'test',
+	text: 'A test command.',
+	category: 'Admin'
+};
+module.exports.params = {
+	min: 0,
+	max: 0,
+	help: `Usage: !test`
+};
+module.exports.whitelist = config.get('admin_channels');
+
+module.exports.command = async function(client, message, params) {
+	throw Error('Test error');
 	var data = {
 		datasets: [
 			{

@@ -27,8 +27,11 @@ global.database = custom_require('dbpool');
 // Load commands
 var commands = custom_require('commands');
 
-const Discord = require('discord.js');
-const client = new Discord.Client();
+// Augments discord.js with helper functions
+custom_require('discord_utils');
+
+var Discord = require('discord.js');
+var client = new Discord.Client();
 
 var first_run = true;
 client.on('ready', function() {
@@ -115,11 +118,21 @@ client.on('message', function(message) {
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
 
-	if (typeof commands[fn] !== 'function')
+	if (typeof commands[fn].command !== 'function')
 	 	return; // Not a valid command
 
+	if (commands[fn].whitelist && commands[fn].whitelist.indexOf(message.channel.id) == -1)
+	{ // This command is not available in this channel
+		return;
+	}
+
+	if (params.length < commands[fn].params.min || params.length > commands[fn].params.max)
+	{ // Invalid number of parameters, show parameter help text
+		return message.channel.sendMessage(util.dm.code_block(commands[fn].params.help));
+	}
+
 	message.channel.startTyping();
-	var p = commands[fn].call(commands, client, message, params);
+	var p = commands[fn].command.call(commands, client, message, params);
 
 	if (typeof p.then !== 'function')
 	{ // Oops check
@@ -128,8 +141,8 @@ client.on('message', function(message) {
 		return message.channel.stopTyping();
 	}
 
-	// Add report Date to output!
 	p.then( function(text) {
+		// Command finished with no errors
 		if (!text)
 		{
 			console.log('Command did not respond');
@@ -151,9 +164,26 @@ client.on('message', function(message) {
 	})
 	.catch( function(err) {
 		// Something terrible happened
-		console.log(err);
-		message.channel.sendMessage(util.dm.code_block(err.message));
-	 	console.warn(err.stack);
+		console.warn(err.stack);
+		message.channel.sendMessage(util.dm.code_block('An error occurred while running the command:\n' + err.message));
+		var error_channel_output = 'Channel: ';
+		switch(message.channel.type)
+		{
+			case 'text':
+				error_channel_output += message.channel.guild.name + '.' + message.channel.name;
+				break;
+			case 'dm':
+				error_channel_output += 'Private Message';
+				break;
+			case 'group':
+				error_channel_output += 'Group Message';
+				break;
+		}
+		error_channel_output += '\nAuthor: ' + message.author.username + '#' + message.author.discriminator;
+		error_channel_output += '\nMessage: ' + message.cleanContent;
+		error_channel_output += '\n' + err.stack;
+
+		client.get_text_channel('Twisty-Test.errors').sendMessage(util.dm.code_block(error_channel_output));
 	})
 	.then( function() {
 		// Always stop typing!

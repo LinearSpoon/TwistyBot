@@ -5,7 +5,19 @@ const time_format = 'MMM D, hh:mm A z';
 
 // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 // https://www.timeanddate.com/time/map/
-module.exports = async function(client, message, params) {
+module.exports.help = {
+	name: 'time',
+	text: 'Display the current time in different time zones.',
+	category: 'General'
+};
+module.exports.params = {
+	min: 0,
+	max: 999,
+	help: `Usage: !time`
+};
+module.exports.whitelist = null;
+
+module.exports.command = async function(client, message, params) {
 	var now = moment();
 
 	return util.dm.code_block(

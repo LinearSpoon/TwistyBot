@@ -1,12 +1,23 @@
 const Discord = require('discord.js');
 
-module.exports = async function(client, message, params) {
-	if (params.length != 1)
-	{
-		throw Error('Usage: !rsj <player name>\n\nExamples:'
-			+ '\n!rsj i rep wih\n!rsj tades');
-	}
+module.exports.help = {
+	name: 'rsj',
+	text: 'Lookup a player on RS Justice.',
+	category: 'RuneScape'
+};
+module.exports.params = {
+	min: 1,
+	max: 1,
+	help:
+`Usage: !rsj <username>
 
+Examples:
+!rsj i rep wih
+!rsj tades`
+};
+module.exports.whitelist = null;
+
+module.exports.command = async function(client, message, params) {
 	var name = params[0];
 	var include_private = util.message_in(message, 'rsj_private_channels');
 

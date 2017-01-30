@@ -1,22 +1,33 @@
 var moment = require('moment-timezone');
 const two_weeks = 14 * 24 * 60 * 60 * 1000;
 
-module.exports = async function(client, message, params) {
-	if (!util.message_in(message, 'deities_channels'))
-		return;
 
+module.exports.help = {
+	name: 'history',
+	text: 'Display a list of logged hiscores data for a player.',
+	category: 'Deities'
+};
+module.exports.whitelist = config.get('deities_channels');
+module.exports.params = {
+	min: 1,
+	max: 2,
+	help:
+`Usage: !history <username>, <stat>
+
+Examples:
+!history Twisty Fork, overall
+!history vegakargdon, strength
+
+This command only returns data for players on the Deities clan spreadsheet.
+Available stats: ` + apis.RuneScape.skills.join(', ')
+};
+module.exports.command = async function(client, message, params) {
 	if (!params[1])
 		params[1] = 'overall';
 
-	if (params.length == 0 || params.length > 2)
-	{
-		throw Error('Usage: !history <clan member>, <stat>\n\nExamples:\n!history Twisty Fork, overall\n!history vegakargdon, strength' +
-			'\nAvailable stats: ' + apis.RuneScape.skills.join(','));
-	}
-
 	var player = await database.query('SELECT * FROM players WHERE name = ?;', params[0]);
 	if (player.length == 0)
-		throw Error("Player not found.");
+		return util.dm.code_block('Player not found.');
 
 	var history = await database.query('SELECT * FROM hiscores_history WHERE player_id = ? AND timestamp > ?;', player[0].id, Date.now() - two_weeks);
 

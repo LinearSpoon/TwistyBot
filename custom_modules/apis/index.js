@@ -1,7 +1,7 @@
 var fs = require('fs');
 
 // Load all files in current directory
-var files = fs.readdirSync(__dirname)
+var files = fs.readdirSync(__dirname);
 for(var i = 0; i < files.length; i++)
 {
 	var filename = files[i];

@@ -1,16 +1,27 @@
 const fmt = '%-10s %7d %7s\n';
 
-module.exports = async function(client, message, params) {
-	if (params.length != 1)
-	{
-		throw Error('Usage: !cb <username>\n\nExamples:'
-			+ '\n!cb Twisty Fork'
-			+ '\n!cb Vegakargdon');
-	}
+module.exports.help = {
+	name: 'cb',
+	text: 'Display OldSchool player combat stats.',
+	category: 'RuneScape'
+};
+module.exports.whitelist = null;
+module.exports.params = {
+	min: 1,
+	max: 1,
+	help:
+`Usage: !cb <username>
 
+Examples:
+!cb Twisty Fork
+!cb Vegakargdon`
+};
+
+
+module.exports.command = async function(client, message, params) {
 	var stats = await apis.RuneScape.lookup_player(params[0]);
 	if (!stats)
-		throw Error('Player not found.');
+		return util.dm.code_block('Player not found.');
 
 	return util.dm.code_block(
 		'Stat         Level    Next\n' +

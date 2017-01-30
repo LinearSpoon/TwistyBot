@@ -1,11 +1,22 @@
-module.exports = async function(client, message, params) {
-	if (params.length != 2)
-	{
-		throw Error('Usage: !split <amount>, <players>\n\nExamples:'
-			+ '\n!split 3000000, 2'
-			+ '\n!split 40m, 3'
-			+ '\n!split 26231k, 2');
-	}
+module.exports.help = {
+	name: 'split',
+	text: 'Calculates split amounts.',
+	category: 'RuneScape'
+};
+module.exports.params = {
+	min: 2,
+	max: 2,
+	help:
+`Usage: !split <amount>, <num_players>
+
+Examples:'
+!split 3000000, 2
+!split 40.2m, 3
+!split 26231k, 2`
+};
+module.exports.whitelist = null;
+
+module.exports.command = async function(client, message, params) {
 	var str_amount = params[0].toLowerCase();
 	// Extract number without any extra stuff
 	var amount = +str_amount.replace(/[^0-9.]/g,'');

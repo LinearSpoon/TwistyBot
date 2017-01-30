@@ -21,10 +21,19 @@ if (config.get('auto_update_report'))
 }
 
 
-module.exports = async function(client, message, params) {
-	if (!util.message_in(message, 'deities_channels'))
-		return;
+module.exports.help = {
+	name: 'report',
+	text: 'View clan statistics.',
+	category: 'Deities'
+};
+module.exports.params = {
+	min: 0,
+	max: 1,
+	help: `Usage: !report`
+};
+module.exports.whitelist = config.get('deities_channels');
 
+module.exports.command = async function(client, message, params) {
 	if (params[0] == 'update')
 		await update_report();
 

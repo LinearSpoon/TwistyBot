@@ -1,13 +1,26 @@
 var item_groups = root_require('price_data/item_groups');
 
-module.exports = async function(client, message, params) {
-	if (params.length == 0)
-		throw Error('Usage: !price <item>\n\nExamples:\n' +
-			'!price Cannonball\n' +
-			'!price ags, sgs, heart\n' +
-			'!price zilyana\n' +
-			'!price zam hilt');
+module.exports.help = {
+	name: 'price',
+	text: 'Retrieves price of items from RSBuddy.',
+	category: 'RuneScape'
+};
+module.exports.params = {
+	min: 1,
+	max: 20,
+	help:
+`Usage: !price <item>
 
+Examples:
+!price Cannonball
+!price ags, sgs, heart
+!price zilyana
+!price zam hilt`
+};
+module.exports.whitelist = null;
+
+
+module.exports.command = async function(client, message, params) {
 	var items = [];
 	for(var i = 0; i < params.length; i++)
 	{

@@ -1,10 +1,23 @@
 const Discord = require('discord.js');
 
-module.exports = async function(client, message, params) {
-	if (params.length == 0)
-		throw Error('Usage: !rsof <username>\n\nExamples:\n' +
-			'!rsof Sin Dragon\n' +
-			'!price Zeale\n');
+module.exports.help = {
+	name: 'rsof',
+	text: 'Display OldSchool player forum profile.',
+	category: 'RuneScape'
+};
+module.exports.params = {
+	min: 1,
+	max: 1,
+	help:
+`Usage: !rsof <username>
+
+Examples:
+!rsof Sin Dragon
+!rsof Zeale`
+};
+module.exports.whitelist = null;
+
+module.exports.command = async function(client, message, params) {
 	var details = await apis.RuneScape.forum_profile(params[0])
 	if (details.length == 0)
 		return util.dm.code_block('No posts found');
