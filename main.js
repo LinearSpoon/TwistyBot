@@ -18,20 +18,18 @@ global.config.get = function(key) {
 	return config[key];
 };
 
+// Augments discord.js with helper functions
+var Discord = custom_require('discord_utils');
+var client = new Discord.Client();
+Discord.bot = client;
+
 // Load utilities
 global.util = custom_require('util');
 global.apis = custom_require('apis');
-
 global.database = custom_require('dbpool');
 
 // Load commands
 var commands = custom_require('commands');
-
-// Augments discord.js with helper functions
-custom_require('discord_utils');
-
-var Discord = require('discord.js');
-var client = new Discord.Client();
 
 var first_run = true;
 client.on('ready', function() {
@@ -183,7 +181,7 @@ client.on('message', function(message) {
 		error_channel_output += '\nMessage: ' + message.cleanContent;
 		error_channel_output += '\n' + err.stack;
 
-		client.get_text_channel('Twisty-Test.errors').sendMessage(util.dm.code_block(error_channel_output));
+		client.get_text_channel('Twisty-Test.logs').sendMessage(util.dm.code_block(error_channel_output));
 	})
 	.then( function() {
 		// Always stop typing!

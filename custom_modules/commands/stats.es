@@ -29,7 +29,7 @@ module.exports.command = async function(client, message, params) {
 			skill.charAt(0).toUpperCase() + skill.slice(1), // Capitalize first letter
 			unranked ? '-' : stats[skill].rank,
 			unranked ? '-' : stats[skill].level,
-			unranked ? 'Unranked' : util.format_number(stats[skill].xp));
+			unranked ? '-' : util.format_number(stats[skill].xp));
 	}
 
 	return util.dm.code_block(output);

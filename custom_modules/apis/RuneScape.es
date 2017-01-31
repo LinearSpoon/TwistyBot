@@ -50,10 +50,16 @@ module.exports.lookup_player = async function(username) {
 		var skill = data[i].split(',').map(e => parseInt(e));
 		skills[skills_order[i]] = { rank: skill[0], level: skill[1], xp: skill[2] };
 	}
+
 	// Alternate common names...
 	skills.defense = skills.defence;
 	skills.range = skills.ranged;
-	return skills;
+
+	// It seems that banned players stay on the hiscores but are unranked in everything except clue scrolls
+	// So check to see if they are ranked in something before returning
+	for(var i in skills)
+		if (skills[i].rank != -1)
+			return skills;
 };
 
 module.exports.combat_level = function(stats) {

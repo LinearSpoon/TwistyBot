@@ -57,11 +57,28 @@ async function update_cache()
 	var url = config.get('rsj_api') + '&after=' + last_update.format(time_format);
 	var now = moment().tz('UTC');
 	var posts = JSON.parse(await util.download(url));
-	// Store returned posts indexed by id
-	for(var i in posts)
-		cache[posts[i].id] = to_detail_object(posts[i]);
+
 	if (posts.length > 0)
-		console.log('Updated RSJ cache with', posts.length, 'new posts.');
+	{
+		console.log('Updating RSJ cache with', posts.length, 'new posts.');
+		var log_message = ''; var lines = 0;
+		for(var i in posts)
+		{
+			var new_post = to_detail_object(posts[i]);
+			var old_post = cache[new_post.id];
+			if (lines < 50)
+			{
+				if (old_post)
+					log_message += old_post.player + ' => ' + new_post.player + '\n';
+				else
+					log_message += 'New post: ' + new_post.player + '\n';
+			}
+			lines += 1;
+			// Store returned posts indexed by id
+		 	cache[new_post.id] = new_post;
+		}
+		Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(log_message);
+	}
 	//console.log(posts);
 	last_update = now;
 }
