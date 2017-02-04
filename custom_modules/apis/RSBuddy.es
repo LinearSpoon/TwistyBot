@@ -46,7 +46,7 @@ async function get_item_summary(id)
 {
 	// {"overall":207,"buying":207,"buyingQuantity":477196,"selling":207,"sellingQuantity":502450}
 	var url = 'https://api.rsbuddy.com/grandExchange?a=guidePrice&i=' + id;
-	var res = await util.queue_request(url, { max_attempts: 8, success_delay: 500, failure_delay: 4000 });
+	var res = await util.queue_request(url, { max_attempts: 10, success_delay: 400, failure_delay: 2000 });
 	var body = JSON.parse(res.body);
 
 	// Match the format of history api
@@ -73,7 +73,7 @@ async function get_item_history(id, start, interval)
 		url += '&start=' + start;
 	if (interval)
 		url += '&g=' + interval;
-	var res = await util.queue_request(url);
+	var res = await util.queue_request(url, { max_attempts: 10, success_delay: 400, failure_delay: 2000 });
 	return JSON.parse(res.body);
 };
 

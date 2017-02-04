@@ -6,13 +6,13 @@ async function cml_download(url)
 	// statusCode 500 == CML error -4
 	//console.log('CML status:', res.statusCode)
 	if (res.body == '-1')
-		throw Error('CML error: User not in database');
+		throw cml_error('CML error: User not in database', -1);
 	if (res.body == '-2')
-		throw Error('CML error: Invalid username');
+		throw cml_error('CML error: Invalid username', -2);
 	if (res.body == '-3')
-		throw Error('CML error: Database error');
+		throw cml_error('CML error: Database error', -3);
 	if (res.body == '-4')
-		throw Error('CML error: Server under heavy load; api temporarily disabled');
+		throw cml_error('CML error: Server under heavy load; api temporarily disabled', -4);
 	return res.body; // Probably no problems
 }
 
@@ -36,15 +36,15 @@ module.exports.update_player = async function(player_name)
 
 	// Check errors specific to this endpoint
 	if (data == '2')
-		throw Error('CML error: Player not on RuneScape hiscores. (' + player_name + ')');
+		throw cml_error('CML error: Player not on RuneScape hiscores. (' + player_name + ')', 2);
 	if (data == '3')
-		throw Error('CML error: Negative XP gain detected. (' + player_name + ')');
+		throw cml_error('CML error: Negative XP gain detected. (' + player_name + ')', 3);
 	if (data == '4')
-		throw Error('CML error: Unknown error. (' + player_name + ')');
+		throw cml_error('CML error: Unknown error. (' + player_name + ')', 4);
 	if (data == '5')
-		throw Error('CML error: This player has been updated within the last 30 seconds. (' + player_name + ')');
+		throw cml_error('CML error: This player has been updated within the last 30 seconds. (' + player_name + ')', 5);
 	if (data == '6')
-		throw Error('CML error: The player name was invalid. (' + player_name + ')');
+		throw cml_error('CML error: The player name was invalid. (' + player_name + ')', 6);
 };
 
 // https://crystalmathlabs.com/tracker/api.php?type=lastchange
@@ -67,3 +67,11 @@ module.exports.time_to_max = async function(player_name)
 	var url = 'https://crystalmathlabs.com/tracker/api.php?type=ttm&player=' + format_player_name(player_name);
 	return await cml_download(url);
 };
+
+
+function cml_error(message, code)
+{
+	var e = Error(message);
+	e.code = code;
+	return e;
+}

@@ -57,7 +57,6 @@ module.exports.command = async function(client, message, params) {
 		{
 			command_response += '\nError: ' + err.message;
 		}
-		await util.sleep(400);
 	}
 
 	return 'Showing details for an item set.' +

@@ -157,7 +157,7 @@ function to_detail_object(post)
 		id: post.id,
 		url: 'http://rsjustice.com/' + post.link,
 		player: post.title,
-		reason: post.reason,
+		reason: post.reason.replace(/&amp;/g, '&'),
 		date_created: new Date(post.date + 'Z'),
 		date_modified: new Date(post.modified + 'Z'),
 		status: post.status,

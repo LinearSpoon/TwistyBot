@@ -112,8 +112,8 @@ client.on('message', function(message) {
 		return; // always ignore message.channel.type == 'voice'
 	}
 
-	var fn = message.content.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
-	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
+	var fn = message.cleanContent.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
+	var params = message.cleanContent.slice(fn.length+1).trim();	// Extract params without command
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
 
 	if (!commands[fn])
