@@ -160,6 +160,7 @@ module.exports = {
 	'dragon cbow':'Dragon hunter crossbow',
 	'twisty buckler':'Twisted buckler',
 	'tbuck':'Twisted buckler',
+	'buckler':'Twisted buckler',
 	'kodai':'Kodai wand',
 	'bulwark':"Dinh's bulwark",
 	'rigour':"Dextrous prayer scroll",

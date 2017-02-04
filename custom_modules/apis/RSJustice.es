@@ -65,7 +65,7 @@ async function update_cache()
 			if (ae.fields.length > 0)
 			{
 				//Discord.bot.get_text_channel('Twisty-Test.logs').sendEmbed(ae);
-				Discord.bot.get_text_channel('RS JUSTICE.live-feed').sendEmbed(ae);
+				Discord.bot.get_text_channel('RS JUSTICE.live-feed').sendEmbed(ae, 'RSJustice has been updated!');
 			}
 		}
 		else
@@ -137,7 +137,7 @@ function announcement_embed(posts)
 {
 	var e = new Discord.RichEmbed();
 	e.setColor(0x87CEEB);
-	e.setAuthor('RSJustice has been updated!');
+//	e.setAuthor('RSJustice has been updated!');
 	if (posts.length > 25)
 		ae.setDescription('Note: ' + posts.length + ' posts were updated. Only showing the first 25.');
 	return e;

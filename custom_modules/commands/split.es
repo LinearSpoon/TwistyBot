@@ -9,7 +9,7 @@ module.exports.params = {
 	help:
 `Usage: !split <amount>, <num_players>
 
-Examples:'
+Examples:
 !split 3000000, 2
 !split 40.2m, 3
 !split 26231k, 2`
