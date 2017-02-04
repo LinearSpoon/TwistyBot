@@ -27,7 +27,7 @@ module.exports.command = async function(client, message, params) {
 
 	var player = await database.query('SELECT * FROM players WHERE name = ?;', params[0]);
 	if (player.length == 0)
-		return util.dm.code_block('Player not found.');
+		return Discord.code_block('Player not found.');
 
 	var history = await database.query('SELECT * FROM hiscores_history WHERE player_id = ? AND timestamp > ?;', player[0].id, Date.now() - two_weeks);
 
@@ -43,7 +43,7 @@ module.exports.command = async function(client, message, params) {
 
 	//message.channel.sendFile(util.graph.line_chart(history), 'history.png', 'Xp');
 
-	return 'Here are my records for ' + player[0].name + '(' + params[1] + '):\n' + util.dm.code_block(
+	return 'Here are my records for ' + player[0].name + '(' + params[1] + '):\n' + Discord.code_block(
 		util.printf('%-15s %6s %14s %8s\n', 'Date', 'Level', 'Xp', 'Rank') +	history.map(function(row) {
 			return util.printf('%-6s %8s %6d %14s %8s',
 				moment(row.timestamp).format('MMM D'),

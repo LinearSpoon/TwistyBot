@@ -15,12 +15,12 @@ Examples:
 !rsof Sin Dragon
 !rsof Zeale`
 };
-module.exports.whitelist = null;
+module.exports.whitelist = config.get('admin_channels');
 
 module.exports.command = async function(client, message, params) {
-	var details = await apis.RuneScape.forum_profile(params[0])
+	var details = await apis.RuneScape.forum_profile(params[0], { priority: 1 })
 	if (details.length == 0)
-		return util.dm.code_block('No posts found');
+		return Discord.code_block('No posts found');
 
 	var e = new Discord.RichEmbed();
 	e.setColor(0x87CEEB);

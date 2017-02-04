@@ -41,6 +41,7 @@ module.exports.command = async function(client, message, params) {
 
 	// Multiple items to check
 	var command_response = '', total_price = 0;
+	var inactive_note = false;
 	for(var i = 0; i < items.length; i++)
 	{
 		try
@@ -49,6 +50,8 @@ module.exports.command = async function(client, message, params) {
 			command_response += '\n' + short_detail(result);
 			if (result.found)
 				total_price += result.details.overallPrice;
+			if (result.inactive)
+				inactive_note = true;
 		}
 		catch(err)
 		{
@@ -57,7 +60,9 @@ module.exports.command = async function(client, message, params) {
 		await util.sleep(400);
 	}
 
-	return 'Showing details for an item set.' + util.dm.code_block(command_response +
+	return 'Showing details for an item set.' +
+		(inactive_note ? '\nNote: Items marked with * are currently inactive.' : '') +
+		Discord.code_block(command_response +
 		util.printf('\n\n%-28s %13s GP', 'Total price:', util.format_number(total_price)));
 };
 
@@ -67,7 +72,7 @@ function full_detail(result)
 	{
 		var guesses = result.similar_items.map(el => util.printf('%-32s %3d', el.name, el.score));
 		return 'Item not found! Are you looking for one of these?\n' +
-			util.dm.code_block('Item                           Score\n' + guesses.join('\n'));
+			Discord.code_block('Item                           Score\n' + guesses.join('\n'));
 	}
 
 	var command_response = 'Showing details for ' + result.name + ':\n';
@@ -75,13 +80,13 @@ function full_detail(result)
 	if (!result.found)
 	{ // Item is valid but price not found
 		return command_response + 'This item was last updated over 1 week ago.'
-			+ util.dm.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + result.id;
+			+ Discord.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + result.id;
 	}
 
 	if (result.inactive)
 	{	// Add a little warning
 		command_response +=
-			util.dm.bold('Warning') + ': This item is currently inactive. Here are the latest prices from ' +
+			Discord.bold('Warning') + ': This item is currently inactive. Here are the latest prices from ' +
 			util.approximate_time(Date.now(), result.time) + ' ago:\n';
 	}
 
@@ -94,8 +99,8 @@ function full_detail(result)
 		util.printf('%-16s %13s\n', 'Amount Sold:', util.format_number(details.sellingCompleted || 0));
 
 	return command_response
-		+ util.dm.code_block(price_data)
-		+ util.dm.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + result.id;
+		+ Discord.code_block(price_data)
+		+ Discord.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + result.id;
 }
 
 function short_detail(result)
@@ -104,6 +109,8 @@ function short_detail(result)
 		return 'Item name is invalid: ' + result.name;
 	if (!result.found)
 		return 'Price data not found: ' + result.name;
-
-	return util.printf('%-28s %13s GP', result.name, util.format_number(result.details.overallPrice || 0));
+	var name = result.name;
+	if (result.inactive)
+		name = '*' + name;
+	return util.printf('%-28s %13s GP', name, util.format_number(result.details.overallPrice || 0));
 }

@@ -22,7 +22,9 @@ module.exports.params = {
 module.exports.whitelist = config.get('admin_channels');
 
 module.exports.command = async function(client, message, params) {
-	throw Error('Test error');
+	message.channel.splitsend('a');
+
+
 	var data = {
 		datasets: [
 			{

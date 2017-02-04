@@ -16,6 +16,7 @@ Examples:
 module.exports.whitelist = null;
 
 module.exports.command = async function(client, message, params) {
+	await apis.CrystalMathLabs.update_player(params[0]);
 	var hours = await apis.CrystalMathLabs.time_to_max(params[0]);
-	return util.dm.code_block(hours + ' hours');
+	return Discord.code_block(hours + ' hours');
 };

@@ -36,5 +36,5 @@ module.exports.command = async function(client, message, params) {
 		split = util.format_number(Math.floor(split / 1000)) + 'k';
 	else
 		split = util.format_number(Math.floor(split));
-	return util.dm.code_block(split);
+	return Discord.code_block(split);
 };

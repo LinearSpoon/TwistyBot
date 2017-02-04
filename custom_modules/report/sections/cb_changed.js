@@ -10,5 +10,5 @@ module.exports = function(clan_list) {
 		})
 		.map(member => util.printf('%-3d %-12s    %-3d->%-3d', member.id, member.name, member.cb, member.new_cb));
 
-	return 'Members who changed combat level: ' + report.length + util.dm.code_block('\nID  Name            Change\n' + report.join('\n'));
+	return 'Members who changed combat level: ' + report.length + Discord.code_block('\nID  Name            Change\n' + report.join('\n'));
 };

@@ -56,5 +56,5 @@ module.exports.command = async function(client, message, params) {
 		util.printf(fmt, 'summon', 'Ask the bot to join your voice channel.') +
 		util.printf(fmt, 'volume', 'Set the music volume.');
 
-	return util.dm.code_block(response);
+	return Discord.code_block(response);
 };

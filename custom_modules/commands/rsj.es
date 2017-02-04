@@ -25,7 +25,7 @@ module.exports.command = async function(client, message, params) {
 	if (players.length == 0)
 	{
 		return 'Player not found! Here are some similar names:\n' +
-			util.dm.code_block(
+			Discord.code_block(
 				'Name               Score\n' +
 				apis.RSJustice.get_similar_names(name, include_private).map(e => util.printf('%-18s %5d', e.name, e.score)).join('\n')
 			);

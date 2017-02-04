@@ -16,21 +16,28 @@ Examples:
 module.exports.whitelist = null;
 
 module.exports.command = async function(client, message, params) {
-	var stats = await apis.RuneScape.lookup_player(params[0]);
+	var stats = await apis.RuneScape.lookup_player(params[0], { priority: 1 });
 	if (!stats)
-		return util.dm.code_block('Player not found.');
+		return Discord.code_block('Player not found.');
 
 	var output = 'Skill               Rank  Level            XP';
 	var table_data = []
 	for(var skill of apis.RuneScape.skills)
 	{
 		var unranked = stats[skill].rank == -1;
-		output += util.printf('\n%-12s %11s %6s %13s',
-			skill.charAt(0).toUpperCase() + skill.slice(1), // Capitalize first letter
-			unranked ? '-' : stats[skill].rank,
-			unranked ? '-' : stats[skill].level,
-			unranked ? '-' : util.format_number(stats[skill].xp));
+		if (unranked)
+		{
+			output += util.printf('\n%-12s %11s %6s %13s', skill.charAt(0).toUpperCase() + skill.slice(1), '-', '-', '-');
+		}
+		else
+		{
+			output += util.printf('\n%-12s %11s %6s %13s',
+				skill.charAt(0).toUpperCase() + skill.slice(1), // Capitalize first letter
+				stats[skill].rank,
+				stats[skill].level,
+				util.format_number(stats[skill].xp));
+		}
 	}
 
-	return util.dm.code_block(output);
+	return Discord.code_block(output);
 };

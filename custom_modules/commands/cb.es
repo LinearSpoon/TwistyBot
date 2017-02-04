@@ -19,11 +19,11 @@ Examples:
 
 
 module.exports.command = async function(client, message, params) {
-	var stats = await apis.RuneScape.lookup_player(params[0]);
+	var stats = await apis.RuneScape.lookup_player(params[0], { priority: 1 });
 	if (!stats)
-		return util.dm.code_block('Player not found.');
+		return Discord.code_block('Player not found.');
 
-	return util.dm.code_block(
+	return Discord.code_block(
 		'Stat         Level    Next\n' +
 		util.printf(fmt, 'Combat:', apis.RuneScape.combat_level(stats), '-') +
 		util.printf(fmt, 'Attack:', stats.attack.level, find_next_cb_level(stats, 'attack')) +

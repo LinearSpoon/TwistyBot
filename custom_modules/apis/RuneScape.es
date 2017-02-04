@@ -1,7 +1,7 @@
 var cheerio = require('cheerio');
 var moment = require('moment-timezone');
 
-var skills_order = [
+const skills_order = [
 	'overall',
 	'attack',
 	'defence',
@@ -34,14 +34,17 @@ module.exports.skills = skills_order;
 // if player exists => skills object
 // if player doesn't exist => undefined
 // other error => throw
-module.exports.lookup_player = async function(username) {
+module.exports.lookup_player = async function(username, request_options) {
 	var url = 'http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=' + url_encode_username(username);
-	//console.log(url);
-	var res = await util.request(url);
+
+	// Set acceptable status codes
+	if (!request_options)
+		request_options = {};
+	request_options.codes = [404, 200];
+
+	var res = await util.queue_request(url, request_options);
 	if (res.statusCode == 404)
 		return; // Player not found
-	if (res.statusCode != 200)
-		throw Error('Bad request (' + res.statusMessage + ')');
 
 	var data = res.body.split('\n');
 	var skills = {};
@@ -72,14 +75,13 @@ module.exports.combat_level = function(stats) {
 	return +Math.max(melee, range, magic).toFixed(2);
 };
 
-
-const forum_base = 'http://services.runescape.com/m=forum/'
-module.exports.forum_profile = async function(username) {
+module.exports.forum_profile = async function(username, request_options) {
+	const forum_base = 'http://services.runescape.com/m=forum/';
 	var url = forum_base + 'users.ws?lookup=view&searchname=' + url_encode_username(username);
 	var selector = '#forums--userview > div > div.contents > main > section.threads-list > article';
 
-	var body = await util.download( {url:url, encoding:'ascii'} );
-	var $ = cheerio.load(body);
+	var res = await util.queue_request({url:url, encoding:'ascii'}, request_options);
+	var $ = cheerio.load(res.body);
 	var posts = [];
 	$(selector).each(function(i, e) {
 		posts.push({
@@ -93,7 +95,7 @@ module.exports.forum_profile = async function(username) {
 
 	posts.profile = url;
 	posts.name = $('#searchname').val();
-	posts.avatar = 'http://services.runescape.com/m=avatar-rs/' + url_encode_username(username) + '/chat.png'
+	posts.avatar = 'http://services.runescape.com/m=avatar-rs/' + url_encode_username(username) + '/chat.png';
 	return posts;
 }
 

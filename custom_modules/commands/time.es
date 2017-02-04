@@ -20,7 +20,7 @@ module.exports.whitelist = null;
 module.exports.command = async function(client, message, params) {
 	var now = moment();
 
-	return util.dm.code_block(
+	return Discord.code_block(
 		'Bot Time:      ' + now.tz('UTC').format(time_format) +
 		'\nEastern US:    ' + now.tz('America/New_York').format(time_format) +
 		'\nCentral US:    ' + now.tz('America/Chicago').format(time_format) +

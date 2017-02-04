@@ -17,5 +17,5 @@ module.exports.whitelist = null;
 
 module.exports.command = async function(client, message, params) {
 	await apis.CrystalMathLabs.update_player(params[0]);
-	return util.dm.code_block('Player successfully updated!');
+	return Discord.code_block('Player successfully updated!');
 };

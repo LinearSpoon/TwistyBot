@@ -1,10 +1,10 @@
 // CML api: https://crystalmathlabs.com/tracker/api.php
 async function cml_download(url)
 {
-	var res = await util.request(url);
+	var res = await util.queue_request(url);
 	// Should check status here, but CML doesn't always return 200 when the request is OK
 	// statusCode 500 == CML error -4
-	console.log('CML status:', res.statusCode)
+	//console.log('CML status:', res.statusCode)
 	if (res.body == '-1')
 		throw Error('CML error: User not in database');
 	if (res.body == '-2')

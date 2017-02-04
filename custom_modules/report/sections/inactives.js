@@ -25,5 +25,5 @@ module.exports = function(clan_list) {
 			return util.printf('%-3d %-12s    %-14s', member.id, member.name, util.approximate_time(Date.now(), newest.timestamp) + ' ago');
 		});
 
-	return 'Inactive members: ' + report.length + util.dm.code_block('\nID  Name            Last seen\n' + report.join('\n'));
+	return 'Inactive members: ' + report.length + Discord.code_block('\nID  Name            Last seen\n' + report.join('\n'));
 };

@@ -57,5 +57,5 @@ module.exports = function(clan_list) {
 		return util.printf('%-14s %-12s    %10s', skill, name, util.format_number(xp_diff));
 	});
 
-	return 'Exp gains in the past day: ' + util.dm.code_block('\nSkill          Name             Gained Xp\n' + report.join('\n'));
+	return 'Exp gains in the past day: ' + Discord.code_block('\nSkill          Name             Gained Xp\n' + report.join('\n'));
 };

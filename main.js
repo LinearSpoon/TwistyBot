@@ -43,7 +43,7 @@ client.on('ready', function() {
 			var channel = channels[i];
 			if (channel.type != 'text')
 				continue;
-			console.log(util.printf('%-35s %s', channel.guild.name + '.' + channel.name, channel.id));
+		//	console.log(util.printf('%-35s %s', channel.guild.name + '.' + channel.name, channel.id));
 		}
 
 		first_run = false;
@@ -116,6 +116,9 @@ client.on('message', function(message) {
 	var params = message.content.slice(fn.length+1).trim();	// Extract params without command
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
 
+	if (!commands[fn])
+		return;
+
 	if (typeof commands[fn].command !== 'function')
 	 	return; // Not a valid command
 
@@ -126,18 +129,11 @@ client.on('message', function(message) {
 
 	if (params.length < commands[fn].params.min || params.length > commands[fn].params.max)
 	{ // Invalid number of parameters, show parameter help text
-		return message.channel.sendMessage(util.dm.code_block(commands[fn].params.help));
+		return message.channel.sendMessage(Discord.code_block(commands[fn].params.help));
 	}
 
 	message.channel.startTyping();
 	var p = commands[fn].command.call(commands, client, message, params);
-
-	if (typeof p.then !== 'function')
-	{ // Oops check
-		console.error('Add async to', fn);
-		message.channel.sendMessage(p);
-		return message.channel.stopTyping();
-	}
 
 	p.then( function(text) {
 		// Command finished with no errors
@@ -148,22 +144,12 @@ client.on('message', function(message) {
 		}
 		console.log('Command response:', text);
 
-		if (typeof text == "string" && text.length > 2000)
-		{ // We need to break this up into smaller pieces
-			var pieces = split_send_message(text);
-			for(var i = 0; i < pieces.length; i++)
-				message.channel.sendMessage(pieces[i]);
-		}
-		else
-		{
-			// Easy
-			message.channel.sendMessage(text);
-		}
+		return message.channel.sendmsg(text);
 	})
 	.catch( function(err) {
 		// Something terrible happened
 		console.warn(err.stack);
-		message.channel.sendMessage(util.dm.code_block('An error occurred while running the command:\n' + err.message));
+		message.channel.sendMessage(Discord.code_block('An error occurred while running the command:\n' + err.message));
 		var error_channel_output = 'Channel: ';
 		switch(message.channel.type)
 		{
@@ -177,67 +163,17 @@ client.on('message', function(message) {
 				error_channel_output += 'Group Message';
 				break;
 		}
-		error_channel_output += '\nAuthor: ' + message.author.username + '#' + message.author.discriminator;
+		error_channel_output += '\nAuthor:  ' + message.author.username + '#' + message.author.discriminator;
 		error_channel_output += '\nMessage: ' + message.cleanContent;
 		error_channel_output += '\n' + err.stack;
 
-		client.get_text_channel('Twisty-Test.logs').sendMessage(util.dm.code_block(error_channel_output));
+		client.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block(error_channel_output));
 	})
 	.then( function() {
 		// Always stop typing!
 		message.channel.stopTyping();
 	});
 });
-
-function split_send_message(text)
-{
-	var markdown = [
-		{ token: '```', used: false},
-		{ token: '`', used: false},
-		{ token: '~~', used: false},
-		{ token: '***', used: false},
-		{ token: '**', used: false},
-		{ token: '*', used: false},
-		{ token: '__', used: false},
-	];
-	var pieces = text.split(/(```|`|\n|__|~~|\*\*\*|\*\*|\*)/);
-	var all_messages = [];
-	var current_message = "";
-	for(var i = 0; i < pieces.length; i++)
-	{
-		if (current_message.length + pieces[i].length > 1900)
-		{ // Adding this piece would be too long, split the message here
-			// Repair the markdown tags...
-			for(var j = 0; j < markdown.length; j++) // Go forwards
-			{
-				if (markdown[j].used)
-					current_message += markdown[j].token;
-			}
-			// Save the current message
-			all_messages.push(current_message);
-			// Prepare a new message and restore tags
-			current_message = '';
-			for(var j = markdown.length - 1; j >= 0; j--) // Go backwards
-			{
-				if (markdown[j].used)
-					current_message += markdown[j].token;
-			}
-		}
-		var tag = markdown.find(el => el.token == pieces[i]);
-		if (tag)
-		{ // We've found a tag, toggle it
-			tag.used = ~tag.used;
-		}
-		// Add the current piece
-		current_message += pieces[i];
-	}
-	// Push the last message
-	all_messages.push(current_message);
-	// Add message count
-	//for(var i = 0; i < all_messages.length; i++)
-	//	all_messages[i] += '\nMessage ' + (i+1) + ' of ' + all_messages.length + '.\n';
-	return all_messages;
-}
 
 // These functions must return a promise
 function start_servers()
