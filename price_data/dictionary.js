@@ -172,4 +172,12 @@ module.exports = {
 	'preserve':"Torn prayer scroll",
 	'ancestral top':"Ancestral robe top",
 	'ancestral bottom':"Ancestral robe bottom",
+
+	// Barrows set shortcuts
+	'veracs': "Verac's armour set",
+	'dharoks': "Dharok's armour set",
+	'guthans': "Guthan's armour set",
+	'karils': "Karil's armour set",
+	'ahrims': "Ahrim's armour set",
+	'torags': "Torag's armour set",
 }

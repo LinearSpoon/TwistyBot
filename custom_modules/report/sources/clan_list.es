@@ -10,10 +10,11 @@ module.exports = async function(start, count) {
 	var id_col    = 1;
 	var user_col  = 2;
 	var cmb_col   = 4;
+	var date_col  = 5;
 	var first_row = 4 + (start || 1);
 	var last_row  = Math.min(ws_info.worksheets[0].rowCount, first_row + (count || 999));
-	var first_col = Math.min(id_col, user_col, cmb_col);
-	var last_col  = Math.max(id_col, user_col, cmb_col)
+	var first_col = Math.min(id_col, user_col, cmb_col, date_col);
+	var last_col  = Math.max(id_col, user_col, cmb_col, date_col)
 
 	var cells = await apis.GoogleSS.read_cells(config.get('clan_spreadsheet'), 1, first_col, last_col, first_row, last_row);
 
@@ -27,7 +28,8 @@ module.exports = async function(start, count) {
 		clan_list.push({
 			id: cells[id_col][i].numericValue,
 			name: player_name.replace(/[^a-zA-Z0-9_ -]/g,''),
-			cb: cells[cmb_col][i].numericValue
+			cb: cells[cmb_col][i].numericValue,
+			accepted: new Date(cells[date_col][i].value)
 		});
 	}
 

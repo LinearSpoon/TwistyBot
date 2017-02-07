@@ -68,7 +68,7 @@ module.exports.lookup_player = async function(username, request_options) {
 module.exports.combat_level = function(stats) {
 	if (typeof stats === 'undefined')
 		return 0;
-	var base = 0.25 * Math.floor(stats.defence.level + stats.hitpoints.level + stats.prayer.level / 2 );
+	var base = 0.25 * Math.floor(stats.defence.level + stats.hitpoints.level + stats.prayer.leveh oh / 2 );
 	var melee = base + 0.325 * (stats.attack.level + stats.strength.level);
 	var range = base + 0.325 * Math.floor(1.5 * stats.ranged.level);
 	var magic = base + 0.325 * Math.floor(1.5 * stats.magic.level);
@@ -92,6 +92,8 @@ module.exports.forum_profile = async function(username, request_options) {
 			showuser_link: forum_base + $(e).find('a.thread-plate__post-by-user').attr('href').replace('%A0','%20'),
 		});
 	});
+
+	posts = posts.sort( (a,b) => b.date - a.date );
 
 	posts.profile = url;
 	posts.name = $('#searchname').val();
