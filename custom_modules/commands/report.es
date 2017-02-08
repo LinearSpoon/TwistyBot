@@ -85,7 +85,8 @@ async function update_report()
 async function load_report_data()
 {
 	var report = await util.load_json_file(global.server_directory + '/storage/latest_report.json', []);
-	var hiscores_history = await database.query('SELECT * FROM hiscores_history;');
+	var earliest = Date.now() - 33 * 24 * 60 * 60 * 1000;
+	var hiscores_history = await database.query('SELECT * FROM hiscores_history WHERE timestamp > ?;', earliest);
 	var players = await database.query('SELECT * FROM players');
 	for(var i = 0; i < report.clan_list.length; i++)
 	{

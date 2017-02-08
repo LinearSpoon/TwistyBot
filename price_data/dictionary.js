@@ -147,6 +147,8 @@ module.exports = {
 	'dpick':'Dragon pickaxe',
 	'd pick':'Dragon pickaxe',
 	'tanz':'Tanzanite fang',
+	'bond':'Old school bond',
+	'oldschool bond':'Old school bond',
 
 	// Raids raids raids
 	'twisty bow':'Twisted bow',
