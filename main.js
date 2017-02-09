@@ -122,8 +122,8 @@ client.on('message', function(message) {
 	if (typeof commands[fn].command !== 'function')
 	 	return; // Not a valid command
 
-	if (!message.check_permissions(commands[fn].permissions.concat(config.get('global_permissions'))))
-	{	// Permission denied
+	if (!message.check_permissions(config.get('global_permissions').concat(commands[fn].permissions)))
+	{ // Permission denied
 		return;
 	}
 

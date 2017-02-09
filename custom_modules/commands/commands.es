@@ -20,7 +20,7 @@ module.exports.command = async function(client, message, params) {
 		if (!c.help)
 			continue; // Help properties not defined
 		// Check if this command can be used in this channel
-		if (message.check_permissions(c.permissions.concat(config.get('global_permissions'))))
+		if (message.check_permissions(config.get('global_permissions').concat(c.permissions)))
 		{
 			// Create array or append new command
 			if (!sorted[c.help.category])
