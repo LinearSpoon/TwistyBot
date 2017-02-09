@@ -3,7 +3,7 @@ module.exports.help = {
 	text: 'Terminates process.',
 	category: 'Admin'
 }
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 module.exports.params = {
 	min: 0,
 	max: 0,

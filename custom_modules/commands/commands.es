@@ -1,7 +1,9 @@
 const fmt = '!%-13s %-s\n';
 const commands = require('./index.js');
 
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 module.exports.params = {
 	min: 0,
 	max: 999,
@@ -18,7 +20,7 @@ module.exports.command = async function(client, message, params) {
 		if (!c.help)
 			continue; // Help properties not defined
 		// Check if this command can be used in this channel
-		if (c.whitelist === null || c.whitelist.indexOf(message.channel.id) > -1)
+		if (message.check_permissions(c.permissions.concat(config.get('global_permissions'))))
 		{
 			// Create array or append new command
 			if (!sorted[c.help.category])
@@ -41,20 +43,23 @@ module.exports.command = async function(client, message, params) {
 		response += '\n';
 	}
 
-	// Handled by another process
-	response += 'Music commands (only in certain channels):\n' +
-		util.printf(fmt, 'clear', 'Clear queued songs.') +
-		util.printf(fmt, 'disconnect', 'Ask the bot to leave the voice channel.') +
-		util.printf(fmt, 'np', 'Show currently playing song.') +
-		util.printf(fmt, 'pause', 'Pause currently playing song.') +
-		util.printf(fmt, 'play', 'Add a new song to the queue.') +
-		util.printf(fmt, 'queue', 'Show pending songs.') +
-		util.printf(fmt, 'restart', 'Restart the music bot (may fix sound issues).') +
-		util.printf(fmt, 'resume', 'Unpause current song.') +
-		util.printf(fmt, 'shuffle', 'Randomize the queue.') +
-		util.printf(fmt, 'skip', 'Skip the currently playing song.') +
-		util.printf(fmt, 'summon', 'Ask the bot to join your voice channel.') +
-		util.printf(fmt, 'volume', 'Set the music volume.');
+	if (message.check_permissions( config.get('music_channels') ))
+	{
+		// Handled by another process
+		response += 'Music commands:\n' +
+			util.printf(fmt, 'clear', 'Clear queued songs.') +
+			util.printf(fmt, 'disconnect', 'Ask the bot to leave the voice channel.') +
+			util.printf(fmt, 'np', 'Show currently playing song.') +
+			util.printf(fmt, 'pause', 'Pause currently playing song.') +
+			util.printf(fmt, 'play', 'Add a new song to the queue.') +
+			util.printf(fmt, 'queue', 'Show pending songs.') +
+			util.printf(fmt, 'restart', 'Restart the music bot (may fix sound issues).') +
+			util.printf(fmt, 'resume', 'Unpause current song.') +
+			util.printf(fmt, 'shuffle', 'Randomize the queue.') +
+			util.printf(fmt, 'skip', 'Skip the currently playing song.') +
+			util.printf(fmt, 'summon', 'Ask the bot to join your voice channel.') +
+			util.printf(fmt, 'volume', 'Set the music volume.');
+	}
 
 	return Discord.code_block(response);
 };

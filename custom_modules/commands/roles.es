@@ -10,6 +10,7 @@ module.exports.params = {
 	help: `Usage: !roles`
 };
 
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	if (!message.channel.guild)
@@ -26,6 +27,6 @@ module.exports.command = async function(client, message, params) {
 	if (!member)
 		return Discord.code_block("Couldn't find that member in this guild.");
 	var roles = Array.from(member.roles.values());
-	return Discord.code_block(roles.map(role => util.printf('%-16s %18s', role.name, role.id)).join('\n'));
+	return Discord.code_block(roles.map(role => util.printf('%-18s %18s', role.name, role.id)).join('\n'));
 
 };

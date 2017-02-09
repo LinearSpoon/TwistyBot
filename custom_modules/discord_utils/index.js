@@ -10,6 +10,9 @@ Discord.TextChannel.prototype.sendmsg = require('./sendmsg.js');
 Discord.DMChannel.prototype.sendmsg = require('./sendmsg.js');
 Discord.GroupDMChannel.prototype.sendmsg = require('./sendmsg.js');
 
+// Helper to evaluate permissions objects against a message
+Discord.Message.prototype.check_permissions = require('./check_permissions.js');
+
 
 // Discord Markdown
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-

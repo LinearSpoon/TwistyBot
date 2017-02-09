@@ -96,10 +96,10 @@ client.on('message', function(message) {
 
 	if (message.channel.type == 'text')
 	{
-		if (config.get('whitelist_channels').length > 0 && !util.message_in(message, 'whitelist_channels'))
+		if (config.get('whitelist_channels').length > 0 && config.get('whitelist_channels').indexOf(message.channel.id) == -1)
 			return; // Only listen to allowed channels
 
-		if (util.message_in(message, 'blacklist_channels'))
+		if (config.get('blacklist_channels').indexOf(message.channel.id) > -1)
 			return; // Do not listen in blocked channels
 	}
 	else if (message.channel.type == 'dm' || message.channel.type == 'group')
@@ -122,8 +122,8 @@ client.on('message', function(message) {
 	if (typeof commands[fn].command !== 'function')
 	 	return; // Not a valid command
 
-	if (commands[fn].whitelist && commands[fn].whitelist.indexOf(message.channel.id) == -1)
-	{ // This command is not available in this channel
+	if (!message.check_permissions(commands[fn].permissions.concat(config.get('global_permissions'))))
+	{	// Permission denied
 		return;
 	}
 

@@ -15,11 +15,19 @@ Examples:
 !rsj i rep wih
 !rsj tades`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 module.exports.command = async function(client, message, params) {
 	var name = params[0];
-	var include_private = util.message_in(message, 'rsj_private_channels');
+	var include_private = message.check_permissions([
+		{ channel: '266095695860203520' }, // RS JUSTICE.name-checks
+		{ channel: '230201497302859776' }, // RS JUSTICE.private
+		{ guild: '232274245848137728' }, // Twisty-Test
+		{ user: '189803024611278849' }, // Zeal
+		{ user: '217934790886686730' }, // Twisty Fork
+	]);
 
 	var players = await apis.RSJustice.lookup(name, include_private);
 	if (players.length == 0)
@@ -47,7 +55,10 @@ function send_embed(message, details)
 	if (details.previous_names.length)
 		e.addField('Previous names:', details.previous_names.join('\n'));
 
-	if (util.message_in(message, 'admin_channels'))
+	var extras = message.check_permissions([
+		{ guild: '232274245848137728' }, // Twisty-Test
+	]);
+	if (extras)
 	{
 		e.addField('Status:', details.status, true);
 		e.addField('ID:', details.id, true);

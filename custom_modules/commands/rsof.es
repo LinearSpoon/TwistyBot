@@ -15,7 +15,7 @@ Examples:
 !rsof Sin Dragon
 !rsof Zeale`
 };
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	var details = await apis.RuneScape.forum_profile(params[0], { priority: 1 })

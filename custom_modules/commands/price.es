@@ -17,7 +17,9 @@ Examples:
 !price zilyana
 !price zam hilt`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 
 module.exports.command = async function(client, message, params) {

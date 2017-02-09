@@ -10,7 +10,7 @@ module.exports.params = {
 	max: 0,
 	help: `Usage: !clan_stats`
 };
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	var clan_list = await load_report_data();

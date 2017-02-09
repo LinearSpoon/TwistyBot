@@ -10,7 +10,7 @@ module.exports.params = {
 	max: 0,
 	help: `Usage: !clan_rsof`
 };
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	var clan_list = await get_clan_list();

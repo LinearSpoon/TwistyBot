@@ -13,7 +13,9 @@ Examples:
 !update Twisty Fork
 !update Vegakargdon`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 module.exports.command = async function(client, message, params) {
 	await apis.CrystalMathLabs.update_player(params[0]);

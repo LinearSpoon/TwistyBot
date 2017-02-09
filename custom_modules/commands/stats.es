@@ -13,7 +13,9 @@ Examples:
 !stats Twisty Fork
 !stats Vegakargdon`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 module.exports.command = async function(client, message, params) {
 	var stats = await apis.RuneScape.lookup_player(params[0], { priority: 1 });

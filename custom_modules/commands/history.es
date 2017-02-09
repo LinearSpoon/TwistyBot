@@ -7,7 +7,9 @@ module.exports.help = {
 	text: 'Display a list of logged hiscores data for a player.',
 	category: 'Deities'
 };
-module.exports.whitelist = config.get('deities_channels');
+module.exports.permissions = [
+	{ guild: '160833724886286336' } // Deities of PvM
+];
 module.exports.params = {
 	min: 1,
 	max: 2,

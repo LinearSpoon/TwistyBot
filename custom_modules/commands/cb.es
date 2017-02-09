@@ -5,7 +5,9 @@ module.exports.help = {
 	text: 'Display OldSchool player combat stats.',
 	category: 'RuneScape'
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 module.exports.params = {
 	min: 1,
 	max: 1,

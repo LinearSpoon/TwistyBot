@@ -9,7 +9,7 @@ module.exports.params = {
 	max: 0,
 	help: `Usage: !test2`
 };
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	var e = new Discord.RichEmbed();

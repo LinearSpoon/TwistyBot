@@ -13,7 +13,9 @@ Examples:
 !ttm Twisty Fork
 !ttm Vegakargdon`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 module.exports.command = async function(client, message, params) {
 	try {

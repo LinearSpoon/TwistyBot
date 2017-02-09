@@ -15,7 +15,9 @@ module.exports.params = {
 	max: 999,
 	help: `Usage: !time`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 module.exports.command = async function(client, message, params) {
 	var now = moment();

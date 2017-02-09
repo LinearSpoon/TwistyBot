@@ -19,7 +19,7 @@ module.exports.params = {
 	max: 0,
 	help: `Usage: !test`
 };
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	message.channel.splitsend('a');

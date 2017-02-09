@@ -20,9 +20,7 @@ module.exports = function(clan_list) {
 			var newest = member.history
 				.filter(record => current_xp == record.hiscores.overall.xp)
 				.reduce( (a,b) => a.timestamp > b.timestamp ? b : a );
-
-
-			return util.printf('%-3d %-12s    %-14s', member.id, member.name, util.approximate_time(Date.now(), newest.timestamp) + ' ago');
+			return util.printf('%-3d %-12s    %-14s', member.id, member.name, Math.floor((Date.now() - newest.timestamp) / one_day) + ' days ago');
 		});
 
 	return 'Inactive members: ' + report.length + Discord.code_block('\nID  Name            Last seen\n' + report.join('\n'));

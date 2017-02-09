@@ -13,7 +13,7 @@ Examples:
 !say twisty-test.dev, hi
 !say twisty fork, hi`
 };
-module.exports.whitelist = config.get('admin_channels');
+module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	var target_channel = client.get_dm_channel(params[0]);

@@ -14,7 +14,9 @@ Examples:
 !split 40.2m, 3
 !split 26231k, 2`
 };
-module.exports.whitelist = null;
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 module.exports.command = async function(client, message, params) {
 	var str_amount = params[0].toLowerCase();

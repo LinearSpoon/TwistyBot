@@ -31,7 +31,9 @@ module.exports.params = {
 	max: 1,
 	help: `Usage: !report`
 };
-module.exports.whitelist = config.get('deities_channels');
+module.exports.permissions = [
+	{ guild: '160833724886286336' } // Deities of PvM
+];
 
 module.exports.command = async function(client, message, params) {
 	if (params[0] == 'update')
@@ -86,8 +88,21 @@ async function load_report_data()
 {
 	var report = await util.load_json_file(global.server_directory + '/storage/latest_report.json', []);
 	var earliest = Date.now() - 33 * 24 * 60 * 60 * 1000;
-	var hiscores_history = await database.query('SELECT * FROM hiscores_history WHERE timestamp > ?;', earliest);
-	var players = await database.query('SELECT * FROM players');
+
+	var hiscores_history = await database.query(
+		`SELECT timestamp, hiscores, name
+			FROM hiscores_history
+			JOIN players
+			ON hiscores_history.player_id = players.id
+			WHERE timestamp > ?;`, earliest);
+
+	var latest_hiscores = await database.query(
+		`SELECT name, MAX(timestamp) as timestamp, hiscores
+			FROM runescape.hiscores_history
+			JOIN players
+			ON players.id = hiscores_history.player_id
+			GROUP BY player_id;`);
+
 	for(var i = 0; i < report.clan_list.length; i++)
 	{
 		var member = report.clan_list[i];
@@ -95,20 +110,18 @@ async function load_report_data()
 		// Check them on RSJ
 	 	member.rsjustice = await apis.RSJustice.lookup(member.name);
 
-		// Find player_id for this member
-		var player = players.find( p => p.name.toLowerCase() == member.name.toLowerCase() );
-		if (!player)
-		{
-			console.warn('Could not find player id for', member.name);
-			member.history = [];
-			continue;
-		}
 		// Extract history entries for this player, sorted from newest to oldest
 		member.history = hiscores_history
-			.filter(row => row.player_id == player.id)
+			.filter(row => row.name.toLowerCase() == member.name.toLowerCase())
 			.map(row => ({ timestamp: row.timestamp, hiscores: JSON.parse(row.hiscores) }))
 			.sort( (a,b) => b.timestamp - a.timestamp );
+		if (member.history.length == 0)
+			member.history = latest_hiscores
+				.filter(row => row.name.toLowerCase() == member.name.toLowerCase())
+				.map(row => ({ timestamp: row.timestamp, hiscores: JSON.parse(row.hiscores) }));
 	}
+
+
 	return report;
 }
 
