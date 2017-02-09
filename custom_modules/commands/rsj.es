@@ -20,6 +20,7 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(client, message, params) {
+	var Zeal_dm = Discord.bot.get_dm_channel('Zeal#0153');
 	var name = params[0];
 	var include_private = message.check_permissions([
 		{ channel: '266095695860203520' }, // RS JUSTICE.name-checks
@@ -32,18 +33,26 @@ module.exports.command = async function(client, message, params) {
 	var players = await apis.RSJustice.lookup(name, include_private);
 	if (players.length == 0)
 	{
-		return 'Player not found! Here are some similar names:\n' +
+		var response = 'Player not found! Here are some similar names:\n' +
 			Discord.code_block(
 				'Name               Score\n' +
 				apis.RSJustice.get_similar_names(name, include_private).map(e => util.printf('%-18s %5d', e.name, e.score)).join('\n')
 			);
+
+		Zeal_dm.sendmsg(message.author.username + ': !rsj ' + params[0] + '\n' + response);
+
+		return response;
 	}
 
 	for(var i = 0; i < players.length; i++)
-		send_embed(message, players[i]);
+	{ // Twisty-Test
+		message.channel.sendEmbed(get_embed(players[i], message.channel.guild && message.channel.guild.id == '232274245848137728'));
+		Zeal_dm.sendEmbed(get_embed(players[i], true), i == 0 ? message.author.username + ': !rsj ' + params[0] : undefined);
+	}
+
 };
 
-function send_embed(message, details)
+function get_embed(details, extra)
 {
 	var e = new Discord.RichEmbed();
 	e.setColor(0x87CEEB);
@@ -55,13 +64,10 @@ function send_embed(message, details)
 	if (details.previous_names.length)
 		e.addField('Previous names:', details.previous_names.join('\n'));
 
-	var extras = message.check_permissions([
-		{ guild: '232274245848137728' }, // Twisty-Test
-	]);
-	if (extras)
+	if (extra)
 	{
 		e.addField('Status:', details.status, true);
 		e.addField('ID:', details.id, true);
 	}
-	return message.channel.sendEmbed(e);
+	return e;
 }

@@ -96,8 +96,8 @@ async function load_report_data()
 			ON hiscores_history.player_id = players.id
 			WHERE timestamp > ?;`, earliest);
 
-	var latest_hiscores = await database.query(
-		`SELECT name, MAX(timestamp) as timestamp, hiscores
+	var oldest_hiscores = await database.query(
+		`SELECT name, MIN(timestamp) AS timestamp, hiscores
 			FROM runescape.hiscores_history
 			JOIN players
 			ON players.id = hiscores_history.player_id
@@ -115,10 +115,10 @@ async function load_report_data()
 			.filter(row => row.name.toLowerCase() == member.name.toLowerCase())
 			.map(row => ({ timestamp: row.timestamp, hiscores: JSON.parse(row.hiscores) }))
 			.sort( (a,b) => b.timestamp - a.timestamp );
-		if (member.history.length == 0)
-			member.history = latest_hiscores
-				.filter(row => row.name.toLowerCase() == member.name.toLowerCase())
-				.map(row => ({ timestamp: row.timestamp, hiscores: JSON.parse(row.hiscores) }));
+
+		member.history.concat(oldest_hiscores
+			.filter(row => row.name.toLowerCase() == member.name.toLowerCase()));
+
 	}
 
 
