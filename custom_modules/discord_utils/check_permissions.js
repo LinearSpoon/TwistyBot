@@ -22,17 +22,32 @@ module.exports = function(permissions) {
 		if (is_dm && (rule.guild || rule.roles))
 			continue; // Message is dm but rule is guild
 
-		if (rule.guild && (rule.guild != '*' && rule.guild != guild))
-		 	continue; // Wrong guild
+		if (rule.guild && !is_match(guild, rule.guild))
+			continue; // Wrong guild
 
-		if (rule.channel && (rule.channel != '*' && rule.channel != channel))
-		 	continue;	// Wrong channel
+		if (rule.not_guild && is_match(guild, rule.not_guild))
+			continue;
 
-		if (rule.user && (rule.user != '*' && rule.user != user))
-		 	continue;	// Wrong user
+		if (rule.channel && !is_match(channel, rule.channel))
+			continue;	// Wrong channel
 
-		if (rule.role && !roles.has(rule.role))
-			continue; // Missing role
+		if (rule.not_channel && is_match(channel, rule.not_channel))
+			continue;
+
+		if (rule.user && !is_match(user, rule.user))
+			continue;	// Wrong user
+
+		if (rule.not_user && !is_match(user, rule.not_user))
+			continue;
+
+		if (rule.role && !is_role_match(roles, rule.role))
+			continue;	// Wrong role
+
+		if (rule.not_role && is_role_match(roles, rule.not_role))
+			continue;
+
+		if (rule.channel_type && !is_match(channel.type, rule.channel_type))
+			continue; // Wrong channel_type
 
 		// Default allow if block is undefined
 		return !rule.block;
@@ -41,3 +56,19 @@ module.exports = function(permissions) {
 	// Default: block
 	return false;
 };
+
+function is_match(value, rule)
+{
+	if (Array.isArray(rule))
+		return rule.indexOf(value) > -1;
+
+	return (rule == '*' || rule == value);
+}
+
+function is_role_match(roles, rule)
+{
+	if (Array.isArray(rule))
+		return rule.findIndex(e => roles.has(e)) > -1;
+
+	return roles.has(rule);
+}

@@ -20,14 +20,14 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(client, message, params) {
-	var Zeal_dm = Discord.bot.get_dm_channel('Zeal#0153');
+	var sender = '[' + message.channel.get_name() + ']' + message.author.username + ': !rsj ' + params[0] + '\n';
+
+	var Zeal_dm = Discord.bot.get_text_channel('RS JUSTICE.global-usage');
 	var name = params[0];
 	var include_private = message.check_permissions([
-		{ channel: '266095695860203520' }, // RS JUSTICE.name-checks
-		{ channel: '230201497302859776' }, // RS JUSTICE.private
+		{ channel: ['266095695860203520', '230201497302859776'] }, // RS JUSTICE.name-checks, RS JUSTICE.private
 		{ guild: '232274245848137728' }, // Twisty-Test
-		{ user: '189803024611278849' }, // Zeal
-		{ user: '217934790886686730' }, // Twisty Fork
+		{ user: ['189803024611278849', '217934790886686730'] }, // Zeal, Twisty Fork
 	]);
 
 	var players = await apis.RSJustice.lookup(name, include_private);
@@ -39,7 +39,7 @@ module.exports.command = async function(client, message, params) {
 				apis.RSJustice.get_similar_names(name, include_private).map(e => util.printf('%-18s %5d', e.name, e.score)).join('\n')
 			);
 
-		Zeal_dm.sendmsg(message.author.username + ': !rsj ' + params[0] + '\n' + response);
+		Zeal_dm.sendmsg(sender + response);
 
 		return response;
 	}
@@ -47,7 +47,7 @@ module.exports.command = async function(client, message, params) {
 	for(var i = 0; i < players.length; i++)
 	{ // Twisty-Test
 		message.channel.sendEmbed(get_embed(players[i], message.channel.guild && message.channel.guild.id == '232274245848137728'));
-		Zeal_dm.sendEmbed(get_embed(players[i], true), i == 0 ? message.author.username + ': !rsj ' + params[0] : undefined);
+		Zeal_dm.sendEmbed(get_embed(players[i], true), i == 0 ? sender : undefined);
 	}
 
 };

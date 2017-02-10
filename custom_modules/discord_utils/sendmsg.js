@@ -19,10 +19,10 @@ function split_message(text)
 		{ token: '~~', used: false},
 		{ token: '***', used: false},
 		{ token: '**', used: false},
-		{ token: '*', used: false},
+		//{ token: '*', used: false},
 		{ token: '__', used: false},
 	];
-	var pieces = text.split(/(```|`|__|~~|\n|\*\*\*|\*\*|\*)/);
+	var pieces = text.split(/(```|`|__|~~|\n|\*\*\*|\*\*)/);
 	var all_messages = [];
 	var current_message = "";
 	for(var i = 0; i < pieces.length; i++)
