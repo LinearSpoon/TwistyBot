@@ -20,7 +20,7 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(client, message, params) {
-	var sender = '[' + message.channel.get_name() + ']' + message.author.username + ': !rsj ' + params[0] + '\n';
+	var sender = '[' + message.channel.get_name() + '] ' + message.author.username + ': !rsj ' + params[0] + '\n';
 
 	var Zeal_dm = Discord.bot.get_text_channel('RS JUSTICE.global-usage');
 	var name = params[0];

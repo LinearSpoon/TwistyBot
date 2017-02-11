@@ -1,12 +1,12 @@
 module.exports.help = {
-	name: 'id',
+	name: 'ids',
 	text: 'Retrieve ids.',
 	category: 'Admin'
 };
 module.exports.params = {
 	min: 0,
 	max: 2,
-	help: `Usage: !id`
+	help: `Usage: !ids, type, filter`
 };
 
 module.exports.permissions = [];

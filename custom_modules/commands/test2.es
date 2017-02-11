@@ -13,6 +13,7 @@ module.exports.permissions = [];
 
 module.exports.command = async function(client, message, params) {
 	var e = new Discord.RichEmbed();
+	// author, small image left of author, author url
 	e.setAuthor('Twisty Fork', message.author.avatarURL, 'http://pngimg.com/upload/spoon_PNG3043.png');
 	e.addField('field1', 'value1', true);
 	e.addField('field2', 'value2', true);
