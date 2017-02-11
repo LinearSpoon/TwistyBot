@@ -14,6 +14,8 @@ var stream = client.stream('statuses/filter',	{ follow: [
 
 stream.on('data', function(event) {
 	try {
+		if (tweet.retweeted_status)
+			return; // Don't care about retweets
 		console.log(event);
 	  Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(tweet_embed(event));
 	} catch(e) {
@@ -36,7 +38,7 @@ function tweet_embed(tweet)
 	for(var i = 0; i < mentions.length; i++)
 	{
 		final_text += tweet.text.slice(prev_index[1], mentions[i].indices[0]); // Text before entity
-		final_text += '[' + tweet.text.slice(mentions[i].indices[0], mentions[i].indices[1]) + '](http://twitter.com/' + mentions[i].screen_name + ')'; // entity text
+		final_text += masked_tweet( tweet.text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name );
 		prev_index = mentions[i].indices;
 	}
 	final_text += tweet.text.slice(prev_index[1]); // Whatever is left
@@ -45,18 +47,14 @@ function tweet_embed(tweet)
 	e.setAuthor(tweet.user.screen_name, null, 'https://twitter.com/' + tweet.user.screen_name);
 	e.setThumbnail(tweet.user.profile_image_url);
 	e.setTimestamp(new Date(parseInt(tweet.timestamp_ms)));
-	e.setDescription(final_text);
+
 	var links = [
 		masked_tweet('View on Twitter', tweet.user.screen_name, tweet.id_str)
 	];
-	if (tweet.in_reply_to_screen_name)
+	if (tweet.in_reply_to_status_id_str)
 		links.push(masked_tweet('Replying to ' + tweet.in_reply_to_screen_name, tweet.in_reply_to_screen_name, tweet.in_reply_to_status_id_str));
 
-	e.addField('Links', links.join('\n'));
-
-
-	if (tweet.retweeted_status)
-		e.addField('Note', 'This is probably a retweet?');
+	e.setDescription(final_text + '\n\n' + links.join('\n'));
 
 	return e;
 }
