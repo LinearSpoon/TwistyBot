@@ -34,22 +34,18 @@ var corp = [
 var raids = [
 	'Twisted bow',
 	'Twisted buckler',
-
 	'Dextrous prayer scroll',
 	'Arcane prayer scroll',
-	'Torn prayer scroll',
-
+	//'Torn prayer scroll',
 	'Dragon claws',
 	'Dragon sword',
 	'Dragon harpoon',
 	'Dragon hunter crossbow',
 	'Dragon thrownaxe',
-
 	'Ancestral hat',
 	'Ancestral robe top',
 	'Ancestral robe bottom',
 	'Kodai wand',
-
 	"Dinh's bulwark",
 	'Elder maul',
 ];
@@ -58,6 +54,24 @@ var cerb = [
 	'Eternal boots',
 	'Pegasian boots',
 	'Primordial boots',
+];
+
+var gwd = [
+	'Armadyl godsword',
+	'Armadyl helmet',
+	'Armadyl chestplate',
+	'Armadyl chainskirt',
+	'Bandos godsword',
+	'Bandos chestplate',
+	'Bandos tassets',
+	//'Bandos boots',
+	'Zamorak godsword',
+	'Zamorakian spear',
+	'Staff of the dead',
+	'Saradomin godsword',
+	'Armadyl crossbow',
+	'Saradomin sword',
+	//"Saradomin's light",
 ];
 
 module.exports = {
@@ -92,4 +106,8 @@ module.exports = {
 
 	'cerb': cerb,
 	'cerberus': cerb,
+
+	'gwd': gwd,
+	'godwars': gwd,
+	'god wars': gwd,
 };

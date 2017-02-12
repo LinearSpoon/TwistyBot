@@ -1,16 +1,19 @@
+var he = require('he');
 var Twitter = require('twitter');
 
+const mods = [
+	'1712662364', // Ash
+	'734716002831900672', // West
+	'3362141061', // Kieren
+	'1307366604', // Mat K
+	'2818884683', // Archie
+	'2585470393', // Ronan
+	'2984275535', // Merchant
+	'2926510103', // Linear Spoon
+];
+
 var client = new Twitter(config.get('twitter_keys'));
-var stream = client.stream('statuses/filter',	{ follow: [
-		'1712662364', // Ash
-		'734716002831900672', // West
-		'3362141061', // Kieren
-		'1307366604', // Mat K
-		'2818884683', // Archie
-		'2585470393', // Ronan
-		'2984275535', // Merchant
-		'2926510103', // Linear Spoon
-	].join(',') });
+var stream = client.stream('statuses/filter',	{ follow: mods.join(',') });
 
 
 stream.on('data', function(event) {
@@ -41,8 +44,8 @@ function tweet_embed(tweet)
 	var final_text = '';
 	for(var i = 0; i < mentions.length; i++)
 	{
-		final_text += tweet.text.slice(prev_index[1], mentions[i].indices[0]); // Text before entity
-		final_text += masked_tweet( tweet.text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name );
+		final_text += he.decode(tweet.text.slice(prev_index[1], mentions[i].indices[0])); // Text before entity
+		final_text += he.decode(masked_tweet( tweet.text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name ));
 		prev_index = mentions[i].indices;
 	}
 	final_text += tweet.text.slice(prev_index[1]); // Whatever is left
@@ -64,6 +67,9 @@ function tweet_embed(tweet)
 	var media = tweet.entities.media;
 	if (media && media.length > 0)
 		e.setImage(media[0].media_url_https);
+
+	if (mods.indexOf(tweet.user.id_str) > -1)
+		e.setColor(0xFFD700);
 
 	return e;
 }
