@@ -8,13 +8,14 @@ var stream = client.stream('statuses/filter',	{ follow: [
 		'1307366604', // Mat K
 		'2818884683', // Archie
 		'2585470393', // Ronan
+		'2984275535', // Merchant
 		//'2926510103', // Linear Spoon
 	].join(',') });
 
 
 stream.on('data', function(event) {
 	try {
-		if (tweet.retweeted_status)
+		if (event.retweeted_status)
 			return; // Don't care about retweets
 		console.log(event);
 	  Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(tweet_embed(event));
@@ -43,6 +44,9 @@ function tweet_embed(tweet)
 	}
 	final_text += tweet.text.slice(prev_index[1]); // Whatever is left
 
+
+
+
 	var e = new Discord.RichEmbed();
 	e.setAuthor(tweet.user.screen_name, null, 'https://twitter.com/' + tweet.user.screen_name);
 	e.setThumbnail(tweet.user.profile_image_url);
@@ -56,6 +60,9 @@ function tweet_embed(tweet)
 
 	e.setDescription(final_text + '\n\n' + links.join('\n'));
 
+	if (tweet.entities.media.length)
+		e.setImage(tweet.entities.media[0].media_url_https);
+	
 	return e;
 }
 
