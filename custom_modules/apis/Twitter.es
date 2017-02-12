@@ -39,16 +39,39 @@ stream.on('error', function(error) {
 function tweet_embed(tweet)
 {
 	// Fix up the @user references to link to their profile
-	var mentions = tweet.entities.user_mentions;
-	var prev_index = [ 0, 0 ];
-	var final_text = '';
-	for(var i = 0; i < mentions.length; i++)
+	var mentions, text, media;
+	if (tweet.extended_tweet)
 	{
-		final_text += he.decode(tweet.text.slice(prev_index[1], mentions[i].indices[0])); // Text before entity
-		final_text += he.decode(masked_tweet( tweet.text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name ));
-		prev_index = mentions[i].indices;
+		if (tweet.entities.user_mentions)
+			mentions = tweet.entities.user_mentions;
+		text = tweet.text;
+		if (tweet.entities.media)
+			media = tweet.entities.media
 	}
-	final_text += tweet.text.slice(prev_index[1]); // Whatever is left
+	else
+	{
+		if (tweet.extended_tweet.entities.user_mentions)
+			mentions = tweet.extended_tweet.entities.user_mentions;
+		text = tweet.extended_tweet.full_text;
+		if (tweet.extended_tweet.entities.media)
+			media = tweet.extended_tweet.entities.media
+	}
+	if (mentions && mentions.length > 0)
+	{
+		var prev_index = [ 0, 0 ];
+		var final_text = '';
+		for(var i = 0; i < mentions.length; i++)
+		{
+			final_text += he.decode(text.slice(prev_index[1], mentions[i].indices[0])); // Text before entity
+			final_text += he.decode(masked_tweet( text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name ));
+			prev_index = mentions[i].indices;
+		}
+		final_text += text.slice(prev_index[1]); // Whatever is left
+	}
+	else
+	{
+		final_text = text;
+	}
 
 	var e = new Discord.RichEmbed();
 	e.setAuthor(tweet.user.screen_name, null, 'https://twitter.com/' + tweet.user.screen_name);
@@ -64,7 +87,6 @@ function tweet_embed(tweet)
 	e.setDescription(final_text + '\n\n' + links.join('\n'));
 
 	// Media is undefined if there are no links
-	var media = tweet.entities.media;
 	if (media && media.length > 0)
 		e.setImage(media[0].media_url_https);
 
