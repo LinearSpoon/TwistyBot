@@ -9,7 +9,7 @@ var stream = client.stream('statuses/filter',	{ follow: [
 		'2818884683', // Archie
 		'2585470393', // Ronan
 		'2984275535', // Merchant
-		//'2926510103', // Linear Spoon
+		'2926510103', // Linear Spoon
 	].join(',') });
 
 
@@ -18,21 +18,24 @@ stream.on('data', function(event) {
 		if (event.retweeted_status)
 			return; // Don't care about retweets
 		console.log(event);
-	  Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(tweet_embed(event));
+	  Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(tweet_embed(event))
 	} catch(e) {
-		Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendmsg(e.trace);
+		Discord.bot.get_text_channel('Twisty-Test.logs').sendmsg(e.message);
 	}
 });
 
 stream.on('error', function(error) {
-  Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendmsg(error.trace);
+  var channel = Discord.bot.get_text_channel('Twisty-Test.logs');
+	if (channel)
+		channel.sendmsg(error.trace);
+	else
+		console.error(error.trace);
 });
 
 // https://dev.twitter.com/streaming/overview/messages-types
 function tweet_embed(tweet)
 {
 	// Fix up the @user references to link to their profile
-	// https://twitter.com/linear_spoon
 	var mentions = tweet.entities.user_mentions;
 	var prev_index = [ 0, 0 ];
 	var final_text = '';
@@ -43,9 +46,6 @@ function tweet_embed(tweet)
 		prev_index = mentions[i].indices;
 	}
 	final_text += tweet.text.slice(prev_index[1]); // Whatever is left
-
-
-
 
 	var e = new Discord.RichEmbed();
 	e.setAuthor(tweet.user.screen_name, null, 'https://twitter.com/' + tweet.user.screen_name);
@@ -60,9 +60,11 @@ function tweet_embed(tweet)
 
 	e.setDescription(final_text + '\n\n' + links.join('\n'));
 
-	if (tweet.entities.media.length)
-		e.setImage(tweet.entities.media[0].media_url_https);
-	
+	// Media is undefined if there are no links
+	var media = tweet.entities.media;
+	if (media && media.length > 0)
+		e.setImage(media[0].media_url_https);
+
 	return e;
 }
 

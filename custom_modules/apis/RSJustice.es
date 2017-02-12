@@ -56,13 +56,13 @@ async function update_cache()
 					}
 					else
 					{ // Brand new post
-						ae.addField('Post published: ' + new_post.player, new_post.url);
+						ae.addField('Post published: ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
 					}
 				}
 				// Store returned posts indexed by id
 				cache[new_post.id] = new_post;
 			}
-			if (ae.fields.length > 0)
+			if (ae.fields.length > 0 && config.get('live'))
 			{
 				//Discord.bot.get_text_channel('Twisty-Test.logs').sendEmbed(ae);
 				Discord.bot.get_text_channel('RS JUSTICE.live-feed').sendEmbed(ae, 'RSJustice has been updated!');

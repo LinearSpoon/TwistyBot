@@ -1,0 +1,87 @@
+module.exports.help = {
+	name: 'checkapp',
+	text: 'Checks if a player is eligible to join Deities of PvM.',
+	category: 'Deities'
+};
+module.exports.params = {
+	min: 1,
+	max: 1,
+	help:
+`Usage: !checkapp <username>
+
+Examples:
+!check_app risko
+!check_app Vegakargdon`
+};
+module.exports.permissions = [
+	{ role: '164946108819177472', guild: '160833724886286336' }  // Council role in Deities guild
+];
+
+
+module.exports.command = async function(client, message, params) {
+	// Get stats
+	var stats = await apis.RuneScape.lookup_player(params[0], { priority: 1 });
+	if (!stats)
+		return Discord.code_block("Player not found.");
+
+	var cb_level = apis.RuneScape.combat_level(stats);
+
+	// Get RSJ
+	var rsj = await apis.RSJustice.lookup(params[0], true);
+	if (rsj && rsj.length > 0)
+		return 'Player listed on RSJustice: ' + rsj[0].url;
+
+	// Find forum app
+	var profile = await apis.RuneScape.forum_profile(params[0], { priority: 1, success_delay: 5000 });
+	var post_link;
+	for(var i = 0; i < profile.length; i++)
+	{
+		var post = profile[i];
+		if (post.thread.indexOf('Deities of PvM') > -1)
+		{ // Found a post in Deities thread
+			post_link = post.showuser_link;
+			break;
+		}
+	}
+
+	// Check requirements for standard application
+	var s_issues = [];
+	if (stats.prayer.level < 70)
+		s_issues.push('Prayer level ' + stats.prayer.level + ' < 70');
+	if (cb_level < 110)
+		s_issues.push('Combat level ' + cb_level + ' < 110');
+	if (stats.overall.level < 1250)
+		s_issues.push('Total level ' + stats.overall.level + ' < 1250');
+
+
+	var rt_issues = [];
+	if (stats.prayer.level < 44)
+		rt_issues.push('Prayer level ' + stats.prayer.level + ' < 44');
+	if (stats.range.level < 95)
+		rt_issues.push('Range level ' + stats.range.level + ' < 95');
+	if (stats.defence.level < 90)
+		rt_issues.push('Defence level ' + stats.defence.level + ' < 90');
+	if (cb_level < 105)
+		rt_issues.push('Combat level ' + cb_level + ' < 105');
+	if (stats.overall.level < 1250)
+		rt_issues.push('Total level ' + stats.overall.level + ' < 1250');
+
+	if (s_issues.length > 0 && rt_issues.length > 0)
+	{
+		return 'Missing requirements for a standard application:\n' + s_issues.join('\n')
+			+ '\n\nMissing requirements for a range tank application:\n' + rt_issues.join('\n')
+			+ (post_link ? '\n\nForum app: ' + post_link : '\n\nForum app not found.')
+	}
+
+	return `-----------------------------
+Accepted Applicant Form
+-----------------------------
+Username: ${ profile.name }
+Gear checked:
+Clean on RSJ: yes
+Rank given:
+Combat: ${ Math.floor(cb_level) + (s_issues.length > 0 ? ' (Range tank)' : '') }
+Recruited by:
+
+${ post_link ? 'Forum app: ' + post_link : 'Forum app not found.' }`;
+};
