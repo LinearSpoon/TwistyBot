@@ -89,6 +89,7 @@ module.exports = {
 	'dscim':'Dragon scimitar',
 	'dbow':'Dark bow',
 	'rcb':'Rune crossbow',
+	'toxic staff':'Toxic staff (uncharged)',
 
 	// Misc boots
 	'eternal':'Eternal boots',

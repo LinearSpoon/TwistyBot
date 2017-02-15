@@ -48,10 +48,20 @@ module.exports.command = async function(client, message, params) {
 	var s_issues = [];
 	if (stats.prayer.level < 70)
 		s_issues.push('Prayer level ' + stats.prayer.level + ' < 70');
+	if (stats.agility.level < 70)
+		s_issues.push('Agility level ' + stats.agility.level + ' < 70');
+	if (stats.defence.level < 75)
+		s_issues.push('Defence level ' + stats.defence.level + ' < 75');
+	if (stats.range.level < 75)
+		s_issues.push('Range level ' + stats.range.level + ' < 75');
+	if (stats.magic.level < 75)
+		s_issues.push('Magic level ' + stats.magic.level + ' < 75');
+	if (stats.attack.level < 75)
+		s_issues.push('Attack level ' + stats.attack.level + ' < 75');
 	if (cb_level < 110)
 		s_issues.push('Combat level ' + cb_level + ' < 110');
-	if (stats.overall.level < 1250)
-		s_issues.push('Total level ' + stats.overall.level + ' < 1250');
+	if (stats.overall.level < 1500)
+		s_issues.push('Total level ' + stats.overall.level + ' < 1500');
 
 
 	var rt_issues = [];
@@ -63,8 +73,8 @@ module.exports.command = async function(client, message, params) {
 		rt_issues.push('Defence level ' + stats.defence.level + ' < 90');
 	if (cb_level < 105)
 		rt_issues.push('Combat level ' + cb_level + ' < 105');
-	if (stats.overall.level < 1250)
-		rt_issues.push('Total level ' + stats.overall.level + ' < 1250');
+	if (stats.overall.level < 1500)
+		rt_issues.push('Total level ' + stats.overall.level + ' < 1500');
 
 	if (s_issues.length > 0 && rt_issues.length > 0)
 	{

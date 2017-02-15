@@ -39,16 +39,8 @@ stream.on('error', function(error) {
 function tweet_embed(tweet)
 {
 	// Fix up the @user references to link to their profile
-	var mentions, text, media;
+	var mentions, text, media, final_text;
 	if (tweet.extended_tweet)
-	{
-		if (tweet.entities.user_mentions)
-			mentions = tweet.entities.user_mentions;
-		text = tweet.text;
-		if (tweet.entities.media)
-			media = tweet.entities.media
-	}
-	else
 	{
 		if (tweet.extended_tweet.entities.user_mentions)
 			mentions = tweet.extended_tweet.entities.user_mentions;
@@ -56,10 +48,18 @@ function tweet_embed(tweet)
 		if (tweet.extended_tweet.entities.media)
 			media = tweet.extended_tweet.entities.media
 	}
+	else
+	{
+		if (tweet.entities.user_mentions)
+			mentions = tweet.entities.user_mentions;
+		text = tweet.text;
+		if (tweet.entities.media)
+			media = tweet.entities.media
+	}
 	if (mentions && mentions.length > 0)
 	{
 		var prev_index = [ 0, 0 ];
-		var final_text = '';
+		final_text = '';
 		for(var i = 0; i < mentions.length; i++)
 		{
 			final_text += he.decode(text.slice(prev_index[1], mentions[i].indices[0])); // Text before entity
