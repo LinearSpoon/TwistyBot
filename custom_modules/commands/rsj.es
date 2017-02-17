@@ -33,7 +33,14 @@ module.exports.command = async function(client, message, params) {
 	var players = await apis.RSJustice.lookup(name, include_private);
 	if (players.length == 0)
 	{
-		var response = 'Player not found! Here are some similar names:\n' +
+		var response = 'Player not found!';
+		var possible_names = apis.RSJustice.get_similar_names(name, include_private);
+		if (possible_names.length == 0)
+		{
+			Zeal_dm.sendmsg(sender + response);
+			return response;
+		}
+		response += ' Here are some similar names:\n' +
 			Discord.code_block(
 				'Name               Score\n' +
 				apis.RSJustice.get_similar_names(name, include_private).map(e => util.printf('%-18s %5d', e.name, e.score)).join('\n')

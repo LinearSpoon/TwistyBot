@@ -44,6 +44,9 @@ client.on('error', err => console.error('Event: error', err));
 
 function log_message(explanation, message)
 {
+	if (message.embeds.length > 0 && message.cleanContent == '')
+		return;
+
 	console.log('[' + explanation + ']',
 		'[' + message.channel.get_name() + ']',
 		message.author.username + ':',
@@ -57,7 +60,7 @@ client.on('message', function(message) {
 
 	log_message('New', message);
 
-	if (message.content[0] != '!')
+	if (message.cleanContent[0] != '!')
 		return; // Not a command
 
 	if (message.channel.type == 'voice')

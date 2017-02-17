@@ -62,7 +62,7 @@ module.exports.command = async function(client, message, params) {
 	}
 
 	return 'Showing details for an item set.' +
-		(inactive_note ? '\nNote: Items marked with * are currently inactive.' : '') +
+		(inactive_note ? '\nNote: Items marked with * are currently inactive.\n' : '\n') +
 		Discord.code_block(command_response +
 		util.printf('\n\n%-28s %13s GP', 'Total price:', util.format_number(total_price)));
 };

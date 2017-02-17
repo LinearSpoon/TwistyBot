@@ -17,8 +17,8 @@
     "moment-timezone": "^0.5.10",
     "mysql": "^2.12.0",
     "node-ipc": "^8.9.2",
-    "printf": "^0.2.5",
-    "twitter": "^1.7.0"
+    "node-tweet-stream": "^2.0.1",
+    "printf": "^0.2.5"
   },
   "devDependencies": {},
   "scripts": {
