@@ -23,7 +23,7 @@ client.on('tweet', async function(event) {
 
 		// Save tweet
 		var tweet = await save_tweet(event);
-		if (mods.indexOf(tweet.sender) > -1)
+		if (mods.indexOf(tweet.sender) == -1)
 			return;  // Not a jmod
 
 		// Load conversation and create Discord embed
@@ -75,6 +75,8 @@ async function save_tweet(tweet)
 		urls = tweet.entities.urls;
 	}
 
+	// tweet.in_reply_to_screen_name == mentions.screen_name
+
 	// Fix up the @user references to link to their profile
 	if (mentions && mentions.length > 0)
 	{
@@ -83,7 +85,10 @@ async function save_tweet(tweet)
 		for(var i = 0; i < mentions.length; i++)
 		{
 			final_text += he.decode(text.slice(prev_index[1], mentions[i].indices[0])); // Text before entity
-			final_text += he.decode(masked_tweet( text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name ));
+			if (tweet.in_reply_to_screen_name != mentions[i].screen_name)
+			{ // The user is already saved by id, no need to see their @user mention in the tweet
+				final_text += he.decode(masked_tweet( text.slice(mentions[i].indices[0], mentions[i].indices[1]), mentions[i].screen_name ));
+			}
 			prev_index = mentions[i].indices;
 		}
 		final_text += he.decode(text.slice(prev_index[1])); // Whatever is left
@@ -146,42 +151,77 @@ async function load_tweet(tweet_id)
 		return tweets[0];
 }
 
+
+const distinct_colors = [
+	0xa6cee3, // light blue
+	0x1f78b4, // blue
+	0x00ffcc, // bright blue
+	0xb2df8a, // light green
+	0x33a02c, // green
+	0x7fff00, // bright green
+	0xfb9a99, // light red (pink)
+	0xe31a1c, // red
+	0xcab2d6, // light purple
+	0x6a3d9a, // purple
+	0x111111, // dark gray
+	0xeeeeee, // light gray
+	0xff00e5, // bright pink
+	0x0019ff, // dark blue
+	0xff6600, // orange
+];
 async function tweet_embed(tweet)
 {
 	var e = new Discord.RichEmbed();
-	e.setAuthor(tweet.username, null, 'https://twitter.com/' + tweet.username + '/status/' + tweet.id);
-	e.setThumbnail(tweet.profile_image);
+	// Extract information from original tweet
+	//e.setThumbnail(tweet.profile_image);
 	e.setTimestamp(new Date(tweet.timestamp));
-	e.setDescription(tweet.text);
-
-	if (mods.indexOf(tweet.sender) > -1)
-		e.setColor(0xFFD700);
-
-	var link = masked_tweet('View on Twitter', tweet.username, tweet.id)
+	var link = 'https://twitter.com/' + tweet.username + '/status/' + tweet.id;
 
 	// Pull the entire conversation if possible
-	var conversation = [ ];
+	var conversation = [ tweet ];
 	var rt;
-	while( tweet )
+	while( tweet && tweet.reply_to )
 	{
-		conversation.push(tweet);
-		rt = tweet.reply_to;
-		tweet = await load_tweet(rt);
+		tweet = await load_tweet(tweet.reply_to);
+		conversation.unshift(tweet);
 	}
 
 	// Replay the conversation
+	// Oldest tweet = 0
 	for(var i = 1; i < conversation.length; i++)
 	{
 		var tweet = conversation[i];
 		e.addField(tweet.username, tweet.text);
-		if (tweet.first_media)
+		if (tweet.first_media && !e.image)
 			e.setImage(tweet.first_media);
 	}
 
-	if (rt != null)
+	// The oldest tweet is first in the array
+	var oldest = conversation[0];
+	if (oldest)
 	{
-		e.addField('Warning', 'Could not load entire conversation.\n' + link);
+		e.setAuthor(oldest.username, null, link);
+		e.setDescription(oldest.text);
+		if (oldest.first_media)
+			e.setImage(oldest.first_media);
+		if (mods.indexOf(oldest.sender) > -1)
+		{ // Make embed gold if the tweet is from a jmod
+			e.setColor(0xFFD700);
+		}
+		else
+		{ // Pick a random color based on sender id
+			var idx = parseInt(tweet.sender) % distinct_colors.length;
+			e.setColor(distinct_colors[idx]);
+		}
 	}
+	else
+	{
+		// Leave color at default gray
+		e.setAuthor('Warning!', null, link);
+		e.setDescription('Could not load entire conversation.\n[View on Twitter](' + link + ')');
+	}
+
+
 	return e;
 }
 

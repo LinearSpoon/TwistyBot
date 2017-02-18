@@ -122,7 +122,7 @@ module.exports.get_similar_names = function(name, include_private)
 		posts.map(e => e.player), // current names
 		posts.map(e => e.previous_names)); // previous names
 
-	var score_limit = name.length < 4 ? 30 : Math.max(35, 5 * name.length);
+	var score_limit = name.length < 5 ? 30 : 10 + 5 * name.length;
 
 	return util.fuzzy_match(
 		name, // needle
@@ -131,7 +131,6 @@ module.exports.get_similar_names = function(name, include_private)
 			insert: 10,
 			multiple_insert: 10,
 			delete: 12,
-			typo_distance: 4
 		}).filter(e => e.score < score_limit);
 };
 
