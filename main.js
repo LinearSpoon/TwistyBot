@@ -7,7 +7,6 @@ global.custom_require = name => require(global.server_directory + '/custom_modul
 global.root_require   = name => require(global.server_directory + '/' + name);
 
 custom_require('console_hook');	// This must be the first require
-custom_require('babel/compile_require');
 
 // Load config
 global.config = root_require('config/config.js');
@@ -60,16 +59,18 @@ client.on('message', function(message) {
 
 	log_message('New', message);
 
-	if (message.cleanContent[0] != '!')
-		return; // Not a command
-
 	if (message.channel.type == 'voice')
 	{
 		return; // Is it even possible?
 	}
 
-	var fn = message.cleanContent.split(' ')[0].slice(1).toLowerCase();	// Extract command name without !
-	var params = message.cleanContent.slice(fn.length+1).trim();	// Extract params without command
+	// ! followed by command name followed by optional comma
+	var match = message.cleanContent.match(/^!([a-zA-Z_]+)\s*,?/);
+	if (!match)
+		return; // Not a command
+
+	var fn = match[1].toLowerCase();	// Command name
+	var params = message.cleanContent.slice(match[0].length).trim();	// Extract params without command
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
 
 	if (!commands[fn] || typeof commands[fn].command !== 'function')

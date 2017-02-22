@@ -210,7 +210,7 @@ async function tweet_embed(tweet)
 		}
 		else
 		{ // Pick a random color based on sender id
-			var idx = parseInt(tweet.sender) % distinct_colors.length;
+			var idx = parseInt(oldest.sender) % distinct_colors.length;
 			e.setColor(distinct_colors[idx]);
 		}
 	}
