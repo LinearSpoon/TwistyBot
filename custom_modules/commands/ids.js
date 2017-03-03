@@ -6,7 +6,13 @@ module.exports.help = {
 module.exports.params = {
 	min: 0,
 	max: 2,
-	help: `Usage: !ids, type, filter`
+	help:
+`Usage:
+!ids roles
+!ids channels, [channel_name]
+!ids guilds
+!ids user, <username>
+`
 };
 
 module.exports.permissions = [];

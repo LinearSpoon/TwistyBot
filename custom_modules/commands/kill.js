@@ -12,5 +12,7 @@ module.exports.params = {
 
 
 module.exports.command = async function(client, message, params) {
-	process.exit(0);
+	message.channel.sendmsg('Bye!')
+		.then( () => process.exit(0) )
+		.catch( () => process.exit(0) );
 };

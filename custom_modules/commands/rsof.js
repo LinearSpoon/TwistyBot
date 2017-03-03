@@ -11,6 +11,8 @@ module.exports.params = {
 	help:
 `Usage: !rsof <username>
 
+Note if you see a blank message from this command, you may have embeds disabled. Enable them at Settings->Text & Images->Link Preview.
+
 Examples:
 !rsof Sin Dragon
 !rsof Zeale`
@@ -30,5 +32,5 @@ module.exports.command = async function(client, message, params) {
 		e.addField(details[i].section, '[' + util.approximate_time(details[i].date, Date.now()) + ' ago] [' + details[i].thread + '](' + details[i].showuser_link + ')');
 	}
 
-	message.channel.sendEmbed(e);
+	return e;
 }

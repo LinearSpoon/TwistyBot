@@ -17,6 +17,13 @@ global.config.get = function(key) {
 	return config[key];
 };
 
+// Log unhandled promises
+process.on('unhandledRejection', function(err) {
+	console.error('Promise Rejected!!!');
+	console.warn(err.stack);
+	//throw err;
+});
+
 // Augments discord.js with helper functions
 var Discord = custom_require('discord_utils');
 var client = new Discord.Client();
@@ -87,18 +94,41 @@ client.on('message', function(message) {
 	}
 
 	message.channel.startTyping();
+	// TODO: startTyping can reject?
+
 	var p = commands[fn].command.call(commands, client, message, params);
 
-	p.then( function(text) {
+	p.then( function(response) {
 		// Command finished with no errors
-		if (!text)
+		if (!response)
 		{
 			console.log('Command did not respond');
 			return; // Nothing to send
 		}
-		console.log('Command response:', text);
 
-		return message.channel.sendmsg(text);
+		// Convert to an array
+		if (!Array.isArray(response))
+			response = [ response ];
+
+		return Promise.all(response.map( function(text, idx) {
+			return message.channel.sendmsg(text)
+				.catch( function(err) {
+					if (err.message == 'Forbidden')
+					{ // TwistyBot probably doesn't have permission to talk here, send it to user's PM
+						if (idx == 0)
+						{
+							var explanation = 'Hi, TwistyBot was unable to respond to your command in ' + message.channel.get_name() + '.\n'
+							+ 'If you want TwistyBot to respond in that channel, please ensure that it has permissions to send messages and embed links.'
+							+ '\n' + message.cleanContent + '\n';
+						}
+
+						if (text instanceof Discord.RichEmbed)
+							return message.author.sendEmbed(text, explanation);
+						else
+							return message.author.sendmsg(explanation ? explanation + text : text);
+					}
+				});
+		}));
 	})
 	.catch( function(err) {
 		// Something terrible happened

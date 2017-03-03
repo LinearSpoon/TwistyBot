@@ -1,3 +1,6 @@
+if (!config.get('live'))
+	return;
+
 var he = require('he');
 var Twitter = require('node-tweet-stream');
 
@@ -28,7 +31,7 @@ client.on('tweet', async function(event) {
 
 		// Load conversation and create Discord embed
 		var embed = await tweet_embed(tweet);
-	  Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(embed)
+		Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(embed)
 	} catch(e) {
 		Discord.bot.get_text_channel('Twisty-Test.logs').sendmsg('ontweet: ' + e.stack);
 	}

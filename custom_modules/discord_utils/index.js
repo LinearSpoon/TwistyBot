@@ -13,6 +13,7 @@ Discord.Channel.prototype.get_name = require('./get_channel_name.js');
 Discord.TextChannel.prototype.sendmsg = require('./sendmsg.js');
 Discord.DMChannel.prototype.sendmsg = require('./sendmsg.js');
 Discord.GroupDMChannel.prototype.sendmsg = require('./sendmsg.js');
+Discord.User.prototype.sendmsg = require('./sendmsg.js');
 
 // Helper to evaluate permissions objects against a message
 Discord.Message.prototype.check_permissions = require('./check_permissions.js');
@@ -29,6 +30,8 @@ Discord.underline_bold         = function(text) { return '__**' + text + '**__';
 Discord.underline_bold_italics = function(text) { return '__***' + text + '***__'; };
 Discord.code_block             = function(text) { return '```' + text + '```'; };
 Discord.inline_code            = function(text) { return '`' + text + '`'; };
+Discord.link                   = function(link) { return '<' + link + '>'; };
+Discord.masked_link            = function(text, link) { return '[' + text + '](' + link + ')'; };
 
 module.exports = Discord;
 global.Discord = Discord;

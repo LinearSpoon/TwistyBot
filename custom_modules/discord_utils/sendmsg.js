@@ -1,4 +1,8 @@
 module.exports = function(content, options) {
+	// If content is an embed, do not try to split it
+	if (content instanceof Discord.RichEmbed)
+		return this.sendEmbed(content, options);
+
 	var promises = [];
 	var pieces = split_message(content);
 	for(var i = 0; i < pieces.length; i++)
