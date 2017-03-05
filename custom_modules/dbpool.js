@@ -1,3 +1,5 @@
+// TODO: use pool.on('connection', ....) to set timestamp?
+
 // node_modules
 var mysql = require('mysql');
 var Connection = require('mysql/lib/Connection');
@@ -67,7 +69,7 @@ var OriginalQuery = Connection.prototype.query;
 Connection.prototype.query = function(sql, ...params) {
 	var self = this;
 	return new Promise(function(resolve, reject) {
-		var q = OriginalQuery.call(self, sql, params, function(err, results, fields) {
+		var q = OriginalQuery.call(self, sql.replace(/\n\s*/g,'\n'), params, function(err, results, fields) {
 			if (err)
 			{
 				// Also see err.code, err.errno
@@ -76,7 +78,7 @@ Connection.prototype.query = function(sql, ...params) {
 			}
 			else
 			{
-				console.log(q.sql);
+				console.info(q.sql);
 				return resolve(results);
 			}
 		});
@@ -94,4 +96,9 @@ Connection.prototype.commit = function() {
 
 Connection.prototype.rollback = function() {
 	return this.query('ROLLBACK;');
+};
+
+// Return SQL string with ? replaced by parameters
+module.exports.format_sql = function(sql, ...params) {
+	return mysql.format(sql.replace(/\n\s*/g,'\n'), params);
 };

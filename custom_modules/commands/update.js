@@ -19,5 +19,6 @@ module.exports.permissions = [
 
 module.exports.command = async function(client, message, params) {
 	await apis.CrystalMathLabs.update_player(params[0]);
-	return Discord.code_block('Player successfully updated!');
+	return Discord.code_block('Player successfully updated!')	+
+		Discord.link('https://crystalmathlabs.com/tracker/track.php?player=' + params[0].replace(/\s/g, '+'));
 };

@@ -6,10 +6,8 @@ module.exports.help = {
 module.exports.params = {
 	min: 0,
 	max: 1,
-	help:
-`Usage: !sandwich
-
-Note if you see a blank message from this command, you may have embeds disabled. Enable them at Settings->Text & Images->Link Preview.`
+	// Reminder: there are no parameters so help text can't be shown
+	help: `Usage: !sandwich`
 };
 module.exports.permissions = [
 	{ user: '*' }

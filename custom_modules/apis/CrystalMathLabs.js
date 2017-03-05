@@ -1,7 +1,11 @@
 // CML api: https://crystalmathlabs.com/tracker/api.php
 async function cml_download(url)
 {
-	var res = await util.queue_request(url);
+	var res = await util.queue_request(url, {
+		max_attempts: 6,
+		failure_delay: 6000,
+		success_delay: 2000
+	});
 	// Should check status here, but CML doesn't always return 200 when the request is OK
 	// statusCode 500 == CML error -4
 	//console.log('CML status:', res.statusCode)

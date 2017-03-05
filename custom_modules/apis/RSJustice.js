@@ -64,7 +64,7 @@ async function update_cache()
 				if (!cache[new_post.id])
 					private_embed.addField('Post published: ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
 				else
-					private_embed.addField('Name changed: ' + old_post.player + ' => ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
+					private_embed.addField('Name changed: ' + old_post.player + ' ⟹ ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
 			});
 
 			Discord.bot.get_text_channel('RS JUSTICE.live-feed').sendEmbed(private_embed);
@@ -90,8 +90,9 @@ function get_posts(include_private)
 // other error => throw
 module.exports.lookup = async function(username, include_private) {
 	await cache_promise;
-	username = to_searchable_name(username);
 	var matches = [];
+	matches.searched_name = username;
+	username = to_searchable_name(username);
 	var posts = get_posts(include_private).forEach(function(post) {
 		// Check if player is currently known by this name
 		if (post._name == username)
@@ -100,8 +101,6 @@ module.exports.lookup = async function(username, include_private) {
 		if (post._previous_names.indexOf(username) > -1)
 			return matches.push(post);
 	});
-
-	matches.searched_name = username;
 	return matches;
 };
 
