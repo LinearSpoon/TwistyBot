@@ -16,6 +16,7 @@ async function download_posts(retries)
 	const time_format = 'YYYY-MM-DD%20HH:mm:ss';
 	// Build url to request posts since last update
 	var url = config.get('rsj_api') + '&after=' + last_update.format(time_format);
+	console.log(url)
 	var res = await util.queue_request(url, {
 		max_attempts: retries,
 		success_delay: 8000,
@@ -27,7 +28,15 @@ async function download_posts(retries)
 
 async function update_cache()
 {
-	var posts = await download_posts(1);
+	try {
+		var posts = await download_posts(1);
+	} catch(e) {
+		console.warn('Error downloading RSJ posts:', e);
+		return;
+	}
+
+	if (posts.length == 0)
+		return;
 
 	console.log('Updating RSJ cache with', posts.length, 'new posts.');
 
@@ -55,6 +64,10 @@ async function update_cache()
 
 		// Find new posts and posts with changed names
 		var private_posts = posts.filter( p => !cache[p.id] || (cache[p.id] && cache[p.id].player != p.player) );
+		console.log(posts)
+		console.log(posts.map(p => cache[p.id]))
+		console.log(private_posts)
+
 		if (private_posts.length > 0)
 		{
 			if (private_posts.length > 25)
@@ -64,7 +77,7 @@ async function update_cache()
 				if (!cache[new_post.id])
 					private_embed.addField('Post published: ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
 				else
-					private_embed.addField('Name changed: ' + old_post.player + ' ⟹ ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
+					private_embed.addField('Name changed: ' + cache[new_post.id].player + ' ⟹ ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
 			});
 
 			Discord.bot.get_text_channel('RS JUSTICE.live-feed').sendEmbed(private_embed);

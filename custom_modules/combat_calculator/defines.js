@@ -3,14 +3,14 @@ module.exports.styles = {crush:0, slash:1, stab:2, magic:3, range:4};
 module.exports.slots = {
 	weapon: 'weapon',
 	shield: 'shield',
-	helmet: 'helmet',
+	helmet: 'head',
 	body: 'body',
-	legs: 'legs',
-	gloves: 'gloves',
+	legs: 'leg',
+	gloves: 'hand',
 	cape: 'cape',
 	boots: 'boots',
 	ring: 'ring',
 	ammo: 'ammo',
-	necklace: 'necklace',
+	necklace: 'neck',
 	two_hand: 'two_hand',
 };

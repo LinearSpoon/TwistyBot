@@ -18,7 +18,15 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(client, message, params) {
-	await apis.CrystalMathLabs.update_player(params[0]);
+	try {
+		await apis.CrystalMathLabs.update_player(params[0]);
+	} catch(e) {
+		if (e.code == 2)
+			return Discord.code_block('Player not on hiscores.');
+		// Player updated in the last 30 seconds is not a problem
+		if (e.code != 5)
+			throw e;
+	}
 	return Discord.code_block('Player successfully updated!')	+
 		Discord.link('https://crystalmathlabs.com/tracker/track.php?player=' + params[0].replace(/\s/g, '+'));
 };

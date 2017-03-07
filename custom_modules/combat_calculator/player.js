@@ -1,47 +1,53 @@
-var stances = require(__dirname + '/defines.js').stances;
-var styles = require(__dirname + '/defines.js').styles;
-var slots = require(__dirname + '/defines.js').slots;
+const STANCES = require(__dirname + '/defines.js').stances;
+const STYLES = require(__dirname + '/defines.js').styles;
+const SLOTS = require('./defines.js').slots;
 
-function player()
+function Player()
 {
-	this.levels = { attack:99, strength:99, defense:99, magic:99, range:99, hp:99, prayer:99};
-	this.boosts = {};
+	this.levels = { attack:99, strength:99, defence:99, magic:99, range:99, hp:99, prayer:99};
+	this.boosts = {
+		scp: true,
+		hp: 1
+	};
 
-	this.stance = stances.accurate;
-	this.style = styles.crush;
+	this.stance = STANCES.accurate;
+	this.style = STYLES.crush;
 
 	this.special_attack = false;
 
 	this.gear = {
 		weapon: null,
 		shield: null,
-		helmet: null,
+		head: null,
 		body: null,
-		legs: null,
-		gloves: null,
+		leg: null,
+		hand: null,
 		cape: null,
 		boots: null,
 		ring: null,
 		ammo: null,
-		necklace: null
+		neck: null
 	};
 
 	this.update();
 }
 
-player.prototype.equip = function(items)
+Player.prototype.equip = function(items)
 {
+	if (!Array.isArray(items))
+		items = [items]; // Convert single item to array
+
 	for(var i in items)
 	{
 		var item = items[i];
-		if (item.slot == slots.two_hand)
+		if (item.slot == SLOTS.two_hand)
 		{ // Equipping a 2h weapon, remove shield and equip in weapon slot
 			this.gear.shield = null;
 			this.gear.weapon = item;
 			continue;
 		}
 
-		if (item.slot == slots.shield && this.gear.weapon.slot == slots.two_hand)
+		if (item.slot == SLOTS.shield && this.gear.weapon.slot == SLOTS.two_hand)
 		{ // Wearing a 2h weapon and equipping a shield
 			this.gear.weapon = null;
 			this.gear.shield = item;
@@ -57,71 +63,95 @@ player.prototype.equip = function(items)
 
 
 
-player.prototype.attack_roll = function()
+Player.prototype.attack_roll = function()
 {
-	if (this.style == styles.range)
-	{
-		var a = this.levels.range;
-		var b = this.att_bonus.range;
 
-		if (this.boosts.sharp_eye)
-			a *= 1.05;
-		if (this.boosts.hawk_eye)
-			a *= 1.10;
-		if (this.boosts.eagle_eye)
-			a *= 1.15;
-
-		if (this.stance == stances.accurate)
-			a += 3;
-
-		a = Math.floor(a + 8);
-		// void bonus
-
-	}
-	else if (this.style == styles.magic)
-	{
-
-	}
-	else // melee style
-	{
-
-
-	}
 };
 
-// Update boosts/bonuses & check compatibility
-player.prototype.update = function()
+Player.prototype.max_hit = function()
 {
-	// Reset everything
-	this.warnings = [];
-	this.att_bonus = {crush:0, slash:0, stab:0, magic:0, range:0};
-	this.def_bonus = {crush:0, slash:0, stab:0, magic:0, range:0};
-	this.melee_str = 0;
-	this.magic_str = 0;
-	this.range_str = 0;
-	this.pray_bonus = 0;
 
-	// Update bonuses
+};
+
+Player.prototype.update = function()
+{
+	var bonuses = {
+		prayer: 0,
+		speed: 6, // Default unarmed speed
+
+		attack: {
+			stab: 0,
+			slash: 0,
+			crush: 0,
+			magic: 0,
+			range: 0,
+		},
+		defence: {
+			stab: 0,
+			slash: 0,
+			crush: 0,
+			magic: 0,
+			range: 0,
+		},
+		strength: {
+			melee: 0,
+			magic: 0,
+			range: 0
+		}
+	};
+
 	for(var i in this.gear)
 	{
 		var item = this.gear[i];
-		this.att_bonus.crush += item.crush_att;
-		this.att_bonus.slash += item.slash_att;
-		this.att_bonus.stab += item.stab_att;
-		this.att_bonus.magic += item.magic_att;
-		this.att_bonus.range += item.range_att;
+		if (!item)
+			continue; // Nothing equipped
 
-		this.def_bonus.crush += item.crush_def;
-		this.def_bonus.slash += item.slash_def;
-		this.def_bonus.stab += item.stab_def;
-		this.def_bonus.magic += item.magic_def;
-		this.def_bonus.range += item.range_def;
-
-		this.melee_str += item.melee_str;
-		this.magic_str += item.magic_str;
-		this.range_str += item.range_str;
-		this.pray_bonus += item.prayer;
+		bonuses.prayer += item.prayer;
+		bonuses.attack.stab += item.attack.stab;
+		bonuses.attack.slash += item.attack.slash;
+		bonuses.attack.crush += item.attack.crush;
+		bonuses.attack.magic += item.attack.magic;
+		bonuses.attack.range += item.attack.range;
+		bonuses.defence.stab += item.defence.stab;
+		bonuses.defence.slash += item.defence.slash;
+		bonuses.defence.crush += item.defence.crush;
+		bonuses.defence.magic += item.defence.magic;
+		bonuses.defence.range += item.defence.range;
+		bonuses.strength.melee += item.strength.melee;
+		bonuses.strength.magic += item.strength.magic;
+		bonuses.strength.range += item.strength.range;
 	}
 
-	// Calculate boosted levels
+	if (this.gear.weapon)
+		bonuses.speed = this.gear.weapon.speed;
+
+	// Save calculated totals
+	this.bonuses = bonuses;
+
+	var boosted_levels = {
+		attack: this.levels.attack,
+		strength: this.levels.strength,
+		defence: this.levels.defence,
+		magic: this.levels.magic,
+		range: this.levels.range,
+		hp: this.levels.hp,
+		prayer: this.levels.prayer
+	};
+
+	if (this.boosts.scp)
+	{
+		boosted_levels.attack = 5 + Math.floor(this.levels.attack * 1.15);
+		boosted_levels.strength = 5 + Math.floor(this.levels.strength * 1.15);
+		boosted_levels.defence = 5 + Math.floor(this.levels.defence * 1.15);
+	}
+
+	// Apply overrides last
+	for(var i in boosted_levels)
+		if (this.boosts[i])
+			boosted_levels[i] = this.boosts[i];
+
+	this.boosted_levels = boosted_levels;
 };
+
+
+module.exports = Player;
