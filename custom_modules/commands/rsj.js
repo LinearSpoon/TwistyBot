@@ -11,8 +11,9 @@ module.exports.params = {
 	help:
 `Usage: !rsj <username>, <username>, ...
 
+Note:
 Usernames must be separated with commas. Up to 250 names can be run per command.
-Note if you see a blank message from this command, you may have embeds disabled. Enable them at Settings->Text & Images->Link Preview.
+If you see a blank message from this command, you may have embeds disabled. Enable them at Settings->Text & Images->Link Preview.
 
 Examples:
 !rsj i rep wih

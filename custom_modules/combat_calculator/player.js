@@ -78,6 +78,7 @@ Player.prototype.update = function()
 	var bonuses = {
 		prayer: 0,
 		speed: 6, // Default unarmed speed
+		speed_seconds: 2.4,
 
 		attack: {
 			stab: 0,
@@ -123,7 +124,10 @@ Player.prototype.update = function()
 	}
 
 	if (this.gear.weapon)
+	{
 		bonuses.speed = this.gear.weapon.speed;
+		bonuses.speed_seconds = 6 - this.gear.weapon.speed * 0.6;
+	}
 
 	// Save calculated totals
 	this.bonuses = bonuses;

@@ -33,6 +33,7 @@ Discord.bot = client;
 global.util = custom_require('util');
 global.apis = custom_require('apis');
 global.database = custom_require('dbpool');
+custom_require('table_utils');
 
 // Load commands
 var commands = custom_require('commands');

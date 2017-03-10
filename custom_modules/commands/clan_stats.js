@@ -23,6 +23,7 @@ module.exports.command = async function(client, message, params) {
 	for(var i in clan_list)
 	{
 		var member = clan_list[i];
+		console.log(member.history.length);
 		if (member.history.length == 0)
 			continue;
 

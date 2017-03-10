@@ -11,7 +11,8 @@ module.exports.params = {
 	help:
 `Usage: !rsof <username>
 
-Note if you see a blank message from this command, you may have embeds disabled. Enable them at Settings->Text & Images->Link Preview.
+Note:
+If you see a blank message from this command, you may have embeds disabled. Enable them at Settings->Text & Images->Link Preview.
 
 Examples:
 !rsof Sin Dragon

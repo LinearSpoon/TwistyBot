@@ -36,91 +36,170 @@ module.exports.command = async function(client, message, params) {
 	}
 
 
-
-
-/*
-	item = p.bonuses;
-	return warnings + '\n' +
-		Discord.bold('Attack bonus') +
-		'\n  Stab: '  + (item.attack.stab  >= 0 ? '+' : '') + item.attack.stab +
-		'\n  Slash: ' + (item.attack.slash >= 0 ? '+' : '') + item.attack.slash +
-		'\n  Crush: ' + (item.attack.crush >= 0 ? '+' : '') + item.attack.crush +
-		'\n  Magic: ' + (item.attack.magic >= 0 ? '+' : '') + item.attack.magic +
-		'\n  Range: ' + (item.attack.range >= 0 ? '+' : '') + item.attack.range +
-		Discord.bold('\nDefence bonus') +
-		'\n  Stab: '  + (item.attack.stab  >= 0 ? '+' : '') + item.defence.stab +
-		'\n  Slash: ' + (item.attack.slash >= 0 ? '+' : '') + item.defence.slash +
-		'\n  Crush: ' + (item.attack.crush >= 0 ? '+' : '') + item.defence.crush +
-		'\n  Magic: ' + (item.attack.magic >= 0 ? '+' : '') + item.defence.magic +
-		'\n  Range: ' + (item.attack.range >= 0 ? '+' : '') + item.defence.range +
-		Discord.bold('\nOther bonuses') +
-		'\n  Melee strength: ' + (item.strength.melee >= 0 ? '+' : '') + item.strength.melee +
-		'\n  Ranged strength: ' + (item.strength.range >= 0 ? '+' : '') + item.strength.range +
-		'\n  Magic damage: ' + (item.strength.magic >= 0 ? '+' : '') + item.strength.magic + '%' +
-		'\n  Prayer: ' + (item.prayer >= 0 ? '+' : '') + item.prayer +
-		(item.speed > 0 ? '\n  Speed: ' + item.speed + ' (' + (6 - item.speed * 0.6).toFixed(1) + ' seconds)' : '');
-*/
-	return Discord.code_block(get_embed(p));
+	return [
+		Discord.code_block(
+			gear_table(p, new Player()) + '\n' +
+			levels_table(p, new Player())
+		),
+		Discord.code_block(
+			bonuses_table(p, new Player())
+		)
+	];
 };
 
 
+
+
+
+
 var Table = require('cli-table2');
-function get_embed(player)
+
+
+function gear_table(player1, player2)
 {
+	var table = new Table({colWidths: [12, 20, 20], style:{head:[],border:[]}});
 
-	var table = new Table({style:{head:[],border:[]}});
+	table.push([ // Header
+		Table.cell('Gear', 'center'),
+		Table.cell('You', 'center'),
+		Table.cell('Opponent', 'center'),
+	]);
 
-	var gear = player.gear;
+	var rows = {
+		weapon: 'Weapon',
+		shield: 'Shield',
+		head: 'Head',
+		body: 'Body',
+		leg: 'Legs',
+		boots: 'Boots',
+		hand: 'Gloves',
+		cape: 'Cape',
+		ring: 'Ring',
+		neck: 'Neck',
+		ammo: 'Ammo'
+	};
 
-	var chars = { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
-         , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
-         , 'left': '│' , 'left-mid': '' , 'mid': '' , 'mid-mid': ''
-         , 'right': '│' , 'right-mid': '' , 'middle': '|' };
-	table.push(
-		[{ hAlign: 'center', colSpan: 2, content: 'Gear' }],
-		[ 'Weapon', { hAlign: 'right', content: gear.weapon ? gear.weapon.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.shield ? gear.shield.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.head ? gear.head.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.body ? gear.body.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.leg ? gear.leg.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.boots ? gear.boots.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.hand ? gear.hand.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.cape ? gear.cape.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.ring ? gear.ring.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.neck ? gear.neck.name : '' }],
-		[{ chars, content: 'Weapon' }, { chars, hAlign: 'right', content: gear.ammo ? gear.ammo.name : '' }]
-	);
+	push_rows( table, Object.keys(rows).map( function(e) {
+		return [
+			rows[e],
+			player1.gear[e] ? player1.gear[e].name : '.',
+			player2.gear[e] ? player2.gear[e].name : '.'
+		];
+	}));
 
 	return table.toString();
+}
 
-	for(var i in player.gear)
-		gear += i + ': ' + (player.gear[i] ? player.gear[i].name : '-') + '\n';
+function levels_table(player1, player2)
+{
+	var table = new Table({colWidths: [12, 15, 15], style:{head:[],border:[]}});
 
-	for(var i in player.levels)
-		levels += i + ': ' + player.boosted_levels[i] + '/' + player.levels[i] + '\n';
+	table.push([ // Header
+		Table.cell('Levels', 'center'),
+		Table.cell('You', 'center'),
+		Table.cell('Opponent', 'center'),
+	]);
 
-	e.addField('Gear:', Discord.code_block(gear), false);
-	e.addField('Levels:', levels, true);
+	var rows = {
+		hp: 'Hitpoints',
+		attack: 'Attack',
+		strength: 'Strength',
+		defence: 'Defence',
+		magic: 'Magic',
+		range: 'Range',
+		prayer: 'Prayer',
+	};
+
+	push_rows( table, Object.keys(rows).map( function(e) {
+		return [
+			rows[e],
+			player1.boosted_levels[e] + '/' + player1.levels[e],
+			player2.boosted_levels[e] + '/' + player2.levels[e]
+		];
+	}));
+
+	return table.toString();
+}
+
+function bonuses_table(player1, player2)
+{
+	// Add a '+' in front of numbers >= zero
+	var fmt = n => n >= 0 ? '+' + n : n;
+
+	var table = new Table({colWidths: [18, 12, 12], style:{head:[],border:[]}});
+
+	table.push(
+		[ // Header
+			Table.cell('Bonuses', 'center'),
+			Table.cell('You', 'center'),
+			Table.cell('Opponent', 'center'),
+		]
+	);
+
+	table.push(
+		[
+			Table.cell('Attack', 'center'),
+			Table.cell(),
+			Table.cell(),
+		]
+	);
+
+	Array.prototype.push.apply(table, Object.keys(player1.bonuses.attack).map( r => [
+		Table.cell(r[0].toUpperCase() + r.substr(1), 'no-top'),
+		Table.cell(fmt(player1.bonuses.attack[r]), 'no-top right'),
+		Table.cell(fmt(player2.bonuses.attack[r]), 'no-top right'),
+	]));
+
+	table.push(
+		[ // Header
+			Table.cell('Defence', 'center no-top'),
+			Table.cell('', 'no-top'),
+			Table.cell('', 'no-top'),
+		]
+	);
+
+	Array.prototype.push.apply(table, Object.keys(player1.bonuses.defence).map( r => [
+		Table.cell(r[0].toUpperCase() + r.substr(1), 'no-top'),
+		Table.cell(fmt(player1.bonuses.defence[r]), 'no-top right'),
+		Table.cell(fmt(player2.bonuses.defence[r]), 'no-top right'),
+	]));
 
 
-	e.addField('Attack bonus',
-		'Stab: '  + (player.bonuses.attack.stab  >= 0 ? '+' : '') + player.bonuses.attack.stab +
-		'\nSlash: ' + (player.bonuses.attack.slash >= 0 ? '+' : '') + player.bonuses.attack.slash +
-		'\nCrush: ' + (player.bonuses.attack.crush >= 0 ? '+' : '') + player.bonuses.attack.crush +
-		'\nMagic: ' + (player.bonuses.attack.magic >= 0 ? '+' : '') + player.bonuses.attack.magic +
-		'\nRange: ' + (player.bonuses.attack.range >= 0 ? '+' : '') + player.bonuses.attack.range,true);
-	e.addField('Defence bonus',
-		'Stab: '  + (player.bonuses.defence.stab  >= 0 ? '+' : '') + player.bonuses.defence.stab +
-		'\nSlash: ' + (player.bonuses.defence.slash >= 0 ? '+' : '') + player.bonuses.defence.slash +
-		'\nCrush: ' + (player.bonuses.defence.crush >= 0 ? '+' : '') + player.bonuses.defence.crush +
-		'\nMagic: ' + (player.bonuses.defence.magic >= 0 ? '+' : '') + player.bonuses.defence.magic +
-		'\nRange: ' + (player.bonuses.defence.range >= 0 ? '+' : '') + player.bonuses.defence.range,true);
-	e.addField('Other bonuses',
-		'Melee strength: ' + (player.bonuses.strength.melee >= 0 ? '+' : '') + player.bonuses.strength.melee +
-		'\nRanged strength: ' + (player.bonuses.strength.range >= 0 ? '+' : '') + player.bonuses.strength.range +
-		'\nMagic damage: ' + (player.bonuses.strength.magic >= 0 ? '+' : '') + player.bonuses.strength.magic + '%' +
-		'\nPrayer: ' + (player.bonuses.prayer >= 0 ? '+' : '') + player.bonuses.prayer +
-		'\nSpeed: ' + player.bonuses.speed + ' (' + (6 - player.bonuses.speed * 0.6).toFixed(1) + ' seconds)');
 
-	return e;
+	table.push(
+		[ // Header
+			Table.cell('Other', 'center no-top'),
+			Table.cell('', 'no-top'),
+			Table.cell('', 'no-top'),
+		]
+	);
+
+	Array.prototype.push.apply(table, [
+		[ 'Melee strength', fmt(player1.bonuses.strength.melee), fmt(player2.bonuses.strength.melee) ],
+		[ 'Range strength', fmt(player1.bonuses.strength.range), fmt(player2.bonuses.strength.range) ],
+		[ 'Magic damage', fmt(player1.bonuses.strength.magic) + '%', fmt(player2.bonuses.strength.magic) + '%' ],
+		[ 'Prayer', fmt(player1.bonuses.prayer), fmt(player2.bonuses.prayer) ],
+		[ 'Attack Speed', player1.bonuses.speed_seconds.toFixed(1) + 's', player2.bonuses.speed_seconds.toFixed(1) + 's' ],
+	].map( r => [ Table.cell(r[0], 'no-top'), Table.cell(r[1], 'no-top right'), Table.cell(r[2], 'no-top right') ]));
+
+	return table.toString();
+}
+
+function push_rows(table, rows)
+{
+	// Do first row manually to preserve top border
+	table.push([
+		Table.cell(rows[0][0]),
+		Table.cell(rows[0][1], 'right'),
+		Table.cell(rows[0][2], 'right')
+	]);
+
+	for(var i = 1; i < rows.length; i++)
+	{
+		table.push([
+			Table.cell(rows[i][0], 'no-top'),
+			Table.cell(rows[i][1], 'right no-top'),
+			Table.cell(rows[i][2], 'right no-top')
+		]);
+	}
 }
