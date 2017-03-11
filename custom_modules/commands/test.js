@@ -10,8 +10,20 @@ module.exports.params = {
 };
 module.exports.permissions = [];
 
+var Table = require('cli-table2');
+
 module.exports.command = async function(client, message, params) {
+	var table = new Table({colWidths: [15, 15, 10], style:{head:[],border:[]}});
+	table.push([ // Header
+		Table.cell('Skill', 'center'),
+		Table.cell('Experience', 'center'),
+		Table.cell('TTM', 'center'),
+	]);
+
+	table.push([Table.cell('a\nb\nc\nd', 'right'), '1', '2']);
+	table.push([Table.cell('a\nbbb\ncccc\ndd', 'center'), '1', '2']);
+	table.push([Table.cell('a\nb\nc\nd', 'right'), '1', '2']);
 
 
-	//return long_string;
+	return Discord.code_block(table.toString());
 };

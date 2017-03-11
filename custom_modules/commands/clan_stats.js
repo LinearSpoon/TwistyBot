@@ -16,10 +16,8 @@ module.exports.command = async function(client, message, params) {
 	var clan_list = await load_report_data();
 	var under_1500_total = [];
 	var under_70_agil = [];
-	var under_80_range = [];
-	var under_80_magic = [];
-	var under_85_range = [];
-	var under_85_magic = [];
+	var under_75_range = [];
+	var under_75_magic = [];
 	for(var i in clan_list)
 	{
 		var member = clan_list[i];
@@ -30,10 +28,8 @@ module.exports.command = async function(client, message, params) {
 		var hs = member.history[0].hiscores;
 		if (hs.overall.level < 1500) under_1500_total.push(member);
 		if (hs.agility.level < 70) under_70_agil.push(member);
-		if (hs.ranged.level < 80) under_80_range.push(member);
-		if (hs.magic.level < 80) under_80_magic.push(member);
-		if (hs.ranged.level >= 80 && hs.ranged.level < 85) under_85_range.push(member);
-		if (hs.magic.level >= 80 && hs.magic.level < 85) under_85_magic.push(member);
+		if (hs.ranged.level < 75) under_75_range.push(member);
+		if (hs.magic.level < 75) under_75_magic.push(member);
 	}
 
 	message.channel.sendmsg('Under 1500 total:' + Discord.code_block(
@@ -48,32 +44,20 @@ module.exports.command = async function(client, message, params) {
 		).join('\n')
 	));
 
-	message.channel.sendmsg('Under 80 range:' + Discord.code_block(
-		under_80_range.map(m =>
+	message.channel.sendmsg('Under 75 range:' + Discord.code_block(
+		under_75_range.map(m =>
 			util.printf('%12s   %4s', m.name, m.history[0].hiscores.ranged.level)
 		).join('\n')
 	));
 
-	message.channel.sendmsg('Under 80 magic:' + Discord.code_block(
-		under_80_magic.map(m =>
-			util.printf('%12s   %4s', m.name, m.history[0].hiscores.magic.level)
-		).join('\n')
-	));
-
-	message.channel.sendmsg('Under 85 ranged:' + Discord.code_block(
-		under_85_range.map(m =>
-			util.printf('%12s   %4s', m.name, m.history[0].hiscores.ranged.level)
-		).join('\n')
-	));
-
-	message.channel.sendmsg('Under 85 magic:' + Discord.code_block(
-		under_85_magic.map(m =>
+	message.channel.sendmsg('Under 75 magic:' + Discord.code_block(
+		under_75_magic.map(m =>
 			util.printf('%12s   %4s', m.name, m.history[0].hiscores.magic.level)
 		).join('\n')
 	));
 
 	message.channel.sendmsg('Unique:' + Discord.code_block(
-		under_1500_total.concat(under_70_agil, under_80_range, under_80_magic, under_85_range, under_85_magic)
+		under_1500_total.concat(under_70_agil, under_75_range, under_75_magic)
 			.filter(onlyUnique).map(m => m.name).join('\n')
 		));
 }

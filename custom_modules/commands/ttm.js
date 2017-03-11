@@ -29,7 +29,7 @@ module.exports.command = async function(client, message, params) {
 	if (!stats)
 		return Discord.code_block('Player not found.');
 
-	var hours = calculate_time(stats_to_xp_array(stats) , 13034431);
+	var hours = calculate_time(apis.RuneScape.skills.map( i => stats[i].xp ), 13034431);
 
 	var table = new Table({colWidths: [15, 15, 10], style:{head:[],border:[]}});
 
@@ -39,24 +39,20 @@ module.exports.command = async function(client, message, params) {
 		Table.cell('TTM', 'center'),
 	]);
 
-	for(var i in hours)
-	{
-		table.push([
-			Table.cell(i[0].toUpperCase() + i.substr(1), table.length > 1 ? 'no-top' : ''),
-			Table.cell(util.format_number(stats[i].xp), table.length > 1 ? 'no-top right' : 'right'),
-			Table.cell(hours[i] == 0 ? '-' : hours[i].toFixed(2), table.length > 1 ? 'no-top right' : 'right'),
-		]);
-	}
+
+	table.push([
+		// Skill column
+		Table.strings(apis.RuneScape.skills.map(s => s[0].toUpperCase() + s.substr(1))),
+		// Experience column
+		Table.ints(apis.RuneScape.skills.map(s => stats[s].xp)),
+		// TTM column
+		Table.floats(apis.RuneScape.skills.map(s => hours[s] == 0 ? '-' : hours[s]))
+	]);
 
 
 	return Discord.code_block(table.toString());
 };
 
-
-function stats_to_xp_array(stats)
-{
-	return apis.RuneScape.skills.map( i => stats[i].xp );
-}
 
 /*
   Below code is modified from https://crystalmathlabs.com/tracker/suppliescalc.php

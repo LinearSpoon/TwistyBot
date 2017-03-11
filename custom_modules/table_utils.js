@@ -1,5 +1,12 @@
 // For use with cli-table2
 
+Table = require('cli-table2');
+
+// Return a styleless table
+Table.new = function(colWidths) {
+	return new Table({colWidths: colWidths || [], style:{head:[],border:[]}});
+};
+
 const no_top = { 'left-mid': '', 'right-mid': '', 'mid': '', 'mid-mid': '' };
 const debug = { 'top': '1' , 'top-mid': '2' , 'top-left': '3' , 'top-right': '4',
 	'bottom': '5' , 'bottom-mid': '6' , 'bottom-left': '7' , 'bottom-right': '8',
@@ -7,7 +14,7 @@ const debug = { 'top': '1' , 'top-mid': '2' , 'top-left': '3' , 'top-right': '4'
 	'right': 'C' , 'right-mid': 'D' , 'middle': 'E' };
 
 
-require('cli-table2').cell = function(content, opts) {
+Table.cell = function(content, opts) {
 	var cell = { content: content };
 	if (!opts)
 		return cell;
@@ -36,4 +43,31 @@ require('cli-table2').cell = function(content, opts) {
 		}
 	}
 	return cell;
+};
+
+// Return a cell of right aligned, pretty printed floats
+Table.floats = function(content, num_decimals) {
+	num_decimals = typeof num_decimals === 'undefined' ? 2 : num_decimals;
+	return Table.cell(content
+		.map(v => isNaN(v) ? v : util.format_number(v, num_decimals))
+		.join('\n'),
+	'right');
+};
+
+// Return a cell of right aligned, pretty printed integers
+Table.ints = function(content) {
+	return Table.cell(content
+		.map(v => isNaN(v) ? v : util.format_number(v, 0))
+		.join('\n'),
+	'right');
+};
+
+// Return a cell of left aligned, pretty printed strings
+Table.strings = function(content, num_decimals) {
+	return Table.cell(content.join('\n'));
+};
+
+// Return a row of centered column headers
+Table.headers = function(...content) {
+	return content.map(h => Table.cell(h, 'center'));
 };

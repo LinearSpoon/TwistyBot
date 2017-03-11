@@ -1,5 +1,3 @@
-const fmt = '%-10s %7d %7s\n';
-
 module.exports.help = {
 	name: 'cb',
 	text: 'Display OldSchool player combat stats.',
@@ -19,23 +17,46 @@ Examples:
 !cb Vegakargdon`
 };
 
+var Table = require('cli-table2');
 
 module.exports.command = async function(client, message, params) {
 	var stats = await apis.RuneScape.lookup_player(params[0], { priority: 1 });
 	if (!stats)
 		return Discord.code_block('Player not found.');
 
-	return Discord.code_block(
-		'Stat         Level    Next\n' +
-		util.printf(fmt, 'Combat:', apis.RuneScape.combat_level(stats), '-') +
-		util.printf(fmt, 'Attack:', stats.attack.level, find_next_cb_level(stats, 'attack')) +
-		util.printf(fmt, 'Defense:', stats.defense.level, find_next_cb_level(stats, 'defense')) +
-		util.printf(fmt, 'Strength:', stats.strength.level, find_next_cb_level(stats, 'strength')) +
-		util.printf(fmt, 'Hitpoints:', stats.hitpoints.level, find_next_cb_level(stats, 'hitpoints')) +
-		util.printf(fmt, 'Ranged:', stats.ranged.level, find_next_cb_level(stats, 'ranged')) +
-		util.printf(fmt, 'Prayer:', stats.prayer.level, find_next_cb_level(stats, 'prayer')) +
-		util.printf(fmt, 'Magic:', stats.magic.level, find_next_cb_level(stats, 'magic'))
+	var table = Table.new();
+
+	table.push(
+		Table.headers('Stat', 'Level', 'Next'),
+		[
+			// Stat
+			Table.strings(['Combat', 'Attack', 'Defence', 'Strength', 'Hitpoints', 'Ranged', 'Prayer', 'Magic']),
+			// Level
+			Table.ints([
+				apis.RuneScape.combat_level(stats),
+				stats.attack.level,
+				stats.defense.level,
+				stats.strength.level,
+				stats.hitpoints.level,
+				stats.ranged.level,
+				stats.prayer.level,
+				stats.magic.level
+			]),
+			// Next
+			Table.ints([
+				'-',
+				find_next_cb_level(stats, 'attack'),
+				find_next_cb_level(stats, 'defence'),
+				find_next_cb_level(stats, 'strength'),
+				find_next_cb_level(stats, 'hitpoints'),
+				find_next_cb_level(stats, 'ranged'),
+				find_next_cb_level(stats, 'prayer'),
+				find_next_cb_level(stats, 'magic'),
+			])
+		]
 	);
+
+	return Discord.code_block(table.toString());
 };
 
 
