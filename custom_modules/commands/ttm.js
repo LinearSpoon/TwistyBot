@@ -29,7 +29,7 @@ module.exports.command = async function(client, message, params) {
 	if (!stats)
 		return Discord.code_block('Player not found.');
 
-	var hours = apis.CrystalMathLabs.calculate_time(apis.RuneScape.skills.map( i => stats[i].xp ), 13034431);
+	var hours = apis.RuneScape.calculate_time(apis.RuneScape.skills.map( i => stats[i].xp ), 13034431);
 
 	var table = new Table({colWidths: [15, 15, 10], style:{head:[],border:[]}});
 
