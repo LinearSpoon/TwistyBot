@@ -4,7 +4,7 @@ module.exports.help = {
 	category: 'Admin'
 };
 module.exports.params = {
-	min: 0,
+	min: 1,
 	max: 2,
 	help:
 `Usage:

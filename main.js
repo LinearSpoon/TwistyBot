@@ -149,10 +149,9 @@ client.on('message', function(message) {
 });
 
 // These functions must return a promise
-function start_servers()
+async function start_servers()
 {
-	client.login(config.get('token'));
-	return Promise.resolve();
+	return client.login(config.get('token'));
 }
 
 custom_require('singleinstance')(start_servers, () => Promise.resolve());

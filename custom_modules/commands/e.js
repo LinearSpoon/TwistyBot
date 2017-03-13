@@ -1,6 +1,6 @@
 module.exports.help = {
 	name: 'e',
-	text: 'Evaluate Javascript code.',
+	text: 'Evaluate Javascript code. Can be used as a simple calculator.',
 	category: 'General'
 };
 module.exports.params = {
@@ -25,7 +25,9 @@ Examples:
 !e new Date().toDateString()`
 };
 
-module.exports.permissions = [];
+module.exports.permissions = [
+	{ user: '*' }
+];
 
 var sandboxes = {};
 
