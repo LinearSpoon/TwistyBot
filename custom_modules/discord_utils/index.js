@@ -1,6 +1,3 @@
-var Discord = require('discord.js');
-
-
 // Helpers for finding channels
 Discord.Client.prototype.get_text_channel = require('./get_text_channel.js');
 Discord.Client.prototype.get_dm_channel = require('./get_dm_channel.js');
@@ -15,8 +12,8 @@ Discord.DMChannel.prototype.sendmsg = require('./sendmsg.js');
 Discord.GroupDMChannel.prototype.sendmsg = require('./sendmsg.js');
 Discord.User.prototype.sendmsg = require('./sendmsg.js');
 
-// Helper to evaluate permissions objects against a message
-Discord.Message.prototype.check_permissions = require('./check_permissions.js');
+Discord.Message.prototype.check_permissions = require('./message/check_permissions.js');
+Discord.Message.prototype.get_command_prefix = require('./message/get_command_prefix');
 
 // Discord Markdown
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
@@ -32,6 +29,3 @@ Discord.code_block             = function(text) { return '```\n' + text + '```';
 Discord.inline_code            = function(text) { return '`' + text + '`'; };
 Discord.link                   = function(link) { return '<' + link + '>'; };
 Discord.masked_link            = function(text, link) { return '[' + text + '](' + link + ')'; };
-
-module.exports = Discord;
-global.Discord = Discord;

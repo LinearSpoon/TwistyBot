@@ -19,13 +19,13 @@ module.exports.permissions = [
 ];
 
 var Table = require('cli-table2');
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var table = Table.new();
 	table.push( Table.headers('Type', 'Name', 'ID') );
 
 	var id = params[0];
 
-	var user = client.users.get(id);
+	var user = Discord.bot.users.get(id);
 	if (user)
 	{
 		var names = user.username + '#' + user.discriminator;
@@ -39,14 +39,14 @@ module.exports.command = async function(client, message, params) {
 		return Discord.code_block(table.toString());
 	}
 
-	var guild = client.guilds.get(id);
+	var guild = Discord.bot.guilds.get(id);
 	if (guild)
 	{
 		table.push(['Server', guild.name, id]);
 		return Discord.code_block(table.toString());
 	}
 
-	var channel = client.channels.get(id);
+	var channel = Discord.bot.channels.get(id);
 	if (channel)
 	{
 		table.push([channel.type[0].toUpperCase() + channel.type.substr(1) + ' Channel', channel.get_name(), id]);

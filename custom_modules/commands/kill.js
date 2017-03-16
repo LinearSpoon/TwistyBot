@@ -11,7 +11,7 @@ module.exports.params = {
 };
 
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	message.channel.sendmsg('Bye!')
 		.then( () => process.exit(0) )
 		.catch( () => process.exit(0) );

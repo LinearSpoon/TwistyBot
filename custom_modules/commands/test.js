@@ -12,7 +12,7 @@ module.exports.permissions = [];
 
 var Table = require('cli-table2');
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var table = new Table({colWidths: [15, 15, 10], style:{head:[],border:[]}});
 	table.push([ // Header
 		Table.cell('Skill', 'center'),

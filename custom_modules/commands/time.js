@@ -19,7 +19,7 @@ module.exports.permissions = [
 	{ user: '*' }
 ];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var now = moment();
 
 	return Discord.code_block(

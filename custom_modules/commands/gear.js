@@ -19,7 +19,7 @@ module.exports.permissions = [
 
 
 var Player = custom_require('combat_calculator/player');
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var warnings = '';
 	var p = new Player();
 	for(var i = 1; i < params.length; i++)

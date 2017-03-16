@@ -18,7 +18,7 @@ module.exports.permissions = [
 ];
 
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	// Get stats
 	var stats = await apis.RuneScape.lookup_player(params[0], { priority: 1 });
 	if (!stats)

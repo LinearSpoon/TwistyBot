@@ -35,7 +35,7 @@ module.exports.permissions = [
 	{ guild: '160833724886286336' } // Deities of PvM
 ];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	if (params[0] == 'update')
 		await update_report();
 

@@ -12,7 +12,7 @@ module.exports.params = {
 };
 module.exports.permissions = [];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var clan_list = await get_clan_list();
 	var output = '';
 	for(var i in clan_list)

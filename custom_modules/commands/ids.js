@@ -17,7 +17,7 @@ module.exports.params = {
 
 module.exports.permissions = [];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	if (params[0] == 'roles')
 	{
 		// List all roles in current guild

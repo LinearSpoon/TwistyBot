@@ -32,7 +32,7 @@ module.exports.permissions = [
 var sandboxes = {};
 
 const vm = require('vm');
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	// Repair the code
 	var js_code = params.join(',');
 

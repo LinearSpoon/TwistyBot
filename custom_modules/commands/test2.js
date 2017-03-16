@@ -11,7 +11,7 @@ module.exports.params = {
 };
 module.exports.permissions = [];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var e = new Discord.RichEmbed();
 
 	var testimg = 'https://www.allianceonline.co.uk/product_images/LCSS0006.jpg';

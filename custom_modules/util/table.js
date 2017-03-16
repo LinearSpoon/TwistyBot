@@ -1,6 +1,4 @@
-// For use with cli-table2
-
-Table = require('cli-table2');
+var Table = require('cli-table2');
 
 // Return a styleless table
 Table.new = function(colWidths) {
@@ -71,3 +69,5 @@ Table.strings = function(content, num_decimals) {
 Table.headers = function(...content) {
 	return content.map(h => Table.cell(h, 'center'));
 };
+
+module.exports = Table;

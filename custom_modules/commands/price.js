@@ -22,7 +22,7 @@ module.exports.permissions = [
 ];
 
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var items = [];
 	for(var i = 0; i < params.length; i++)
 	{

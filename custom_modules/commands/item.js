@@ -17,7 +17,7 @@ module.exports.permissions = [
 	{ user: '*' }
 ];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var item = await apis.Spoon.get_item_stats(params[0]);
 	if (item == null)
 		return Discord.code_block('Item not found!');

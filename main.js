@@ -1,53 +1,16 @@
-// Add bot link
-// https://discordapp.com/oauth2/authorize?&client_id=228019028755611648&scope=bot&permissions=0
-
-// Require from custom_modules folder without needing relative links
 global.server_directory = __dirname;
-global.custom_require = name => require(global.server_directory + '/custom_modules/' + name);
-global.root_require   = name => require(global.server_directory + '/' + name);
+require('./globals.js');
 
-custom_require('console_hook');	// This must be the first require
-
-// Load config
-global.config = root_require('config/config.js');
-// Check missing keys
-global.config.get = function(key) {
-	if (typeof config[key] === 'undefined')
-		throw Error('Config missing "'+ key +'"!');
-	return config[key];
-};
-
-// Log unhandled promises
-process.on('unhandledRejection', function(err) {
-	console.error('Promise Rejected!!!');
-	console.warn(err.stack);
-	//throw err;
-});
-
-// Augments discord.js with helper functions
-var Discord = custom_require('discord_utils');
-var client = new Discord.Client();
-Discord.bot = client;
-
-// Load utilities
-global.util = custom_require('util');
-global.apis = custom_require('apis');
-global.database = custom_require('dbpool');
-custom_require('table_utils');
-
-// Load commands
-var commands = custom_require('commands');
-
-client.on('ready', () => console.log('Event: ready'));
-client.on('disconnect', () => console.warn('Event: disconnected'));
-client.on('guildMemberAdd', member => console.log('[New member]', member.guild.name + ':', member.user.username));
-client.on('guildUnavailable', guild => console.log('[Guild unavailable]', guild.name));
-client.on('messageDelete', message => log_message('Del', message));
-client.on('messageDeleteBulk', message_coll => message_coll.array().forEach(message => log_message('Del', message)));
-client.on('messageUpdate', (old_message,new_message) => log_message('Mod', new_message));
-client.on('reconnecting', () => console.log('Event: reconnecting'));
-client.on('warn', msg => console.warn('Event: warning', msg));
-client.on('error', err => console.error('Event: error', err));
+Discord.bot.on('ready', () => console.log('Event: ready'));
+Discord.bot.on('disconnect', () => console.warn('Event: disconnected'));
+Discord.bot.on('guildMemberAdd', member => console.log('[New member]', member.guild.name + ':', member.user.username));
+Discord.bot.on('guildUnavailable', guild => console.log('[Guild unavailable]', guild.name));
+Discord.bot.on('messageDelete', message => log_message('Del', message));
+Discord.bot.on('messageDeleteBulk', message_coll => message_coll.array().forEach(message => log_message('Del', message)));
+Discord.bot.on('messageUpdate', (old_message,new_message) => log_message('Mod', new_message));
+Discord.bot.on('reconnecting', () => console.log('Event: reconnecting'));
+Discord.bot.on('warn', msg => console.warn('Event: warning', msg));
+Discord.bot.on('error', err => console.error('Event: error', err));
 
 function log_message(explanation, message)
 {
@@ -60,17 +23,15 @@ function log_message(explanation, message)
 		message.cleanContent);
 }
 
+// Load commands
+var commands = custom_require('commands');
+
 // Parse command and execute
-client.on('message', function(message) {
-	if (message.author.id == client.user.id)
-		return; // Ignore own messages
+Discord.bot.on('message', function(message) {
+	if (message.author.id == Discord.bot.user.id || message.channel.type == 'voice')
+		return; // Ignore own messages or messages in voice channels (is it possible?)
 
 	log_message('New', message);
-
-	if (message.channel.type == 'voice')
-	{
-		return; // Is it even possible?
-	}
 
 	// ! followed by command name followed by optional comma
 	var match = message.cleanContent.match(/^!([a-zA-Z_]+)\s*,?/);
@@ -97,7 +58,7 @@ client.on('message', function(message) {
 	message.channel.startTyping();
 	// TODO: startTyping can reject?
 
-	var p = commands[fn].command.call(commands, client, message, params);
+	var p = commands[fn].command.call(commands, message, params);
 
 	p.then( function(response) {
 		// Command finished with no errors
@@ -136,22 +97,29 @@ client.on('message', function(message) {
 		console.warn(err.stack);
 		message.channel.sendMessage(Discord.code_block('An error occurred while running the command:\n' + err.message));
 
-		client.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block(
+		Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block(
 			'Channel: ' + message.channel.get_name()
 		 	+ '\nAuthor:  ' + message.author.username + '#' + message.author.discriminator
 		 	+ '\nMessage: ' + message.cleanContent
 			+ '\n' + err.stack));
 	})
-	.then( function() {
-		// Always stop typing!
-		message.channel.stopTyping();
-	});
+	.then( () => message.channel.stopTyping() );
 });
 
-// These functions must return a promise
+// Log unhandled promises
+process.on('unhandledRejection', function(err) {
+	console.error('Promise Rejected!!!');
+	console.warn(err.stack);
+
+	Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block('Unhandled promise!\n' + err.stack));
+	//throw err;
+});
+
+
 async function start_servers()
 {
-	return client.login(config.get('token'));
+	return Discord.bot.login(config.get('token'));
 }
 
+// These functions must return a promise
 custom_require('singleinstance')(start_servers, () => Promise.resolve());

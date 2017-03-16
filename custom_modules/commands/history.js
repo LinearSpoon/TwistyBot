@@ -23,7 +23,7 @@ Examples:
 This command only returns data for players on the Deities clan spreadsheet.
 Available stats: ` + apis.RuneScape.skills.join(', ')
 };
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	if (!params[1])
 		params[1] = 'overall';
 

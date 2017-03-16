@@ -17,7 +17,7 @@ module.exports.permissions = [
 	{ user: '*' }
 ];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	try {
 		await apis.CrystalMathLabs.update_player(params[0]);
 	} catch(e) {

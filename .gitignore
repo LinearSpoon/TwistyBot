@@ -4,6 +4,9 @@
 
 node_modules
 compiled
-config
 storage
 scripts
+
+# Ignore everything in config, except the default file
+config/*
+!config/default_config.js

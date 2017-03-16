@@ -12,7 +12,7 @@ module.exports.params = {
 };
 module.exports.permissions = [];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var clan_list = await load_report_data();
 	var under_1500_total = [];
 	var under_70_agil = [];

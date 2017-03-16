@@ -18,7 +18,7 @@ module.exports.permissions = [
 	{ user: '*' }
 ];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var str_amount = params[0].toLowerCase();
 	// Extract number without any extra stuff
 	var amount = +str_amount.replace(/[^0-9.]/g,'');

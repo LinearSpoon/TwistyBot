@@ -9,7 +9,7 @@ module.exports.params = {
 	max: 999,
 	help: `Usage: !help`
 };
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var response = '';
 
 	// Sort commands by category

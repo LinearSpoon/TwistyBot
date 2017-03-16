@@ -20,7 +20,7 @@ Examples:
 };
 module.exports.permissions = [];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var details = await apis.RuneScape.forum_profile(params[0], { priority: 1 })
 	if (details.length == 0)
 		return Discord.code_block('No posts found');

@@ -31,17 +31,17 @@ module.exports.permissions = [
 ];
 
 var Table = require('cli-table2');
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	// \u200B == zero width space (sometimes present in mentions?)
 	var name = params[0].replace(/\u200B/,'').toLowerCase();
 
-	var users = client.users.array().filter(function(user) {
+	var users = Discord.bot.users.array().filter(function(user) {
 		return name == user.username.toLowerCase()
 			|| name == (user.username.toLowerCase() + '#' + user.discriminator);
 	});
 
-	var guilds = client.guilds.array().filter(guild => guild.name.toLowerCase() == name);
-	var channels = client.channels.array().filter(function(channel) {
+	var guilds = Discord.bot.guilds.array().filter(guild => guild.name.toLowerCase() == name);
+	var channels = Discord.bot.channels.array().filter(function(channel) {
 		if (channel.type == 'dm')
 			return name == ('dm.' + channel.recipient.username.toLowerCase()) ||
 				name == ('dm.' + channel.recipient.username.toLowerCase() + '#' + channel.recipient.discriminator);

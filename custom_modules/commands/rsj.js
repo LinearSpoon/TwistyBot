@@ -23,7 +23,7 @@ module.exports.permissions = [
 	{ user: '*' }
 ];
 
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	params = params.filter( p => p.length < 15 );
 	if (params.length == 0)
 		return Discord.code_block('Username too long, try something shorter!'); // Don't waste time if the name is too long

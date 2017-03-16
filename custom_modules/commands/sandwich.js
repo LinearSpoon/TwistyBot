@@ -15,7 +15,7 @@ module.exports.permissions = [
 
 
 const url = 'http://api.flickr.com/services/feeds/photos_public.gne?tags=sandwich&tagmode=any&format=json';
-module.exports.command = async function(client, message, params) {
+module.exports.command = async function(message, params) {
 	var d = await util.queue_request(url, { max_attempts: 3, success_delay: 1000, failure_delay: 3000 });
 	d = JSON.parse(d.body.replace(/^jsonFlickrFeed\(|\)$/g,''));
 	var rnd = Math.floor(Math.random() * d.items.length);
