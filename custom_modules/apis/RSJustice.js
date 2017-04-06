@@ -56,10 +56,10 @@ async function update_cache()
 
 			// Just show the first 25
 			public_posts.slice(0, 25).forEach(function(new_post) {
-				public_embed.addField('Post published: ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
+				public_embed.addField('Post published: ' + new_post.player, new_post.url + '\n' + new_post.reason);
 			});
 
-			Discord.bot.get_text_channel('RS JUSTICE.public').sendEmbed(public_embed);
+			Discord.bot.get_text_channel('RS JUSTICE.public-chat').sendEmbed(public_embed);
 		}
 
 		// Find new posts and posts with changed names
@@ -75,9 +75,9 @@ async function update_cache()
 
 			private_posts.slice(0, 25).forEach(function(new_post) {
 				if (!cache[new_post.id])
-					private_embed.addField('Post published: ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
+					private_embed.addField('Post published: ' + new_post.player, new_post.url + '\n' + new_post.reason);
 				else
-					private_embed.addField('Name changed: ' + cache[new_post.id].player + ' ⟹ ' + new_post.player, new_post.url + '\n\n' + new_post.reason);
+					private_embed.addField('Name changed: ' + cache[new_post.id].player + ' ⟹ ' + new_post.player, new_post.url + '\n' + new_post.reason);
 			});
 
 			Discord.bot.get_text_channel('RS JUSTICE.live-feed').sendEmbed(private_embed);

@@ -31,7 +31,7 @@ module.exports.command = async function(message, params) {
 	var include_private = message.check_permissions([
 		{ channel: ['266095695860203520', '230201497302859776'] }, // RS JUSTICE.name-checks, RS JUSTICE.private
 		{ guild: '232274245848137728' }, // Twisty-Test
-		{ user: ['189803024611278849', '217934790886686730'] }, // Zeal, Twisty Fork
+		{ user: ['217934790886686730', '189803024611278849'] }, // Zeal, Twisty Fork
 	]);
 
 	// Lookup every player
@@ -76,7 +76,7 @@ function get_embed(details, message)
 	if (details.previous_names.length)
 		e.addField('Previous names:', details.previous_names.join('\n'));
 
-	if (message.channel.guild && message.channel.guild.id == '232274245848137728')
+	if (message.guild && message.guild.id == '232274245848137728')
 	{
 		e.addField('Status:', details.status, true);
 		e.addField('ID:', details.id, true);
