@@ -33,32 +33,46 @@ Discord.bot.on('message', function(message) {
 
 	log_message('New', message);
 
-	// ! followed by command name followed by optional comma
-	var match = message.cleanContent.match(/^!([a-zA-Z_]+)\s*,?/);
+	var prefix = message.get_command_prefix();
+	var content = message.cleanContent;
+
+	if (!content.startsWith(prefix))
+		return; // Not a command
+
+	// It is a mobile command if the prefix is duplicated
+	var is_mobile_command = content.startsWith(prefix, prefix.length);
+
+	// Remove prefix from content
+	content = content.slice(is_mobile_command ? 2 * prefix.length : prefix.length);
+
+	// Try to extract the command name
+	var match = content.match(/^([a-zA-Z_]+)\s*,?/);
 	if (!match)
 		return; // Not a command
 
-	var fn = match[1].toLowerCase();	// Command name
-	var params = message.cleanContent.slice(match[0].length).trim();	// Extract params without command
-	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
-
-	if (!commands[fn] || typeof commands[fn].command !== 'function')
+	var command = commands[match[1].toLowerCase()]; // Get command object
+	if (!command)
 	 	return; // Not a valid command
 
-	if (!message.check_permissions(config.get('global_permissions').concat(commands[fn].permissions)))
+	var params = content.slice(match[0].length).trim();	// Extract params without command name
+	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
+
+
+
+	if (!message.check_permissions(config.get('global_permissions').concat(command.permissions)))
 	{
 		return; // Permission denied
 	}
 
-	if (params.length < commands[fn].params.min || params.length > commands[fn].params.max)
+	if (params.length < command.params.min || params.length > command.params.max)
 	{ // Invalid number of parameters, show parameter help text
-		return message.channel.sendMessage(Discord.code_block(commands[fn].params.help));
+		return message.channel.sendMessage(Discord.code_block(command.params.help));
 	}
 
 	message.channel.startTyping();
 	// TODO: startTyping can reject?
 
-	var p = commands[fn].command.call(commands, message, params);
+	var p = command.command.call(commands, message, params);
 
 	p.then( function(response) {
 		// Command finished with no errors

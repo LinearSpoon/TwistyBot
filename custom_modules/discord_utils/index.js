@@ -14,6 +14,7 @@ Discord.User.prototype.sendmsg = require('./sendmsg.js');
 
 Discord.Message.prototype.check_permissions = require('./message/check_permissions.js');
 Discord.Message.prototype.get_command_prefix = require('./message/get_command_prefix');
+Discord.Message.prototype.set_command_prefix = require('./message/set_command_prefix');
 
 // Discord Markdown
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-

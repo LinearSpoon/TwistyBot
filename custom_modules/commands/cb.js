@@ -33,7 +33,7 @@ module.exports.command = async function(message, params) {
 			Table.strings(['Combat', 'Attack', 'Defence', 'Strength', 'Hitpoints', 'Ranged', 'Prayer', 'Magic']),
 			// Level
 			Table.ints([
-				apis.RuneScape.combat_level(stats),
+				Math.floor(apis.RuneScape.combat_level(stats)),
 				stats.attack.level,
 				stats.defense.level,
 				stats.strength.level,

@@ -7,7 +7,7 @@ module.exports.permissions = [
 module.exports.params = {
 	min: 0,
 	max: 999,
-	help: `Usage: !help`
+	help: `Usage: !commands`
 };
 module.exports.command = async function(message, params) {
 	var response = '';
