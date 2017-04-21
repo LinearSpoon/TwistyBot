@@ -1,4 +1,4 @@
-var item_groups = root_require('price_data/item_groups');
+var item_groups = root_require('data/item_groups');
 
 module.exports.help = {
 	name: 'price',

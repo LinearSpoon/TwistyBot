@@ -10,7 +10,12 @@ global.config = Object.assign(
 	root_require('config/config.js')
 );
 
-global.database = custom_require('dbpool');
+global.database = custom_require('dbpool')({
+	host     : config.get('database_hostname'),
+	user     : config.get('database_username'),
+	password : config.get('database_password'),
+	database : config.get('database_schema'),
+});
 
 // Load utilities
 global.util = custom_require('util');

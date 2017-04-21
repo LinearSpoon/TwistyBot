@@ -135,8 +135,8 @@ module.exports = {
 
 	// Hats
 	'nezzy':'Helm of neitiznot',
-	'serp':'Serpetine helm (uncharged)',
-	'serp helm':'Serpetine helm (uncharged)',
+	'serp':'Serpentine helm (uncharged)',
+	'serp helm':'Serpentine helm (uncharged)',
 
 	// Random items
 	'visage':'Draconic visage',
@@ -169,6 +169,8 @@ module.exports = {
 	'rigour':"Dextrous prayer scroll",
 	'rigour scroll':"Dextrous prayer scroll",
 	'dextrous scroll':"Dextrous prayer scroll",
+	'dexterous scroll':"Dextrous prayer scroll",
+	'dextrous prayer scroll':"Dextrous prayer scroll",
 	'augury':"Arcane prayer scroll",
 	'augury scroll':"Arcane prayer scroll",
 	'arcane scroll':"Arcane prayer scroll",
@@ -183,4 +185,8 @@ module.exports = {
 	'karils': "Karil's armour set",
 	'ahrims': "Ahrim's armour set",
 	'torags': "Torag's armour set",
+
+	// Skilling
+	'addy ore': "Adamantite ore",
+	'addy bar': "Adamantite bar",
 }

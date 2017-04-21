@@ -8,7 +8,7 @@ module.exports.help = {
 	category: 'Deities'
 };
 module.exports.permissions = [
-	{ guild: '160833724886286336' } // Deities of PvM
+	//{ guild: '160833724886286336' } // Deities of PvM
 ];
 module.exports.params = {
 	min: 1,

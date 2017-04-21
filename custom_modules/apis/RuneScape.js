@@ -1,6 +1,8 @@
 var cheerio = require('cheerio');
 var moment = require('moment-timezone');
 
+var experience_table = root_require('data/experience_table');
+
 const skills_order = [
 	'overall',
 	'attack',
@@ -29,6 +31,7 @@ const skills_order = [
 ];
 
 module.exports.skills = skills_order;
+module.exports.experience_table = experience_table;
 
 // Returns promise
 // if player exists => skills object
@@ -103,6 +106,45 @@ module.exports.forum_profile = async function(username, request_options) {
 
 function url_encode_username(username) {
 	return encodeURIComponent(username.replace(/[^a-zA-Z0-9 \-_]/g,''));
+}
+
+module.exports.exp_to_level = function(exp) {
+	var lvl = first_greater_than(exp, experience_table) + 1;
+	if (lvl == 0 || lvl > 99) // exp is very high
+		return 99;
+
+	return lvl;
+};
+
+module.exports.exp_to_virtual_level = function(exp) {
+	var lvl = first_greater_than(exp, experience_table) + 1;
+	if (lvl == 0) // exp is very high
+		return 200;
+
+	return lvl;
+};
+
+// Binary search of sorted_array for index of first element greater than v
+function first_greater_than(v, sorted_array)
+{
+	var min = 0; var max = sorted_array.length - 1;
+	var best = sorted_array.length;
+	while(min <= max)
+	{
+		mid = (min+max) / 2 | 0;
+		if (sorted_array[mid] > v)
+		{ // mid is the answer or something left of mid
+			if (mid < best)
+				best = mid;
+			max = mid - 1;
+		}
+		else
+		{ // right of mid is the answer
+			min = mid + 1;
+		}
+	}
+
+	return best == sorted_array.length ? -1 : best;
 }
 
 /*

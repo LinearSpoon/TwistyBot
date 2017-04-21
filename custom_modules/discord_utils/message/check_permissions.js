@@ -11,8 +11,10 @@ module.exports = function(permissions) {
 	var is_dm = this.channel.type != 'text';
 	if (!is_dm)
 	{
-		var guild = this.channel.guild.id;
-		var roles = this.member.roles;
+		var guild = this.guild.id;
+		// Large guilds sometimes do not have all the members cached
+		// Invisible member's messages can load with this.member == null
+		var roles = (this.member ? this.member.roles : []);
 	}
 
 	for(var k = 0; k < permissions.length; k++)

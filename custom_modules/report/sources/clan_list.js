@@ -2,6 +2,7 @@
 //   member.id => spreadsheet row id
 //   member.name => player name
 //   member.cb => combat listed on the sheet
+//   member.accepted => Date accepted
 module.exports = async function(start, count) {
 	// Specific to the clan spreadsheet:
 	console.log('Loading clan list...');

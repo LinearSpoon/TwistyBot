@@ -68,4 +68,12 @@ module.exports.command = async function(message, params) {
 			return Discord.code_block('Only available in guild channels.');
 	}
 
+	if (params[0] == 'members')
+	{
+		var members = message.guild.members.array();
+		return Discord.code_block(members.length + '/' + message.guild.memberCount + '\n'
+			+ message.member.user.username
+		);
+	}
+
 };

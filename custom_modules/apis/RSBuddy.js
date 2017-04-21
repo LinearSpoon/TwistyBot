@@ -4,8 +4,8 @@
 // https://api.rsbuddy.com/grandExchange?a=graph&start=1425921352106&g=1440&i=<id>  => history?
 // https://api.rsbuddy.com/grandExchange?i=20997&a=graph&g=1
 
-var name_dictionary = root_require('price_data/dictionary.js');	// Dictionary of alternate item names (key=alt name, value=real name)
-var names_raw = root_require('price_data/names.json');		// cached from: https://rsbuddy.com/exchange/names.json
+var name_dictionary = root_require('data/dictionary.js');	// Dictionary of alternate item names (key=alt name, value=real name)
+var names_raw = root_require('data/names.json');		// cached from: https://rsbuddy.com/exchange/names.json
 
 // Transform raw names into an array
 var name_cache = [];
@@ -84,6 +84,7 @@ async function get_item_details(name)
 {
 	var proper_name = get_item_proper_name(name);
 	var match = name_cache.find( e => e.name == proper_name );
+	console.log(proper_name, match)
 	// if exact match is not found, return a list of similar items
 	if (!match)
 	{
