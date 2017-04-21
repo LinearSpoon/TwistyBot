@@ -20,12 +20,13 @@ Examples:
 !set_prefix %
 !set_prefix $$`
 };
-module.exports.permissions = [];
+module.exports.permissions = [
+	{ leader: true }
+];
 
 module.exports.command = async function(message, params) {
 	if (!message.guild)
 		return Discord.code_block('Only available in guilds!');
-
 	var new_prefix = params[0].slice(0,4);
 	message.set_command_prefix(new_prefix);
 	return Discord.code_block('Command prefix set to: ' + new_prefix);;

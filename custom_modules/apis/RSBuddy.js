@@ -84,7 +84,6 @@ async function get_item_details(name)
 {
 	var proper_name = get_item_proper_name(name);
 	var match = name_cache.find( e => e.name == proper_name );
-	console.log(proper_name, match)
 	// if exact match is not found, return a list of similar items
 	if (!match)
 	{

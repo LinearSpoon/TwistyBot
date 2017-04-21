@@ -21,7 +21,7 @@ module.exports = function(permissions) {
 	{
 		var rule = permissions[k];
 
-		if (is_dm && (rule.guild || rule.roles))
+		if (is_dm && (rule.guild || rule.roles || rule.not_leader))
 			continue; // Message is dm but rule is guild
 
 		if (rule.guild && !is_match(guild, rule.guild))
@@ -50,6 +50,12 @@ module.exports = function(permissions) {
 
 		if (rule.channel_type && !is_match(channel.type, rule.channel_type))
 			continue; // Wrong channel_type
+
+		if (rule.leader && user.id != guild.ownerID)
+			continue;
+
+		if (rule.not_leader && user.id == guild.ownerID)
+			continue;
 
 		// Default allow if block is undefined
 		return !rule.block;
