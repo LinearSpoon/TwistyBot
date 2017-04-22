@@ -11,6 +11,7 @@ global.config = Object.assign(
 );
 
 global.database = custom_require('dbpool')({
+	charset : 'utf8mb4',
 	host     : config.get('database_hostname'),
 	user     : config.get('database_username'),
 	password : config.get('database_password'),

@@ -162,3 +162,5 @@ function to_detail_object(post)
 		_previous_names: search_tags,
 	};
 }
+
+module.exports.cache = cache;

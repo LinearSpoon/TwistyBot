@@ -33,7 +33,7 @@ client.on('tweet', async function(event) {
 		var embed = await tweet_embed(tweet);
 		Discord.bot.get_text_channel('Twisty-Test.jagextweets').sendEmbed(embed)
 	} catch(e) {
-		Discord.bot.get_text_channel('Twisty-Test.logs').sendmsg('ontweet: ' + e.stack);
+		Discord.bot.get_text_channel('Twisty-Test.logs').sendmsg('ontweet: ' + Discord.code_block(e.stack));
 	}
 });
 
@@ -101,6 +101,8 @@ async function save_tweet(tweet)
 		final_text = text;
 	}
 
+	// Remove funky characters (node-mysql does not currently support the required charset)
+	final_text = final_text.replace(/[\u0800-\uFFFF]/g, '');
 	// Replace short urls with actual urls
 	for(var i in urls)
 		final_text = final_text.replace(urls[i].url, urls[i].expanded_url);
@@ -182,7 +184,6 @@ async function tweet_embed(tweet)
 
 	// Pull the entire conversation if possible
 	var conversation = [ tweet ];
-	var rt;
 	while( tweet && tweet.reply_to )
 	{
 		tweet = await load_tweet(tweet.reply_to);
@@ -199,6 +200,18 @@ async function tweet_embed(tweet)
 			e.setImage(tweet.first_media);
 	}
 
+	e.setColor(0xa6cee3); // light blue
+
+	if (conversation_has_keyword(conversation, ['support team', 'FAQ']))
+	{
+		e.setColor(0x555555); // Gray
+	}
+
+	if (conversation_has_keyword(conversation, ['olm', 'raid', 'twisted', 'tbow']))
+	{
+		e.setColor(0xFFD700); // JMod gold
+	}
+
 	// The oldest tweet is first in the array
 	var oldest = conversation[0];
 	if (oldest)
@@ -207,19 +220,9 @@ async function tweet_embed(tweet)
 		e.setDescription(oldest.text);
 		if (oldest.first_media)
 			e.setImage(oldest.first_media);
-		if (mods.indexOf(oldest.sender) > -1)
-		{ // Make embed gold if the tweet is from a jmod
-			e.setColor(0xFFD700);
-		}
-		else
-		{ // Pick a random color based on sender id
-			var idx = parseInt(oldest.sender) % distinct_colors.length;
-			e.setColor(distinct_colors[idx]);
-		}
 	}
 	else
 	{
-		// Leave color at default gray
 		e.setAuthor('Warning!', null, link);
 		e.setDescription('Could not load entire conversation.\n[View on Twitter](' + link + ')');
 	}
@@ -234,4 +237,16 @@ function masked_tweet(text, username, id)
 		return '[' + text + '](https://twitter.com/' + username + '/status/' + id + ')';
 	else
 		return '[' + text + '](https://twitter.com/' + username + ')';
+}
+
+function conversation_has_keyword(conversation, keywords)
+{
+	for(var i = 0; i < conversation.length; i++)
+	{
+		var text = conversation[i].text.toLowerCase();
+		for(var j = 0; j < keywords.length; j++)
+			if (text.includes(keywords[j]))
+				return true;
+	}
+	return false;
 }
