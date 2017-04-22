@@ -1,5 +1,5 @@
-if (!config.get('live'))
-	return;
+// if (!config.get('live'))
+// 	return;
 
 var he = require('he');
 var Twitter = require('node-tweet-stream');
@@ -243,10 +243,13 @@ function conversation_has_keyword(conversation, keywords)
 {
 	for(var i = 0; i < conversation.length; i++)
 	{
-		var text = conversation[i].text.toLowerCase();
-		for(var j = 0; j < keywords.length; j++)
-			if (text.includes(keywords[j]))
-				return true;
+		if (conversation[i])
+		{
+			var text = conversation[i].text.toLowerCase();
+			for(var j = 0; j < keywords.length; j++)
+				if (text.includes(keywords[j]))
+					return true;
+		}
 	}
 	return false;
 }
