@@ -21,7 +21,7 @@ module.exports = function(permissions) {
 	{
 		var rule = permissions[k];
 
-		if (is_dm && (rule.guild || rule.roles || rule.not_leader))
+		if (is_dm && (rule.guild || rule.role || rule.not_leader || rule.leader || rule.not_guild || rule.not_role))
 			continue; // Message is dm but rule is guild
 
 		if (rule.guild && !is_match(guild, rule.guild))
