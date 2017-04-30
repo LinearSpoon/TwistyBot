@@ -1,5 +1,4 @@
-const Discord = require('discord.js');
-
+var moment = require('moment-timezone');
 module.exports.help = {
 	name: 'rsj',
 	text: 'Lookup a player on RS Justice.',
@@ -28,21 +27,25 @@ module.exports.command = async function(message, params) {
 	if (params.length == 0)
 		return Discord.code_block('Username too long, try something shorter!'); // Don't waste time if the name is too long
 
-	var include_private = message.check_permissions([
-		{ channel: ['266095695860203520', '230201497302859776'] }, // RS JUSTICE.name-checks, RS JUSTICE.private
-		{ guild: '232274245848137728' }, // Twisty-Test
-		{ user: ['217934790886686730', '189803024611278849'] }, // Zeal, Twisty Fork
-	]);
+	// Which posts do we care about?
+	var post_types = ['publish'];
+	if (message.check_permissions([
+			{ channel: ['266095695860203520', '230201497302859776'] }, // RS JUSTICE.name-checks, RS JUSTICE.private
+			{ guild: '232274245848137728' }, // Twisty-Test
+			{ user: ['217934790886686730', '189803024611278849'] }, // Zeal, Twisty Fork
+		]))
+	{
+		post_types.push('private');
+	}
 
 	// Lookup every player
-	var players = await Promise.all(params.map( p => apis.RSJustice.lookup(p, include_private) ));
+	var players = await Promise.all(params.map( p => apis.RSJustice.find(p, post_types) ));
 
 	if (players.length == 1)
 	{ // Single player lookup, we can afford to be fancy
 		if (players[0].length == 0)
-		{
-			// Check for close matches
-			var possible_names = apis.RSJustice.get_similar_names(params[0], include_private);
+		{ // If player was not found, try to find close matches
+			var possible_names = await apis.RSJustice.find_similar(params[0], post_types);
 			if (possible_names.length == 0)
 				return send_response_to_zeal('Player not found!', message, params);
 
@@ -66,21 +69,47 @@ module.exports.command = async function(message, params) {
 
 function get_embed(details, message)
 {
+	const dateformat = 'MMMM D, YYYY';
 	var e = new Discord.RichEmbed();
 	e.setColor(0x87CEEB);
-	e.setAuthor('Current name: ' + details.player);
-	e.setDescription(details.reason);
-	e.addField('Published:', util.approximate_time(details.date_created, new Date()) + ' ago', true);
-	e.addField('Last updated:', util.approximate_time(details.date_modified, new Date()) + ' ago', true);
-	e.addField('Link:', details.url);
-	if (details.previous_names.length)
-		e.addField('Previous names:', details.previous_names.join('\n'));
+	e.setAuthor(details.reason);
+	if (details.custom.excerpt)
+		e.setDescription(details.custom.excerpt[0]);
 
+	var case_details = '';
+	// Accused names
+	case_details += '• Current name - ' + details.player + '\n';
+	if (details.custom.NATA)
+		case_details += '• Name at time of abuse - ' + details.custom.NATA[0] + '\n';
+	if (details.previous_names.length)
+		case_details += '• Previous names - ' + details.previous_names.join(', ') + '\n';
+	e.addField('Accused Player:', case_details);
+
+	// Dates
+	case_details = '';
+	if (details.custom.date)
+		case_details += '• Date of abuse - ' + moment(details.custom.date[0], 'YYYY/MM/DD').format(dateformat) + '\n';
+	case_details += '• Date published - ' + moment(details.date_created).format(dateformat) + ' (' + util.approximate_time(details.date_created, new Date()) + ' ago)\n';
+	case_details += '• Last updated - ' + moment(details.date_modified).format(dateformat) + ' (' + util.approximate_time(details.date_modified, new Date()) + ' ago)';
+
+	e.addField('Timeline:', case_details);
+
+	case_details = '';
+	if (details.custom.clan)
+		case_details += '• Clan - ' + details.custom.clan.join(',') + '\n';
+	if (details.custom.author)
+		case_details += '• Author - ' + details.custom.author.join(',') + '\n';
+	if (details.custom.victim)
+		case_details += '• Victims - ' + details.custom.victim.join(',') + '\n';
+	case_details += '• Status - ' + (details.status == 'publish' ? 'public' : details.status) + '\n';
 	if (message.guild && message.guild.id == '232274245848137728')
-	{
-		e.addField('Status:', details.status, true);
-		e.addField('ID:', details.id, true);
-	}
+		case_details += '• ID - ' + details.id + '\n';
+
+	case_details += '\n\n' + details.url;
+
+
+	e.addField('Other Details:', case_details);
+
 	return e;
 }
 

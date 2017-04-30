@@ -20,9 +20,11 @@ global.database = custom_require('dbpool')({
 
 // Load utilities
 global.util = custom_require('util');
-global.apis = custom_require('apis');
 
 // Load Discord
 global.Discord = require('discord.js');
 custom_require('discord_utils');
 Discord.bot = new Discord.Client();
+
+// Load APIs
+global.apis = custom_require('apis');

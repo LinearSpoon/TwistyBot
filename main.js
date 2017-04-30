@@ -1,7 +1,10 @@
 global.server_directory = __dirname;
 require('./globals.js');
 
-Discord.bot.on('ready', () => console.log('Event: ready'));
+Discord.bot.on('ready', function() {
+	console.log('Event: ready');
+	Discord.bot.user.setPresence({ game: { name: '!commands' } });
+});
 Discord.bot.on('disconnect', () => console.warn('Event: disconnected'));
 Discord.bot.on('guildMemberAdd', member => console.log('[New member]', member.guild.name + ':', member.user.username));
 Discord.bot.on('guildUnavailable', guild => console.log('[Guild unavailable]', guild.name));

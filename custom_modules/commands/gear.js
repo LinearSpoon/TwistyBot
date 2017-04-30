@@ -14,7 +14,7 @@ Examples:
 !gear equip, armadyl godsword`
 };
 module.exports.permissions = [
-	{ user: '*' }
+	// { user: '*' }
 ];
 
 

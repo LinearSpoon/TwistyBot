@@ -27,7 +27,7 @@ module.exports.command = async function(message, params) {
 	var cb_level = apis.RuneScape.combat_level(stats);
 
 	// Get RSJ
-	var rsj = await apis.RSJustice.lookup(params[0], true);
+	var rsj = await apis.RSJustice.find(params[0], ['publish', 'private', 'pending']);
 	if (rsj && rsj.length > 0)
 		return 'Player listed on RSJustice: ' + rsj[0].url;
 

@@ -1,4 +1,8 @@
-module.exports = function(needle, haystack, weights)
+// needle = string to search for
+// haystack = array of strings to compare against needle
+// weights = score penalties for various typos
+// converter = optional function that prepares the strings for comparison
+module.exports = function(needle, haystack, weights, converter)
 {
 	if (!weights)
 		weights = {};
@@ -10,9 +14,23 @@ module.exports = function(needle, haystack, weights)
 	if (!weights.typo_distance) weights.typo_distance = 4;
 	if (!weights.transpose) weights.transpose = 10;
 
+	if (!converter)
+		converter = s => s.toLowerCase();
+
+	// Prepare needle
+	var c_needle = converter(needle);
+	if (typeof c_needle !== 'string')
+		c_needle = '';
+
 	for(var z in haystack)
 	{
-		haystack[z] = { name: haystack[z], score: calculate_score(needle, haystack[z], weights) };
+		// Prepare haystack[z]
+		var c_name = converter(haystack[z]);
+		if (typeof c_name !== 'string')
+			c_name = '';
+
+		// Make sure to return the original haystack[z]
+		haystack[z] = { name: haystack[z], score: calculate_score(c_needle, c_name, weights) };
 	}
 	haystack.sort( (a,b) => a.score - b.score );
 	//console.old(haystack);
@@ -23,11 +41,6 @@ module.exports = function(needle, haystack, weights)
 
 function calculate_score(a, b, weights)
 {
-	if (typeof a !== 'string') a = "";
-	if (typeof b !== 'string') b = "";
-
-	a = a.toLowerCase(); b = b.toLowerCase();
-
 	if (a == '') // The only solution is to insert every character of b into a
 		return weights.insert + weights.multiple_insert * (b.length - 1);
 

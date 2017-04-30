@@ -1,5 +1,5 @@
-// if (!config.get('live'))
-// 	return;
+if (!config.get('live'))
+	return;
 
 var he = require('he');
 var Twitter = require('node-tweet-stream');
@@ -202,12 +202,12 @@ async function tweet_embed(tweet)
 
 	e.setColor(0xa6cee3); // light blue
 
-	if (conversation_has_keyword(conversation, ['support team', 'FAQ']))
+	if (conversation_has_keyword(conversation, [/\bsupport team\b/, /\bFAQ\b/]))
 	{
 		e.setColor(0x555555); // Gray
 	}
 
-	if (conversation_has_keyword(conversation, ['olm', 'raid', 'twisted', 'tbow']))
+	if (conversation_has_keyword(conversation, [/\bolm\b/, /\braid\b/, /\btwisted\b/, /\btbow\b/]))
 	{
 		e.setColor(0xFFD700); // JMod gold
 	}
@@ -247,7 +247,7 @@ function conversation_has_keyword(conversation, keywords)
 		{
 			var text = conversation[i].text.toLowerCase();
 			for(var j = 0; j < keywords.length; j++)
-				if (text.includes(keywords[j]))
+				if (keywords[j].test(text))
 					return true;
 		}
 	}
