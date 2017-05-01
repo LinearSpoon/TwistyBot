@@ -1,3 +1,5 @@
+/*
+
 const Wordpress_Cache = custom_require('Wordpress_Cache');
 var rsj_cache = new Wordpress_Cache(config.get('rsj_endpoint'), config.get('rsj_password'));
 
@@ -77,3 +79,5 @@ rsj_cache.on('new_pending', function(new_post) {
 
 
 module.exports = rsj_cache;
+
+*/

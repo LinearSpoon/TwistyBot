@@ -8,6 +8,8 @@ module.exports.params = {
 	min: 1,
 	max: 250,
 	help:
+`Please use the RS Justice website for your search.`
+	/*
 `Usage: !rsj <username>, <username>, ...
 
 Note:
@@ -17,12 +19,15 @@ If you see a blank message from this command, you may have embeds disabled. Enab
 Examples:
 !rsj i rep wih
 !rsj yente, tades, schlitz`
+*/
 };
 module.exports.permissions = [
 	{ user: '*' }
 ];
 
 module.exports.command = async function(message, params) {
+	return "Please refer to " + Discord.link("http://rsjustice.com/") + " for your search.";
+
 	params = params.filter( p => p.length < 15 );
 	if (params.length == 0)
 		return Discord.code_block('Username too long, try something shorter!'); // Don't waste time if the name is too long
