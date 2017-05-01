@@ -26,7 +26,8 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(message, params) {
-	return "Please refer to " + Discord.link("http://rsjustice.com/") + " for your search.";
+	return "Please use the " + Discord.link("http://rsjustice.com/") + " website for your search.\n\n"
+		+ 'http://i.imgur.com/EUbbBuh.png';
 
 	params = params.filter( p => p.length < 15 );
 	if (params.length == 0)

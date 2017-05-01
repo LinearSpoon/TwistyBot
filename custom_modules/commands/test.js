@@ -15,10 +15,8 @@ var Table = require('cli-table2');
 
 module.exports.command = async function(message, params) {
 
-	var results = await database.query(params.join(','));
 
-
-	return JSON.stringify(results);
+	return JSON.stringify(1);
 };
 
 
