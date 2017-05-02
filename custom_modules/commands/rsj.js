@@ -8,7 +8,7 @@ module.exports.params = {
 	min: 1,
 	max: 250,
 	help:
-`Please use the RS Justice website for your search.`
+`TwistyBot can no longer provide !rsj. Please use the RS Justice website for your search.`
 	/*
 `Usage: !rsj <username>, <username>, ...
 
@@ -26,8 +26,9 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(message, params) {
-	return "Please use the " + Discord.link("http://rsjustice.com/") + " website for your search.\n\n"
-		+ 'http://i.imgur.com/EUbbBuh.png';
+	return 'Zeal (Leader of RS Justice) has asked that TwistyBot no longer return cases from RS Justice.' +
+		'I am open to working with RS Justice again in the future to bring this command back, but for now please use the ' +
+		 Discord.link("http://rsjustice.com/") + ' website for your search.\n\nhttp://i.imgur.com/EUbbBuh.png';
 
 	params = params.filter( p => p.length < 15 );
 	if (params.length == 0)
