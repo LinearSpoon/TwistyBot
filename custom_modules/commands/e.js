@@ -40,7 +40,8 @@ module.exports.command = async function(message, params) {
 	var sandbox = sandboxes[message.author.id] || {};
 
 	try {
-		var ret = JSON.stringify(vm.runInNewContext(js_code, sandbox, { timeout: 100 }));
+		var answer = vm.runInNewContext(js_code, sandbox, { timeout: 100 });
+		var ret = Number.isNaN(answer) ? 'NaN' : JSON.stringify(answer);
 
 		if (typeof ret === 'string' && ret.length > 1960)
 			ret = ret.slice(0, 1980) + '...';
