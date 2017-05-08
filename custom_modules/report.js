@@ -1,13 +1,5 @@
 var get_clan_list = custom_require('report/sources/clan_list');
 
-if (config.get('auto_update_report'))
-{
-	// Set up to automatically run every four hours
-	var CronJob = require('cron').CronJob;
-	// sec min hours day month dayofwk
-	var job = new CronJob('00 0 */4 * * *', module.exports.update_sources, null, true);
-}
-
 module.exports.update_sources = async function() {
 	console.log('Begin report update...');
 	var report = {start_date: Date.now()};
@@ -71,7 +63,18 @@ async function check_player(report, member, history)
 	}
 
 	// Check rsjustice
-	var rsj_check = await apis.RSJustice.lookup(member.name);
-	if (rsj_check.length > 0)
-		report.sections.rsjustice.data.push(member.id + ': ' + member.name + ' ' + rsj_check[0].url);
+	// var rsj_check = await apis.RSJustice.lookup(member.name);
+	// if (rsj_check.length > 0)
+	// 	report.sections.rsjustice.data.push(member.id + ': ' + member.name + ' ' + rsj_check[0].url);
 };
+
+
+
+// Keep this below the update_sources definition
+if (config.get('auto_update_report'))
+{
+	// Set up to automatically run every four hours
+	var CronJob = require('cron').CronJob;
+	// sec min hours day month dayofwk
+	var job = new CronJob('00 0 */4 * * *', module.exports.update_sources, null, true);
+}

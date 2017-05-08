@@ -27,8 +27,9 @@ module.exports.permissions = [
 
 module.exports.command = async function(message, params) {
 	return 'Zeal (Leader of RS Justice) has asked that TwistyBot no longer return cases from RS Justice.' +
-		'I am open to working with RS Justice again in the future to bring this command back, but for now please use the ' +
-		 Discord.link("http://rsjustice.com/") + ' website for your search.\n\nhttp://i.imgur.com/EUbbBuh.png';
+		'\nZeal is now running a new bot dedicated to RS JUSTICE, it can be invited to your server using this link:\n' +
+		Discord.link('https://discordapp.com/oauth2/authorize?&client_id=309567778891759616&scope=bot&permissions=0');
+		//  Discord.link("http://rsjustice.com/") + ' website for your search.\n\nhttp://i.imgur.com/EUbbBuh.png';
 
 	params = params.filter( p => p.length < 15 );
 	if (params.length == 0)

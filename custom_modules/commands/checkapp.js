@@ -27,9 +27,9 @@ module.exports.command = async function(message, params) {
 	var cb_level = apis.RuneScape.combat_level(stats);
 
 	// Get RSJ
-	var rsj = await apis.RSJustice.find(params[0], ['publish', 'private', 'pending']);
-	if (rsj && rsj.length > 0)
-		return 'Player listed on RSJustice: ' + rsj[0].url;
+	var rw = await apis.RuneWatch.find(params[0], ['publish', 'private']);
+	if (rw && rw.length > 0)
+		return 'Player listed on RuneWatch: ' + rw[0].url;
 
 	// Find forum app
 	var profile = await apis.RuneScape.forum_profile(params[0], { priority: 1, success_delay: 5000 });
@@ -88,7 +88,8 @@ Accepted Applicant Form
 -----------------------------
 Username: ${ profile.name }
 Gear checked:
-Clean on RSJ: yes
+Clean on RuneWatch: yes
+Clean on RSJ: 
 Rank given:
 Combat: ${ Math.floor(cb_level) + (s_issues.length > 0 ? ' (Range tank)' : '') }
 Recruited by:
