@@ -53,12 +53,14 @@ module.exports.command = async function(message, params) {
 		return players[0].map( p => get_embed(p, message) );
 	}
 	// else, we are looking up a list of players
-	players = players.filter( e => e.length > 0 ); // Remove players not found
-	if (players.length == 0)
-		return 'No matching cases found!';
-
-	var response = players.map( e => e.map( f => e.searched_name + ': ' + Discord.link(f.url) ).join('\n') ).join('\n');
-	return response;
+	var response = '';
+	for(var i = 0; i < players.length; i++)
+	{
+		players[i].forEach(function(post) {
+			response += params[i] + ': ' + Discord.link(post.url) + '\n';
+		});
+	}
+	return response.length == 0 ? 'No matching cases found!' : response;
 };
 
 function get_embed(details, message)

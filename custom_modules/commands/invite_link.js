@@ -14,5 +14,5 @@ module.exports.permissions = [
 ];
 
 module.exports.command = async function(message, params) {
-	return Discord.link('https://discordapp.com/oauth2/authorize?&client_id=228019028755611648&scope=bot&permissions=0');
+	return Discord.link('https://discordapp.com/oauth2/authorize?client_id=228019028755611648&scope=bot&permissions=0');
 };
