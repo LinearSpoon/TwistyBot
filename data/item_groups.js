@@ -41,7 +41,7 @@ var raids = [
 	'Dragon sword',
 	'Dragon harpoon',
 	'Dragon hunter crossbow',
-	'Dragon thrownaxe',
+	// 'Dragon thrownaxe',
 	'Ancestral hat',
 	'Ancestral robe top',
 	'Ancestral robe bottom',
@@ -72,6 +72,21 @@ var gwd = [
 	'Armadyl crossbow',
 	'Saradomin sword',
 	//"Saradomin's light",
+];
+
+var dks = [
+	'Berserker ring',
+	'Warrior ring',
+	'Archers ring',
+	'Seers ring',
+	'Dragon axe',
+];
+
+var zulrah = [
+	'Tanzanite fang',
+	'Magic fang',
+	'Serpentine visage',
+	'Uncut onyx',
 ];
 
 module.exports = {
@@ -110,4 +125,21 @@ module.exports = {
 	'gwd': gwd,
 	'godwars': gwd,
 	'god wars': gwd,
+
+	'dks': dks,
+	'dagannoths': dks,
+	'dagganoths': dks,
+	'daganoths': dks,
+	'dag kings': dks,
+	'dagg kings': dks,
+	'dagganoth kings': dks,
+	'daganoth kings': dks,
+	'dagannoth kings': dks,
+	'daganoth king': dks,
+	'dagganoth king': dks,
+	'dagannoth king': dks,
+
+	'zulrah': zulrah,
+	'profit snek': zulrah,
+	'profit snake': zulrah
 };

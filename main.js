@@ -60,8 +60,6 @@ Discord.bot.on('message', function(message) {
 	var params = content.slice(match[0].length).trim();	// Extract params without command name
 	params = params == '' ? [] : params.split(',').map(e => e.trim());	// Split comma separated parameters
 
-
-
 	if (!message.check_permissions(config.get('global_permissions').concat(command.permissions)))
 	{
 		return; // Permission denied
@@ -128,7 +126,8 @@ process.on('unhandledRejection', function(err) {
 	console.error('Promise Rejected!!!');
 	console.warn(err.stack);
 
-	Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block('Unhandled promise!\n' + err.stack));
+	Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block('Unhandled promise!\n' + err.stack))
+		.catch(e => console.error('Error logging:', err)) ;
 	//throw err;
 });
 

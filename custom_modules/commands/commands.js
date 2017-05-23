@@ -10,7 +10,7 @@ module.exports.params = {
 	help: `Usage: !commands`
 };
 module.exports.command = async function(message, params) {
-	var response = '';
+	var response = 'View command specific help by using the command with no parameters!\n\n';
 
 	// Sort commands by category
 	var sorted = {};

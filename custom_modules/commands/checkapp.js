@@ -14,7 +14,7 @@ Examples:
 !check_app Vegakargdon`
 };
 module.exports.permissions = [
-	{ role: '164946108819177472', guild: '160833724886286336' }  // Council role in Deities guild
+	{ role: '160842785610661888', guild: '160833724886286336' }  // Council role in Deities guild
 ];
 
 
@@ -89,7 +89,7 @@ Accepted Applicant Form
 Username: ${ profile.name }
 Gear checked:
 Clean on RuneWatch: yes
-Clean on RSJ: 
+Clean on RSJ:
 Rank given:
 Combat: ${ Math.floor(cb_level) + (s_issues.length > 0 ? ' (Range tank)' : '') }
 Recruited by:

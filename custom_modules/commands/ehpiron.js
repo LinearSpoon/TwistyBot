@@ -1,13 +1,13 @@
 module.exports.help = {
-	name: 'ehp',
-	text: 'Check efficient training hours earned.',
+	name: 'ehpiron',
+	text: 'Check efficient training hours earned for ironmen.',
 	category: 'RuneScape'
 };
 module.exports.params = {
 	min: 1,
 	max: 1,
 	help:
-`Usage: !ehp <username>
+`Usage: !ehpiron <username>
 
 Note:
 This command implements the same time to max calculations as found on CyrstalMathLabs, but no longer gets the data from their site.
@@ -27,7 +27,7 @@ module.exports.command = async function(message, params) {
 	if (!stats)
 		return Discord.code_block('Player not found.');
 
-	var hours = apis.RuneScape.ehp.main.calculate(stats, 200000000);
+	var hours = apis.RuneScape.ehp.iron.calculate(stats, 200000000);
 
-	return Discord.code_block(util.format_number(apis.RuneScape.ehp.main.max.overall - hours.overall,2) + ' hours');
+	return Discord.code_block(util.format_number(apis.RuneScape.ehp.iron.max.overall - hours.overall,2) + ' hours');
 };
