@@ -180,8 +180,6 @@ function do_ttm_calculation(xp, target_xp, data) {
 				{
 					if (rate > 0)
 					{
-						console.log('current:', current_skill_xp, 'target:' + target, 'rate:', rate);
-						console.log('Add ' + ((target - current_skill_xp) / rate) + ' to ' + skill_name);
 						skill_times[skill_name] += (target - current_skill_xp) / rate;
 					}
 					current_skill_xp = target;

@@ -34,7 +34,7 @@ var corp = [
 var raids = [
 	'Twisted bow',
 	'Twisted buckler',
-	'Dextrous prayer scroll',
+	'Dexterous prayer scroll',
 	'Arcane prayer scroll',
 	//'Torn prayer scroll',
 	'Dragon claws',
