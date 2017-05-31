@@ -13,6 +13,7 @@ module.exports.permissions = [
 ];
 
 const changes = `Changelog:
+ * Added !price ancestral
  * Added !price dks and !price zulrah
  * Added !ttmiron and !ehpiron
 `;

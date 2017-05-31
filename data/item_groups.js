@@ -89,6 +89,12 @@ var zulrah = [
 	'Uncut onyx',
 ];
 
+var ancestral = [
+	'Ancestral hat',
+	'Ancestral robe top',
+	'Ancestral robe bottom',
+];
+
 module.exports = {
 	'arma': armadyl,
 	'armadyl': armadyl,
@@ -141,5 +147,10 @@ module.exports = {
 
 	'zulrah': zulrah,
 	'profit snek': zulrah,
-	'profit snake': zulrah
+	'profit snake': zulrah,
+
+	'ancestral': ancestral,
+	'ancestral robes': ancestral,
+	'ancester': ancestral,
+	'ancester robes': ancestral,
 };
