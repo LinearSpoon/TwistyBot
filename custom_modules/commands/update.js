@@ -25,7 +25,7 @@ module.exports.command = async function(message, params) {
 			return Discord.code_block('Player not on hiscores.');
 		// Player updated in the last 30 seconds is not a problem
 		if (e.code != 5)
-			throw e;
+			return Discord.code_block(e.message);
 	}
 	return Discord.code_block('Player successfully updated!')	+
 		Discord.link('https://crystalmathlabs.com/tracker/track.php?player=' + params[0].replace(/\s/g, '+'));

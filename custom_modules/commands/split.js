@@ -5,21 +5,25 @@ module.exports.help = {
 };
 module.exports.params = {
 	min: 2,
-	max: 2,
+	max: 99,
 	help:
 `Usage: !split <amount>, <num_players>
 
 Examples:
 !split 3000000, 2
 !split 40.2m, 3
-!split 26231k, 2`
+!split 26231k, 2
+!split 1,230,000,000, 4`
 };
 module.exports.permissions = [
 	{ user: '*' }
 ];
 
 module.exports.command = async function(message, params) {
-	var str_amount = params[0].toLowerCase();
+	// Extract and remove number of people from params array
+	var people = +params.pop();
+	// Params now is just the total value, possibly comma separated
+	var str_amount = params.join('').toLowerCase();
 	// Extract number without any extra stuff
 	var amount = +str_amount.replace(/[^0-9.]/g,'');
 	// Check for common suffixes
@@ -30,7 +34,7 @@ module.exports.command = async function(message, params) {
 	if (str_amount.indexOf('b') > -1)
 		amount *= 1000000000;
 
-	var split = amount / +params[1];
+	var split = amount / people;
 	// Make a pretty number
 	if (split > 100000000) // 100m
 		split = util.format_number(split / 1000000) + 'm'

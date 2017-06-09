@@ -4,7 +4,8 @@ async function cml_download(url)
 	var res = await util.queue_request(url, {
 		max_attempts: 6,
 		failure_delay: 6000,
-		success_delay: 2000
+		success_delay: 2000,
+		codes: [200, 500]
 	});
 	// Should check status here, but CML doesn't always return 200 when the request is OK
 	// statusCode 500 == CML error -4
