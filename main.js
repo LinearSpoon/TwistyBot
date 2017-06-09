@@ -30,7 +30,7 @@ function log_message(explanation, message)
 var commands = custom_require('commands');
 
 // Parse command and execute
-Discord.bot.on('message', function(message) {
+Discord.bot.on('message', async function(message) {
 	if (message.author.id == Discord.bot.user.id || message.channel.type == 'voice')
 		return; // Ignore own messages or messages in voice channels (is it possible?)
 
@@ -65,60 +65,72 @@ Discord.bot.on('message', function(message) {
 		return; // Permission denied
 	}
 
-	if (params.length < command.params.min || params.length > command.params.max)
-	{ // Invalid number of parameters, show parameter help text
-		return message.channel.sendMessage(Discord.code_block(command.params.help));
+	// We need to respond, but do we have permission?
+	var have_permission = true;
+	var output_channel = message.channel;
+
+	// Only check in guild text channels
+	if (message.channel.type == 'text')
+	{
+		have_permission = message.channel.permissionsFor(Discord.bot.user).has('SEND_MESSAGES');
+		// If we don't have permission, redirect to sender's DM
+		if (!have_permission)
+		{
+			output_channel = message.author.dmChannel || await message.author.createDM();
+		}
 	}
 
-	message.channel.startTyping();
-	// TODO: startTyping can reject?
 
-	var p = command.command.call(commands, message, params);
+	if (params.length < command.params.min || params.length > command.params.max)
+	{ // Invalid number of parameters, show parameter help text
+		return output_channel.sendMessage(Discord.code_block(command.params.help));
+	}
 
-	p.then( function(response) {
-		// Command finished with no errors
-		if (!response)
-		{
-			console.log('Command did not respond');
-			return; // Nothing to send
-		}
+	output_channel.startTyping();
 
-		// Convert to an array
-		if (!Array.isArray(response))
-			response = [ response ];
+	command.command.call(commands, message, params)
+		.then( function(response) {
+			// Command finished with no errors
+			if (!response)
+			{
+				console.log('Command did not respond');
+				return; // Nothing to send
+			}
 
-		return Promise.all(response.map( function(text, idx) {
-			return message.channel.sendmsg(text)
-				.catch( function(err) {
-					if (err.message == 'Forbidden')
-					{ // TwistyBot probably doesn't have permission to talk here, send it to user's PM
-						if (idx == 0)
-						{
-							var explanation = 'Hi, TwistyBot was unable to respond to your command in ' + message.channel.get_name() + '.\n'
-							+ 'If you want TwistyBot to respond in that channel, please ensure that it has permissions to send messages and embed links.'
-							+ '\n' + message.cleanContent + '\n';
-						}
+			// Convert to an array
+			if (!Array.isArray(response))
+				response = [ response ];
 
-						if (text instanceof Discord.RichEmbed)
-							return message.author.sendEmbed(text, explanation);
-						else
-							return message.author.sendmsg(explanation ? explanation + text : text);
-					}
-				});
-		}));
-	})
-	.catch( function(err) {
-		// Something terrible happened
-		console.warn(err.stack);
-		message.channel.sendMessage(Discord.code_block('An error occurred while running the command:\n' + err.message));
+			return Promise.all(response.map( function(text, idx) {
+				if (!have_permission && idx == 0)
+				{ // First message of a command from a channel where we don't have permission to reply
+					let explanation = 'Hi, TwistyBot was unable to respond to your command in ' + message.channel.get_name() + '.\n'
+					+ 'If you want TwistyBot to respond in that channel, please ensure that it has permissions to send messages and embed links.'
+					+ '\n' + message.cleanContent + '\n';
 
-		Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block(
-			'Channel: ' + message.channel.get_name()
-		 	+ '\nAuthor:  ' + message.author.username + '#' + message.author.discriminator
-		 	+ '\nMessage: ' + message.cleanContent
-			+ '\n' + err.stack));
-	})
-	.then( () => message.channel.stopTyping() );
+					if (text instanceof Discord.RichEmbed)
+						return output_channel.sendEmbed(text, explanation);
+					else
+						return output_channel.sendmsg(explanation ? explanation + text : text);
+				}
+				else
+				{
+					return output_channel.sendmsg(text);
+				}
+			}));
+		})
+		.catch( function(err) {
+			// Something terrible happened
+			console.warn(err.stack);
+			output_channel.sendMessage(Discord.code_block('An error occurred while running the command:\n' + err.message));
+
+			Discord.bot.get_text_channel('Twisty-Test.logs').sendMessage(Discord.code_block(
+				'Channel: ' + message.channel.get_name()
+			 	+ '\nAuthor:  ' + message.author.username + '#' + message.author.discriminator
+			 	+ '\nMessage: ' + message.cleanContent
+				+ '\n' + err.stack));
+		})
+		.then( () => output_channel.stopTyping() );
 });
 
 // Log unhandled promises
@@ -131,11 +143,5 @@ process.on('unhandledRejection', function(err) {
 	//throw err;
 });
 
-
-async function start_servers()
-{
-	return Discord.bot.login(config.get('token'));
-}
-
-// These functions must return a promise
-custom_require('singleinstance')(start_servers, () => Promise.resolve());
+// Login
+Discord.bot.login(config.get('token'));
