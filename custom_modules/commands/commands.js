@@ -10,7 +10,12 @@ module.exports.params = {
 	help: `Usage: !commands`
 };
 module.exports.command = async function(message, params) {
-	var response = 'View command specific help by using the command with no parameters!\n\n';
+	var response =
+`View command specific help by using the command with no parameters!
+Did you know you can also DM commands to TwistyBot?
+
+This command list has been generated based on your user, server, channel, and role:
+`;
 
 	// Sort commands by category
 	var sorted = {};

@@ -13,6 +13,10 @@ module.exports.permissions = [
 ];
 
 const changes = `Changelog:
+ * TwistyBot will more reliably respond as a DM if it didn't have permissions in the original channel.
+ * Some !update error messages are more clear
+ * !split now allows comma separators in the amount
+ * Updated !price with the new items from TzHaar/Inferno update
  * Added !price ancestral
  * Added !price dks and !price zulrah
  * Added !ttmiron and !ehpiron
