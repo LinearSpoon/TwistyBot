@@ -13,18 +13,28 @@ module.exports.permissions = [
 	{ user: '*' }
 ];
 
+function replace_links(text)
+{
+	return text.replace(/<a href="([^"]*)"[^>]*>([^<]*)<\/a>/g, function(match, p1, p2, offset, string) {
+		return Discord.masked_link(p2, p1);
+	});
+}
 
-const url = 'http://api.flickr.com/services/feeds/photos_public.gne?tags=sandwich&tagmode=any&format=json';
 module.exports.command = async function(message, params) {
-	var d = await util.queue_request(url, { max_attempts: 3, success_delay: 1000, failure_delay: 3000 });
-	// Flickr apparently has no clue what JSON is
-	var body = d.body
-		.replace(/^jsonFlickrFeed\(|\)$/g,'')  // remove jsonFlickrFeed( ) wrapper
-		.replace(/\\'/g, "'");  // remove escaped single quotes
-	d = JSON.parse(body);
-	var rnd = Math.floor(Math.random() * d.items.length);
-	var image_src = d.items[rnd].media.m.replace("_m", "_b");
+	let photo = await apis.Flickr.get_random_photo('sandwich');
+	let photo_url = apis.Flickr.get_photo_url(photo);
+	console.log(photo);
+	console.log(photo_url);
 	var e = new Discord.RichEmbed();
-	e.setImage(image_src);
+	e.setTitle(photo.title);
+	let description = replace_links(photo.description._content);
+	if (description.length > 2000)
+	{
+		description = description.slice(0,2000) + '…';
+	}
+	e.setDescription(description);
+	e.setImage(photo_url);
+	if (photo.tags)
+		e.addField('Tags:', photo.tags);
 	return e;
 };

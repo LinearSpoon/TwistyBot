@@ -13,6 +13,8 @@ module.exports.permissions = [
 ];
 
 const changes = `Changelog:
+ * New command: !pickone
+ * !sandwich may be more reliable
  * TwistyBot will more reliably respond as a DM if it didn't have permissions in the original channel.
  * Some !update error messages are more clear
  * !split now allows comma separators in the amount
