@@ -19,6 +19,5 @@ module.exports.permissions = [
 
 
 module.exports.command = async function(message, params) {
-	params = params.filter(p => p.length > 1);
 	return params[Math.floor(Math.random() * params.length)];
 };
