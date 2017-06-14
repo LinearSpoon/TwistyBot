@@ -12,7 +12,7 @@ module.exports.params = {
 	help: `Usage: !report`
 };
 module.exports.permissions = [
-	{ guild: '160833724886286336' } // Deities of PvM
+	{ role: '160842785610661888', guild: '160833724886286336' }  // Council role in Deities guild
 ];
 
 module.exports.command = async function(message, params) {

@@ -12,11 +12,17 @@ module.exports.permissions = [];
 
 var Table = require('cli-table2');
 
-
+var moment = require('moment-timezone');
 module.exports.command = async function(message, params) {
+	return Discord.bot.guilds.find('name', 'Deities of PvM').members
+		.array()
+		.sort( (a,b) => a.joinedTimestamp - b.joinedTimestamp )
+		.map(function(member) {
+			return member.nickname + '\t' + member.user.tag + '\t' + member.id + '\t' + moment(member.joinedAt).format('YYYY-MM-DD');
+		})
+		.join('\r\n');
 
 
-	return JSON.stringify(1);
 };
 
 

@@ -56,12 +56,16 @@ module.exports.command = async function(message, params) {
 		s_issues.push('Range level ' + stats.range.level + ' < 75');
 	if (stats.magic.level < 75)
 		s_issues.push('Magic level ' + stats.magic.level + ' < 75');
-	if (stats.attack.level < 75)
-		s_issues.push('Attack level ' + stats.attack.level + ' < 75');
-	if (cb_level < 110)
-		s_issues.push('Combat level ' + cb_level + ' < 110');
-	if (stats.overall.level < 1500)
-		s_issues.push('Total level ' + stats.overall.level + ' < 1500');
+	if (stats.attack.level < 90)
+		s_issues.push('Attack level ' + stats.attack.level + ' < 90');
+	if (stats.strength.level < 90)
+		s_issues.push('Strength level ' + stats.strength.level + ' < 90');
+	if (stats.herblore.level < 78)
+		s_issues.push('Herblore level ' + stats.herblore.level + ' < 78');
+	if (cb_level < 115)
+		s_issues.push('Combat level ' + cb_level + ' < 115');
+	if (stats.overall.level < 1750)
+		s_issues.push('Total level ' + stats.overall.level + ' < 1750');
 
 
 	var rt_issues = [];
@@ -73,8 +77,8 @@ module.exports.command = async function(message, params) {
 		rt_issues.push('Defence level ' + stats.defence.level + ' < 90');
 	if (cb_level < 105)
 		rt_issues.push('Combat level ' + cb_level + ' < 105');
-	if (stats.overall.level < 1500)
-		rt_issues.push('Total level ' + stats.overall.level + ' < 1500');
+	if (stats.overall.level < 1750)
+		rt_issues.push('Total level ' + stats.overall.level + ' < 1750');
 
 	if (s_issues.length > 0 && rt_issues.length > 0)
 	{
