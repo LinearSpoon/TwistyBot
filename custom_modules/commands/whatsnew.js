@@ -13,6 +13,7 @@ module.exports.permissions = [
 ];
 
 const changes = `Changelog:
+ * !ttm, !ttmiron, !ehp, !ehpiron updated to latest CML algorithm
  * New command: !pickone
  * !sandwich may be more reliable
  * TwistyBot will more reliably respond as a DM if it didn't have permissions in the original channel.
