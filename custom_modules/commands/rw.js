@@ -21,6 +21,7 @@ Examples:
 !rw yente, tades, schlitz`
 };
 module.exports.permissions = [
+	{ channel: '293451186848137237', block: true },
 	{ user: '*' }
 ];
 
