@@ -21,9 +21,12 @@ function replace_links(text)
 
 module.exports.command = async function(message, params) {
 	let photo = await apis.Flickr.get_random_photo(params[0] || 'sandwich');
+	if (!photo)
+		return Discord.code_block('No results found!');
+
 	let photo_url = apis.Flickr.get_photo_url(photo);
-	console.log(photo);
-	console.log(photo_url);
+	// console.log(photo);
+	// console.log(photo_url);
 	var e = new Discord.RichEmbed();
 	e.setTitle(photo.title);
 	let description = replace_links(photo.description._content);
