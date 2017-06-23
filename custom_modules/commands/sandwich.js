@@ -6,8 +6,7 @@ module.exports.help = {
 module.exports.params = {
 	min: 0,
 	max: 1,
-	// Reminder: there are no parameters so help text can't be shown
-	help: `Usage: !sandwich`
+	help: `Usage: !sandwich <searchterm>`
 };
 module.exports.permissions = [
 	{ user: '*' }
@@ -21,7 +20,7 @@ function replace_links(text)
 }
 
 module.exports.command = async function(message, params) {
-	let photo = await apis.Flickr.get_random_photo('sandwich');
+	let photo = await apis.Flickr.get_random_photo(params[0] || 'sandwich');
 	let photo_url = apis.Flickr.get_photo_url(photo);
 	console.log(photo);
 	console.log(photo_url);
