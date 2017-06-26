@@ -13,6 +13,7 @@ module.exports.permissions = [
 ];
 
 const changes = `Changelog:
+ * Updated !price with the new items from mining guild update
  * Add an optional parameter to !sandwich, which changes the search term
  * !ttm, !ttmiron, !ehp, !ehpiron updated to latest CML algorithm
  * New command: !pickone
