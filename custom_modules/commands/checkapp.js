@@ -37,7 +37,7 @@ module.exports.command = async function(message, params) {
 	for(var i = 0; i < profile.length; i++)
 	{
 		var post = profile[i];
-		if (post.thread.indexOf('Deities of PvM') > -1)
+		if (post.thread.includes('Deities of PvM') && post.thread.includes('v2'))
 		{ // Found a post in Deities thread
 			post_link = post.showuser_link;
 			break;
@@ -75,6 +75,8 @@ module.exports.command = async function(message, params) {
 		rt_issues.push('Range level ' + stats.range.level + ' < 95');
 	if (stats.defence.level < 90)
 		rt_issues.push('Defence level ' + stats.defence.level + ' < 90');
+	if (stats.herblore.level < 78)
+		rt_issues.push('Herblore level ' + stats.herblore.level + ' < 78');
 	if (cb_level < 105)
 		rt_issues.push('Combat level ' + cb_level + ' < 105');
 	if (stats.overall.level < 1750)
