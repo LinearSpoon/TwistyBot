@@ -145,3 +145,22 @@ process.on('unhandledRejection', function(err) {
 
 // Login
 Discord.bot.login(config.get('token'));
+
+
+Discord.bot.on('messageReactionAdd', function(reaction, user) {
+	console.log(reaction.emoji.name)
+
+});
+
+
+
+
+
+
+
+
+
+/*
+
+
+*/
