@@ -64,14 +64,14 @@ var gwd = [
 	'Bandos godsword',
 	'Bandos chestplate',
 	'Bandos tassets',
-	//'Bandos boots',
+	'Bandos boots',
 	'Zamorak godsword',
 	'Zamorakian spear',
 	'Staff of the dead',
 	'Saradomin godsword',
 	'Armadyl crossbow',
 	'Saradomin sword',
-	//"Saradomin's light",
+	"Saradomin's light",
 ];
 
 var dks = [

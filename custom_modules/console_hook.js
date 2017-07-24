@@ -88,6 +88,8 @@ function stringify(v)
 				return v.message;
 			if (v instanceof Date)
 				return v.toJSON();
+			if (v instanceof Buffer)
+				return 'Buffer';
 			if (v == null)
 				return 'null';
 			var r = JSONshort(v,[],[v],2);
@@ -117,6 +119,8 @@ function ts(v, cache, parents, depth)
 				return chalk.red('Error(', chalk.yellow("'" + v.message + "'"), ')');
 			if (v instanceof Date)
 				return chalk.red(v.toJSON());
+			if (v instanceof Buffer)
+				return chalk.red('Buffer');
 			if (v == null)
 				return chalk.red('null');
 

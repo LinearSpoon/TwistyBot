@@ -69,14 +69,14 @@ class Table
 		let header_format = this.header_format || Array(num_columns);
 		if (header_format.length != num_columns)
 			console.warn('header_format column amount mismatch');
-		let header = this.header_row.map( (value, index) => header_format[index] ? header_format[index](value) : value );
+		let header = this.header_row.map( (value, index) => header_format[index] ? header_format[index](value).toString() : value.toString() );
 
 		// Format data columns
 		let data_format = this.data_format || Array(num_columns);
 		if (data_format.length != num_columns)
 			console.warn('data_format column amount mismatch');
 		let data = this.data_row = this.data_rows.map( function(row) {
-			return row.map( (value, index) => data_format[index] ? data_format[index](value) : value );
+			return row.map( (value, index) => data_format[index] ? data_format[index](value).toString() : value.toString() );
 		});
 
 		// Determine widths of each column

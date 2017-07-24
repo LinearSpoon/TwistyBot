@@ -162,5 +162,79 @@ Discord.bot.on('messageReactionAdd', function(reaction, user) {
 
 /*
 
+	OnMessage =>
+		check if is command
+		load guild database data
+		check message permission
+		check parameters
+		add to stats
+		start typing
+		load command data
+		check channel permission (embed/send message)
+		format command output
+		send response
+		stop typing
+		cache if we care about reactions?
+
+	OnReaction =>
+
+	!! See https://discord.js.org/#/docs/main/stable/class/Message?scrollTo=createReactionCollector
+
+
+	command
+		.help -> info for !commands
+		.params -> info for parser
+		.load_data
+		.format_simple -> format for mobile
+		.format_simple_no_embed -> format for mobile with no embeds
+ 		.format_advanced -> format for desktop
+		.format_advanced_no_embed -> format for desktop with no embeds
+		.on_message_sent -> callback when message is sent
+		.on_reaction -> callback when a reaction is added to a command
+		.permissions
+
+		// Permissions:
+		check global rules
+		check command specific rules
+		check guild leader rules
+		else allow
+
+		Each rule can allow, block, or skip (if it does not match)
+		{ user: '217934790886686730', allow: true }
+		{ not_channel: '1212121212121212121', block: true }
+		// command specific rules...
+		// Allow guild leader:
+		{ leader: true, allow: true }
+		// leader set guild specific rules...
+		// Default allow:
+		{ user: '*', allow: true }
+
+		Guild rules?
+		{ guild: '12893129128121', .... }
+		user: allow/block
+		not_user: allow/block
+		role: allow/block
+		not_role: allow/block
+		channel: allow/block
+		not_channel: allow/block
+		!permission, allow, user, <user_id>
+		!permission, block, not_channel, <channel_id>
+		!permission, clear, role, <role_id>
+		!permission
+			=> all rules
+
+	// Database:
+		guilds
+			.command_prefix
+
+		permissions
+			.id
+			.guild_id
+			.rule <JSON>
+
+	// Stats
+		# messages received
+		# each command
+
 
 */
