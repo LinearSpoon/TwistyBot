@@ -64,14 +64,14 @@ var gwd = [
 	'Bandos godsword',
 	'Bandos chestplate',
 	'Bandos tassets',
-	//'Bandos boots',
+	'Bandos boots',
 	'Zamorak godsword',
 	'Zamorakian spear',
 	'Staff of the dead',
 	'Saradomin godsword',
 	'Armadyl crossbow',
 	'Saradomin sword',
-	//"Saradomin's light",
+	"Saradomin's light",
 ];
 
 var dks = [
@@ -94,6 +94,15 @@ var ancestral = [
 	'Ancestral robe top',
 	'Ancestral robe bottom',
 ];
+
+var barrows = [
+	"Verac's armour set",
+	"Dharok's armour set",
+	"Guthan's armour set",
+	"Karil's armour set",
+	"Ahrim's armour set",
+	"Torag's armour set",
+]
 
 module.exports = {
 	'arma': armadyl,
@@ -153,4 +162,6 @@ module.exports = {
 	'ancestral robes': ancestral,
 	'ancester': ancestral,
 	'ancester robes': ancestral,
+
+	'barrows': barrows
 };

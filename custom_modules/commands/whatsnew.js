@@ -13,6 +13,8 @@ module.exports.permissions = [
 ];
 
 const changes = `Changelog:
+ * Added !price barrows
+ * !price is much faster at loading prices of large item groups
  * Updated !price with the new items from mining guild update
  * Add an optional parameter to !sandwich, which changes the search term
  * !ttm, !ttmiron, !ehp, !ehpiron updated to latest CML algorithm

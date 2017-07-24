@@ -1,4 +1,5 @@
 var item_groups = root_require('data/item_groups');
+let Table = root_require('classes/Table');
 
 module.exports.help = {
 	name: 'price',
@@ -35,83 +36,98 @@ module.exports.command = async function(message, params) {
 			items.push(params[i]);
 	}
 
-	if (items.length == 1)
-	{ // Show full detail for single item checks
-		var result = await apis.RSBuddy.get_item_details(items[0]);
-		return full_detail(result);
-	}
+	// Get price data
+	let details = await apis.RSBuddy.get_details(...items);
+	console.log(details);
+	return items.length == 1 ? full_detail(details[0]) : multi_detail(details);
 
-	// Multiple items to check
-	var command_response = '', total_price = 0;
-	var inactive_note = false;
-	for(var i = 0; i < items.length; i++)
-	{
-		try
-		{
-			var result = await apis.RSBuddy.get_item_details(items[i]);
-			command_response += '\n' + short_detail(result);
-			if (result.found)
-				total_price += result.details.overallPrice;
-			if (result.inactive)
-				inactive_note = true;
-		}
-		catch(err)
-		{
-			command_response += '\nError: ' + err.message;
-		}
-	}
 
-	return 'Showing details for an item set.' +
-		(inactive_note ? '\nNote: Items marked with * are currently inactive.\n' : '\n') +
-		Discord.code_block(command_response +
-		util.printf('\n\n%-28s %13s GP', 'Total price:', util.format_number(total_price)));
+	// // Multiple items to check
+
 };
 
-function full_detail(result)
+// .name
+// .searched_name
+// .id
+// .inactive
+// .very_inactive
+// .last_updated
+// .suggestions
+// .overall_price
+// .buy_price
+// .sell_price
+// .amount_bought
+// .amount_sold
+function full_detail(item)
 {
-	if (!result.valid)
+	if (!item.id)
 	{
-		var guesses = result.similar_items.map(el => util.printf('%-32s %3d', el.name, el.score));
+		console.log(item.suggestions);
+		let guesses = item.suggestions.map(el => util.printf('%-32s %3d', el.name, el.score));
 		return 'Item not found! Are you looking for one of these?\n' +
 			Discord.code_block('Item                           Score\n' + guesses.join('\n'));
 	}
 
-	var command_response = 'Showing details for ' + result.name + ':\n';
+	let command_response = 'Showing item for ' + item.name + ':\n';
 
-	if (!result.found)
+	if (item.very_inactive)
 	{ // Item is valid but price not found
 		return command_response + 'This item was last updated over 1 week ago.'
-			+ Discord.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + result.id;
+			+ Discord.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + item.id;
 	}
 
-	if (result.inactive)
+	if (item.inactive)
 	{	// Add a little warning
 		command_response +=
 			Discord.bold('Warning') + ': This item is currently inactive. Here are the latest prices from ' +
-			util.approximate_time(Date.now(), result.time) + ' ago:\n';
+			util.approximate_time(Date.now(), item.last_updated) + ' ago:\n';
 	}
 
-	var details = result.details;
-	var price_data =
-		util.printf('%-16s %13s GP\n', 'Overall Price:', util.format_number(details.overallPrice || 0)) +
-		util.printf('%-16s %13s GP\n', 'Buying Price:', util.format_number(details.buyingPrice || 0)) +
-		util.printf('%-16s %13s\n', 'Amount Bought:', util.format_number(details.buyingCompleted || 0)) +
-		util.printf('%-16s %13s GP\n', 'Selling Price:', util.format_number(details.sellingPrice || 0)) +
-		util.printf('%-16s %13s\n', 'Amount Sold:', util.format_number(details.sellingCompleted || 0));
+	let price_data =
+		util.printf('%-16s %13s GP\n', 'Overall Price:', util.format_number(item.overall_price)) +
+		util.printf('%-16s %13s GP\n', 'Buying Price:', util.format_number(item.buy_price)) +
+		util.printf('%-16s %13s\n', 'Amount Bought:', util.format_number(item.amount_bought)) +
+		util.printf('%-16s %13s GP\n', 'Selling Price:', util.format_number(item.sell_price)) +
+		util.printf('%-16s %13s\n', 'Amount Sold:', util.format_number(item.amount_sold));
 
 	return command_response
 		+ Discord.code_block(price_data)
-		+ Discord.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + result.id;
+		+ Discord.underline('Graph:') + ' https://rsbuddy.com/exchange?id=' + item.id;
 }
 
-function short_detail(result)
+function multi_detail(details)
 {
-	if (!result.valid)
-		return 'Item name is invalid: ' + result.name;
-	if (!result.found)
-		return 'Price data not found: ' + result.name;
-	var name = result.name;
-	if (result.inactive)
-		name = '*' + name;
-	return util.printf('%-28s %13s GP', name, util.format_number(result.details.overallPrice || 0));
+	let table = new Table();
+	table.set_align('cc', 'lr');
+	table.header_row = [ 'Item', 'Price' ];
+	table.borders = false;
+	let total_price = 0;
+	let outdated = false;
+	for(let item of details)
+	{
+		if (!item.id)
+		{
+			item.name = 'Invalid: ' + item.searched_name;
+		}
+		if (item.inactive)
+		{
+			item.name = '*' + item.name;
+			outdated = true;
+		}
+		table.data_rows.push([
+			item.name,
+			item.overall_price ? util.format_number(item.overall_price) : '-'
+		]);
+
+		total_price += item.overall_price || 0;
+	}
+
+	table.data_rows.push(['',''], [
+		'Total price:',
+		util.format_number(total_price)
+	]);
+
+	return 'Showing details for an item set.' +
+		(outdated ? '\nNote: Items marked with * are currently inactive.\n' : '\n') +
+	 	Discord.code_block(table.to_string());
 }
