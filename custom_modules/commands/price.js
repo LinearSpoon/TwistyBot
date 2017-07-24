@@ -116,7 +116,7 @@ function multi_detail(details)
 		}
 		table.data_rows.push([
 			item.name,
-			item.overall_price ? util.format_number(item.overall_price) + ' GP' : '-'
+			item.overall_price ? util.format_number(item.overall_price) : '-'
 		]);
 
 		total_price += item.overall_price || 0;
@@ -124,7 +124,7 @@ function multi_detail(details)
 
 	table.data_rows.push(['',''], [
 		'Total price:',
-		util.format_number(total_price) + ' GP'
+		util.format_number(total_price)
 	]);
 
 	return 'Showing details for an item set.' +

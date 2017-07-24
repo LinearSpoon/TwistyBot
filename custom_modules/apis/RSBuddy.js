@@ -66,6 +66,8 @@ class RSBuddy
 		let search_result = fuzzy_match(name, this.name_cache.map(el => el.name)).slice(0, 10);
 		return search_result.map( (result) => {
 			let name = result.name;
+
+			// TODO: This isn't finding the original id, but rather the id of the first matching item name
 			let match = this.name_cache.find( e => e.name == name );
 			return {
 				id: match.id,

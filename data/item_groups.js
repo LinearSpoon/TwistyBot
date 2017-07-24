@@ -95,6 +95,15 @@ var ancestral = [
 	'Ancestral robe bottom',
 ];
 
+var barrows = [
+	"Verac's armour set",
+	"Dharok's armour set",
+	"Guthan's armour set",
+	"Karil's armour set",
+	"Ahrim's armour set",
+	"Torag's armour set",
+]
+
 module.exports = {
 	'arma': armadyl,
 	'armadyl': armadyl,
@@ -153,4 +162,6 @@ module.exports = {
 	'ancestral robes': ancestral,
 	'ancester': ancestral,
 	'ancester robes': ancestral,
+
+	'barrows': barrows
 };
