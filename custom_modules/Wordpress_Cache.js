@@ -20,7 +20,7 @@ class Wordpress_Cache extends EventEmitter
 				// Save posts into cache
 				posts.forEach(p => this.posts[p.id] = p);
 				// Continue to update cache every 5 minutes
-				setInterval(this.check_posts.bind(this), 300000);
+				setInterval(this.check_posts.bind(this), 10000);
 			});
 	}
 
@@ -71,6 +71,11 @@ class Wordpress_Cache extends EventEmitter
 		}
 	}
 
+	emit()
+	{
+		console.log('my emit');
+	}
+
 	async check_posts()
 	{
 		var posts = await this.download_posts(1);
@@ -80,13 +85,15 @@ class Wordpress_Cache extends EventEmitter
 			// Save new post
 			this.posts[post.id] = post;
 
+			// Note: Do not use super.emit here, at least until node is updated
+			// https://github.com/nodejs/node/issues/14516
 			if (old_post)
 			{
-				super.emit('modify_' + post.status, post, old_post); // revision
+				this.emit('modify_' + post.status, post, old_post); // revision
 			}
 			else
 			{
-				super.emit('new_' + post.status, post); // new post
+				this.emit('new_' + post.status, post); // new post
 			}
 		});
 	}
