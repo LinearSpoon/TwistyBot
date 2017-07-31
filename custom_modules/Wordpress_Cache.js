@@ -71,11 +71,6 @@ class Wordpress_Cache extends EventEmitter
 		}
 	}
 
-	emit()
-	{
-		console.log('my emit');
-	}
-
 	async check_posts()
 	{
 		var posts = await this.download_posts(1);
@@ -89,10 +84,12 @@ class Wordpress_Cache extends EventEmitter
 			// https://github.com/nodejs/node/issues/14516
 			if (old_post)
 			{
+				//console.log('modify', post);
 				this.emit('modify_' + post.status, post, old_post); // revision
 			}
 			else
 			{
+				//console.log('new', post);
 				this.emit('new_' + post.status, post); // new post
 			}
 		});
