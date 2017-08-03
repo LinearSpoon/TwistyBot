@@ -37,7 +37,8 @@ module.exports.command = async function(message, params) {
 	var js_code = params.join(',');
 
 	// Make a context for this author if they don't have one
-	var sandbox = sandboxes[message.author.id] || {};
+	// Object.create(null) is a workaround for vm breakout with this.__proto__.constructor.constructor("return process")();
+	var sandbox = sandboxes[message.author.id] || Object.create(null);
 
 	try {
 		var answer = vm.runInNewContext(js_code, sandbox, { timeout: 100 });
