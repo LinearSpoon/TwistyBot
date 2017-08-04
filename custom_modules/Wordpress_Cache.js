@@ -20,7 +20,7 @@ class Wordpress_Cache extends EventEmitter
 				// Save posts into cache
 				posts.forEach(p => this.posts[p.id] = p);
 				// Continue to update cache every 5 minutes
-				setInterval(this.check_posts.bind(this), 10000);
+				setInterval(this.check_posts.bind(this), 300000);
 			});
 	}
 
