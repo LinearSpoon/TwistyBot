@@ -4,6 +4,7 @@
   "description": "stop bothering me about descriptions",
   "main": "main.js",
   "dependencies": {
+    "canvas": "^1.6.6",
     "chalk": "^1.1.3",
     "cheerio": "^0.22.0",
     "cli-table2": "https://github.com/LinearSpoon/cli-table2/archive/master.tar.gz",
