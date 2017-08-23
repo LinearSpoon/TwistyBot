@@ -1,3 +1,12 @@
+/***************************************************************
+ *                       Globals
+ ***************************************************************/
+ // Log unhandled promises
+process.on('unhandledRejection', function(err) {
+	console.error('Promise Rejected!!!');
+	console.warn(err.stack);
+});
+
 global.server_directory = __dirname;
 global.root_require = name => require(global.server_directory + '/' + name);
 global.src_require = name => require(global.server_directory + '/src/' + name);
@@ -12,18 +21,22 @@ global.config = Object.assign(
 );
 
 global.managers = src_require('managers');
+global.Discord = src_require('discordjs');
 
-src_require('discordjs');
-
-Discord.bot.on('ready', function() {
+/***************************************************************
+ *                       Bot events
+ ***************************************************************/
+Discord.bot.on('ready', async function() {
 	console.log('[Ready]');
+
+	let sd = await managers.savedata.Discord.load_guild({ id: '232274245848137728' });
+	sd.cmd_prefix = '!';
+	await managers.savedata.Discord.save_guild(sd);
 });
 
 Discord.bot.on('disconnect', function(event) {
 	console.warn('[Disconnect]', event.code, event.reason);
 });
-
-
 
 function pretty_message(message)
 {
@@ -45,5 +58,3 @@ Discord.bot.on('message', function(message) {
 });
 
 Discord.bot.login(config.get('token'));
-
-console.log(managers)

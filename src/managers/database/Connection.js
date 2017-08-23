@@ -18,8 +18,9 @@ class Connection
 	// Allocate a connection from the pool and save in this.connection
 	get_connection()
 	{
+		let self = this;
 		return new Promise( (resolve, reject) => {
-			this.pool.getConnection(function(err, connection) {
+			self.pool.getConnection(function(err, connection) {
 				if (err)
 				{
 					console.error(err.message);
@@ -27,8 +28,8 @@ class Connection
 				}
 
 				console.log('Connection allocated');
-				this.connection = connection;
-				return resolve();
+				self.connection = connection;
+				return resolve(connection);
 			});
 		});
 	}
@@ -37,10 +38,10 @@ class Connection
 	// Runs sql code on the database
 	run_sql(sql, ...params)
 	{
+		let self = this;
 		let timebegin = process.hrtime();
 		return new Promise( (resolve, reject) => {
-			let cid = this.connection.threadId;
-			let query = this.connection.query(sql.replace(/\n\s*/g,'\n'), params, function(err, results) {
+			let query = self.connection.query(sql.replace(/\n\s*/g,'\n'), params, function(err, results) {
 				// Calculate execution time
 				let timediff = process.hrtime(timebegin);
 				let querytime = (timediff[0] * 1000 + timediff[1] / 1000000).toFixed(2);
@@ -48,7 +49,7 @@ class Connection
 				if (err)
 				{
 					// Also see err.code, err.errno
-					console.warn(`[${cid}][${querytime} ms] ` + query.sql + ' threw error ' + err.sqlState + '. ' + err.message);
+					console.warn(`[${self.connection.threadId}][${querytime} ms] ` + query.sql + ' threw error ' + err.sqlState + '. ' + err.message);
 					return reject(err);
 				}
 				else
@@ -56,7 +57,7 @@ class Connection
 					// Trim long output
 					if (query.sql.length > 1500)
 						query.sql = query.sql.substr(0, 1499);
-					console.info(`[${cid}][${querytime} ms] ` + query.sql);
+					console.info(`[${self.connection.threadId}][${querytime} ms] ` + query.sql);
 					return resolve(results);
 				}
 			});
@@ -67,7 +68,7 @@ class Connection
 	async query(...params)
 	{
 		if (!this.connection)
-			this.connection = await this.get_connection();
+			await this.get_connection();
 
 		// Run pending queries first...
 		await this.flush();
@@ -95,7 +96,7 @@ class Connection
 			return; // Nothing to do
 
 		if (!this.connection)
-			this.connection = await this.get_connection();
+			await this.get_connection();
 
 		// Send queries and empty the buffer
 		await this.run_sql(this.sql_buffer.join('\n'));
@@ -198,6 +199,7 @@ class Connection
 			}
 
 			this.connection.release();
+			console.log('Connection released');
 			// Reset variables
 			delete this.connection;
 			this.transaction = false;

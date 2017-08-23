@@ -29,7 +29,7 @@ console.info = function(...args) {
 	let caller = get_caller();
 	let message = args.map(to_string).join(' ');
 
-	console.old( chalk.blue(caller.file + ':'), message);
+	console.old( chalk.blue(caller.file + ':'), chalk.gray(message));
 	logfile.write(caller.file + ':' + caller.line + ': ' + strip_escapes(message) + '\n');
 };
 
@@ -37,7 +37,7 @@ console.warn = function(...args) {
 	let caller = get_caller();
 	let message = args.map(to_string).join(' ');
 
-	console.old( chalk.blue(caller.file + ':'), message);
+	console.old( chalk.blue(caller.file + ':'), chalk.yellow(message));
 	logfile.write(caller.file + ':' + caller.line + ': ' + strip_escapes(message) + '\n');
 };
 
@@ -45,7 +45,7 @@ console.error = function(...args) {
 	let caller = get_caller();
 	let message = args.map(to_string).join(' ');
 
-	console.old( chalk.blue(caller.file + ':'), message);
+	console.old( chalk.blue(caller.file + ':'), chalk.red(message));
 	logfile.write(caller.file + ':' + caller.line + ': ' + strip_escapes(message) + '\n');
 };
 
@@ -53,7 +53,7 @@ console.success = function(...args) {
 	let caller = get_caller();
 	let message = args.map(to_string).join(' ');
 
-	console.old( chalk.blue(caller.file + ':'), message);
+	console.old( chalk.blue(caller.file + ':'), chalk.green(message));
 	logfile.write(caller.file + ':' + caller.line + ': ' + strip_escapes(message) + '\n');
 };
 
@@ -247,12 +247,14 @@ function get_caller()
 		Error.prepareStackTrace = get_caller.hook;
 		let currentfile = err.stack.shift().getFileName();
 		Error.prepareStackTrace = get_caller.original;
+
+
 		while (err.stack.length) {
 			let caller = err.stack.shift();
 			let file = caller.getFileName();
-
+			// See also: caller.getFunction, caller.isNative, caller.isEval
 			if(currentfile !== file)
-				return { file: path.basename(file), line: caller.getLineNumber() };
+				return { file: file ? path.basename(file) : '[internal]', line: caller.getLineNumber() };
 		}
 	} catch (err) {
 		Error.prepareStackTrace = get_caller.original;

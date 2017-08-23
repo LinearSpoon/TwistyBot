@@ -1,4 +1,4 @@
-global.Discord = require('discord.js');
+let Discord = require('discord.js');
 
 // Extend discord.js with custom functions
 Discord.Channel.prototype.get_friendly_name = require('./Channel/get_friendly_name');
@@ -23,3 +23,5 @@ Discord.masked_link            = function(text, link) { return '[' + text + ']('
 
 // Make the client instance
 Discord.bot = new Discord.Client();
+
+module.exports = Discord;
