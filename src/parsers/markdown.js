@@ -1,4 +1,4 @@
-// Parses Discord markdown
+// Parses Discord flavor markdown
 
 // Regexes taken from Discord 8/17/2017
 // bold						/^\*\*([\s\S]+?)\*\*(?!\*)/
@@ -20,9 +20,31 @@
 //									match[2] => innertext
 // text						/^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|$)/ (modified)
 //									match[0] => innertext
-// TODO: Parse mentions, emojis, channels, etc
 
+// Test cases:
+// *\*test**						bold(\)test**
+// **~~test**~~					bold(~~test)~~
+// ~~**test~~**					strike(**test)**
+// __**test__**					under(**test)**
+// **__test**__					bold(__test)__
+// ~~__test~~__					~~under(test~~)
+// ~~**t*es*t~~**				strike(*italics(t)est*t)**
+// __~~test__~~					under(~~test)~~
+// `~~test`~~						code(~~test)~~
+// ~~`test~~`						strike(`test)`
+// ***									***
+// *****								bold(*)
+// ******								italic(italic(**))
+// **a****							bold(a**)
+// ****a**							italics(**)a**
+// *********						bold(bold(*))
+
+
+// TODO: Parse mentions, emojis, channels, etc
 // Note: Order of styles array matters in ambiguous cases, eg: '******'
+// Actual order from Discord seems to be:
+// 	"codeBlock", "newline", "paragraph", "escape", "autolink", "url", "link", "em", "strong", "s", "u"
+// 	"inlineCode", "br", "channel", "customEmoji", "emoji", "emoticon", "highlight", "mention", "roleMention", "text"
 let styles = [
 	// code block
 	function(content) {
