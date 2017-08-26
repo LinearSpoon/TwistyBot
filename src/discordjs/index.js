@@ -2,7 +2,7 @@ let Discord = require('discord.js');
 
 // Extend discord.js with custom functions
 Discord.Channel.prototype.get_friendly_name = require('./Channel/get_friendly_name');
-
+Discord.Message.prototype.check_permission = require('./Message/check_permission');
 
 // Discord markdown functions
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-

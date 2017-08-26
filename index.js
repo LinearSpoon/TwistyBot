@@ -96,7 +96,7 @@ function send_responses(responses, options)
 			return split_messages.push(message); // The message is already short enough
 
 		// We need to split the content into multiple messages
-		
+
 
 	});
 
@@ -144,12 +144,27 @@ Discord.bot.on('message', async function(message) {
 	if (!cmd)
 		return; // Not a real command
 
-	// TODO: Check permission
+	let allowed = message.check_permission(
+		// Global rules
+		config.get('global_permissions'),
+		// Command specific rules
+		cmd.permissions
+		// TODO: Guild leader rules
+
+		// Default allow
+	);
+
+	if (!allowed)
+	{
+		console.log('Command blocked');
+		return;
+	}
 
 	// Determine where the reply will be sent and what features we can use in the response
 	let options = {
 		message: message,
 		channel: message.channel,
+		prefix: prefix,
 		text: true,
 		embeds: true,
 		files: true,
@@ -209,7 +224,7 @@ Discord.bot.on('message', async function(message) {
 
 	try
 	{
-		let response = await cmd.run(message, params, options);
+		let response = await cmd.run(params, options);
 
 		// Convert response to format for send
 		// Append redirected message

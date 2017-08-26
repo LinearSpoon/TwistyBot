@@ -13,6 +13,6 @@ module.exports.permissions = [
 
 
 let mp = src_require('parsers/markdown');
-module.exports.run = async function(message, params, options) {
+module.exports.run = async function(params, options) {
 	return Discord.json(mp(params[0]));
 };

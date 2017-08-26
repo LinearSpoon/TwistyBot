@@ -154,6 +154,9 @@ function parse_markdown(content)
 		}
 	}
 
+	if (content.length > 0)
+		console.warn('Unable to parse:', content);
+
 	return result;
 }
 

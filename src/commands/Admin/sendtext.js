@@ -11,6 +11,6 @@ module.exports.permissions = [
 	{ user: '*', block: true }
 ];
 
-module.exports.run = async function(message, params, options) {
+module.exports.run = async function(params, options) {
 	return params[0] || 'Test';
 };
