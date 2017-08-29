@@ -1,6 +1,7 @@
 module.exports.help = {
-	description: `Send a plain text message.`,
-	usage: `Usage: !testmarkdown`
+	description: 'Test markdown parser.',
+	parameters: '<text>',
+	details: 'Returns a JSON representation of the parsed text.'
 };
 
 module.exports.params = {

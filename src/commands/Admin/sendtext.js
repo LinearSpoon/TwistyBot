@@ -1,6 +1,7 @@
 module.exports.help = {
-	description: `Send a plain text message.`,
-	usage: `Usage: !sendtext`
+	description: 'Send a plain text message.',
+	parameters: '<text>',
+	details: ''
 };
 
 module.exports.params = {

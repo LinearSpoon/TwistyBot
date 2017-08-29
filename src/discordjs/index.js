@@ -1,6 +1,7 @@
 let Discord = require('discord.js');
 
 // Extend discord.js with custom functions
+Discord.split_message = require('./split_message');
 Discord.Channel.prototype.get_friendly_name = require('./Channel/get_friendly_name');
 Discord.Message.prototype.check_permission = require('./Message/check_permission');
 

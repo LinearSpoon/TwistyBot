@@ -1,25 +1,5 @@
 // Parses Discord flavor markdown
-
 // Regexes taken from Discord 8/17/2017
-// bold						/^\*\*([\s\S]+?)\*\*(?!\*)/
-//									match[1] => innertext
-// italics				/^\b_((?:__|\\[\s\S]|[^\\_])+?)_\b|^\*(?=\S)((?:\*\*|\s+(?:[^\*\s]|\*\*)|[^\s\*])+?)\*(?!\*)/
-//									match[1] => innertext if _ is used
-//									match[2] => innertext if * is used
-// underline			/^__([\s\S]+?)__(?!_)/
-//									match[1] => innertext
-// strike					/^~~([\s\S]+?)~~(?!_)/
-//									match[1] => innertext
-// escape					/^\\([^0-9A-Za-z\s])/
-//									match[1] => innertext
-// code block			/^```(([A-z0-9\-]+?)\n+)?\n*([^]+?)\n*```/
-//									match[2] => language
-//									match[3] => innertext
-// inline code		/^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/
-//									match[1] => opening ` marks
-//									match[2] => innertext
-// text						/^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|$)/ (modified)
-//									match[0] => innertext
 
 // Test cases:
 // *\*test**						bold(\)test**
@@ -39,7 +19,6 @@
 // ****a**							italics(**)a**
 // *********						bold(bold(*))
 
-
 // TODO: Parse mentions, emojis, channels, etc
 // Note: Order of styles array matters in ambiguous cases, eg: '******'
 // Actual order from Discord seems to be:
@@ -50,7 +29,16 @@ let styles = [
 	function(content) {
 		let match = /^```(([A-z0-9\-]+?)\n+)?\n*([^]+?)\n*```/.exec(content);
 		if (match)
-			return { tag: '```', language: match[2], content: match[0], children: [{ content: match[3] }] };
+		{
+			// match[2] => language
+			// match[3] => innertext
+			return {
+				opentag: '```' + (match[2] || '') + '\n',
+				closetag: '```',
+				content: match[0],
+				children: [{ content: match[3] }]
+			};
+		}
 	},
 
 	// escape
@@ -64,57 +52,103 @@ let styles = [
 	function(content) {
 		let match = /^\b_((?:__|\\[\s\S]|[^\\_])+?)_\b|^\*(?=\S)((?:\*\*|\s+(?:[^\*\s]|\*\*)|[^\s\*])+?)\*(?!\*)/.exec(content);
 		if (match)
-			return { tag: match[1] ? '_' : '*', content: match[0], children: parse_markdown(match[1] || match[2]) };
+		{
+			// match[1] => innertext if _ is used
+			// match[2] => innertext if * is used
+			let tag = match[1] ? '_' : '*';
+			return {
+				opentag: tag,
+				closetag: tag,
+				content: match[0],
+				children: parse_markdown(match[1] || match[2])
+			};
+		}
 	},
 
 	// bold
 	function(content) {
 		let match = /^\*\*([\s\S]+?)\*\*(?!\*)/.exec(content);
 		if (match)
-			return { tag: '**', content: match[0], children: parse_markdown(match[1]) };
+		{
+			// match[1] => innertext
+			return {
+				opentag: '**',
+				closetag: '**',
+				content: match[0],
+				children: parse_markdown(match[1])
+			};
+		}
 	},
 
 	// strike
 	function(content) {
 		let match = /^~~([\s\S]+?)~~(?!_)/.exec(content);
 		if (match)
-			return { tag: '__', content: match[0], children: parse_markdown(match[1]) };
+		{
+			// match[1] => innertext
+			return {
+				opentag: '~~',
+				closetag: '~~',
+				content: match[0],
+				children: parse_markdown(match[1])
+			};
+		}
 	},
 
 	// underline
 	function(content) {
 		let match = /^__([\s\S]+?)__(?!_)/.exec(content);
 		if (match)
-			return { tag: '__', content: match[0], children: parse_markdown(match[1]) };
+		{
+			// match[1] => innertext
+			return {
+				opentag: '__',
+				closetag: '__',
+				content: match[0],
+				children: parse_markdown(match[1])
+			};
+		}
 	},
 
 	// inline code
 	function(content) {
 		let match = /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/.exec(content);
 		if (match)
-			return { tag: match[1], content: match[0], children: [{ content: match[2] }] };
+		{
+			// match[1] => tag
+			// match[2] => innertext
+			return {
+				opentag: match[1],
+				closetag: match[1],
+				content: match[0],
+				children: [{ content: match[2] }]
+			};
+		}
 	},
 
 	// text
 	function(content) {
-		let match = /^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|$)/.exec(content);
+		// let match = /^[\s\S]+?(?=[^0-9A-Za-z\s\u00c0-\uffff]|$)/.exec(content);
+		let match = /^[\s\S]+?(?=[`~*_]|$)/.exec(content);
 		if (match)
 			return { content: match[0] };
 	}
 ];
 
-// Returns an array of { content, tag, children } objects (children is recursive)
+// Returns an array of { content, opentag, closetag, children } objects (children is recursive)
 // Example: "foo __**test**__ bar"
 // [
 //   {
 //     "content": "foo "
 //   },
 //   {
-//     "tag": "__",
+//     "opentag": "__",
+//     "closetag": "__",
 //     "content": "__**test**__",
 //     "children": [
 //       {
-//         "tag": "**",
+//         "opentag": "**",
+//         "closetag": "**",
 //         "content": "**test**",
 //         "children": [
 //           {
