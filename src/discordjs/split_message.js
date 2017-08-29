@@ -38,11 +38,10 @@ function split_message(message)
 
 	function split(node)
 	{
-		console.log('node: ', node);
+		//console.log('node: ', node);
 		if (current.content.length + node.content.length < MSG_SOFT_LIMIT)
 		{
 			// It fits in the current message, just add it without trying to recurse into children
-			console.log('just append');
 			append(node.content);
 		}
 		else
@@ -55,7 +54,6 @@ function split_message(message)
 				parents.push(node);
 
 				// Recurse into children
-				console.log('recurse');
 				node.children.forEach(split);
 
 				// Close self tag
@@ -68,31 +66,43 @@ function split_message(message)
 				// There are no children to split by
 				// Try to split the content by newlines
 				// If that fails, just push as much as possible into the current message and break it
-				console.log('split by newline', node.content.split('\n'));
 				node.content.split('\n').forEach(function(text, idx, arr) {
-					if (text.length < MSG_SOFT_LIMIT)
+					if (current.content.length + text.length < MSG_SOFT_LIMIT)
 					{
-						console.log('newline insert');
-						// If the text doesn't fit in the current message, break the message here
-						if (current.content.length + text.length > MSG_SOFT_LIMIT)
-							break_message();
+						// The text already fits
 						append(text);
 					}
 					else
 					{
-						console.log('newline split');
-						// The text won't fit in any message, just break it anywhere we can
-						let pos = 0;
-						while(pos < text.length)
-						{
-							// Determine how many characters can be inserted into the current message
-							let chars_remaining = MSG_SOFT_LIMIT - current.content.length;
-							// Insert a substring of the length decided and start a new message
-							append(text.substr(pos, chars_remaining));
-							break_message();
-							// Start the next substring at the end of the substring we just inserted
-							pos += chars_remaining;
-						}
+						// The text doesn't fit, split it again by spaces
+						text.split(' ').forEach(function(text, idx, arr) {
+							if (text.length < MSG_SOFT_LIMIT)
+							{
+								// If the text doesn't fit in the current message, break the message here
+								if (current.content.length + text.length > MSG_SOFT_LIMIT)
+									break_message();
+								append(text);
+							}
+							else
+							{
+								// The text won't fit in any message, just break it anywhere we can
+								let pos = 0;
+								while(pos < text.length)
+								{
+									// Determine how many characters can be inserted into the current message
+									let chars_remaining = MSG_SOFT_LIMIT - current.content.length;
+									// Insert a substring of the length decided and start a new message
+									append(text.substr(pos, chars_remaining));
+									break_message();
+									// Start the next substring at the end of the substring we just inserted
+									pos += chars_remaining;
+								}
+							}
+
+							// Add back the space
+							if (idx < arr.length - 1)
+								append(' ');
+						});
 					}
 
 					// Add back the newline

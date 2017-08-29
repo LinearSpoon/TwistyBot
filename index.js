@@ -17,7 +17,8 @@ src_require('console_hook');
 // Load config
 global.config = Object.assign(
 	root_require('config/default_config'),
-	root_require('config/config')
+	// First parameter is config file name, default = config
+	root_require('config/' + (process.argv[2] || 'config'))
 );
 
 global.managers = src_require('managers');
@@ -28,6 +29,7 @@ global.Discord = src_require('discordjs');
  ***************************************************************/
 let commands = src_require('commands');
 let default_parser = src_require('parsers/comma_separated');
+let markdown_parser = src_require('parsers/markdown');
 
 /***************************************************************
  *                       Bot events
@@ -54,6 +56,7 @@ function pretty_message(message)
 
 	return string + message.cleanContent;
 }
+
 
 function send_responses(responses, options)
 {
@@ -89,20 +92,22 @@ function send_responses(responses, options)
 	}
 
 	// Identify any messages which are beyond the 2000 character limit and split them up
-	let split_messages = [];
-
-	messages.forEach(function(message) {
-		if (message.content.length <= 2000)
-			return split_messages.push(message); // The message is already short enough
-
-		// We need to split the content into multiple messages
-
-
+	let timebegin = process.hrtime();
+	let split_messages = [].concat(...messages.map(Discord.split_message));
+	let timediff = process.hrtime(timebegin);
+	let querytime = (timediff[0] * 1000 + timediff[1] / 1000000).toFixed(2);
+	console.log('Split messages (' + querytime + ' ms):');
+	split_messages.forEach(function(message) {
+		console.log('-------------------------------------');
+		console.log(message.content);
 	});
 
 	// Send the messages
-	return Promise.all(split_messages.map( message => options.channel.send(message.content, message.options) ));
+	//return Promise.all(split_messages.map( message => options.channel.send(message.content, message.options) ));
 }
+
+
+
 
 Discord.bot.on('message', async function(message) {
 	console.log('[New]', pretty_message(message));
@@ -212,6 +217,7 @@ Discord.bot.on('message', async function(message) {
 	{
 		console.log('invalid params');
 		// TODO: Send an help message explaining how to use the command
+		send_responses('invalid params', options);
 		return;
 	}
 
@@ -228,14 +234,14 @@ Discord.bot.on('message', async function(message) {
 
 		// Convert response to format for send
 		// Append redirected message
-		await options.channel.send(response);
+		await send_responses(response, options);
 	}
 	catch(err)
 	{
 		// Something terrible happened
 		console.warn(err.stack);
 		// No await here, just let unhandledRejection catch it
-		options.channel.send(Discord.code_block('An error occurred while running the command:\n' + err.message));
+		send_responses(Discord.code_block('An error occurred while running the command:\n' + err.message), options)
 	}
 
 	// Always stop typing
