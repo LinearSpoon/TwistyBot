@@ -34,13 +34,18 @@ module.exports.command = async function(message, params) {
 	// Find forum app
 	var profile = await apis.RuneScape.forum_profile(params[0], { priority: 1, success_delay: 5000 });
 	var post_link;
+	var old_threads = [];
 	for(var i = 0; i < profile.length; i++)
 	{
 		var post = profile[i];
-		if (post.thread.includes('Deities of PvM') && post.thread.includes('v2'))
-		{ // Found a post in Deities thread
+		console.log(post.thread_link);
+		if (post.thread_link.includes('320,321,115,65944319'))
+		{ // Found a post in current thread
 			post_link = post.showuser_link;
-			break;
+		}
+		if (post.thread_link.includes('320,321,880,65825048') || post.thread_link.includes('320,321,146,65761416'))
+		{ // Found a post in the v2 or v1 thread
+			old_threads.push(post);
 		}
 	}
 
@@ -60,12 +65,10 @@ module.exports.command = async function(message, params) {
 		s_issues.push('Attack level ' + stats.attack.level + ' < 90');
 	if (stats.strength.level < 90)
 		s_issues.push('Strength level ' + stats.strength.level + ' < 90');
-	if (stats.herblore.level < 78)
-		s_issues.push('Herblore level ' + stats.herblore.level + ' < 78');
 	if (cb_level < 115)
 		s_issues.push('Combat level ' + cb_level + ' < 115');
-	if (stats.overall.level < 1750)
-		s_issues.push('Total level ' + stats.overall.level + ' < 1750');
+	if (stats.overall.level < 1500)
+		s_issues.push('Total level ' + stats.overall.level + ' < 1500');
 
 
 	var rt_issues = [];
@@ -75,24 +78,23 @@ module.exports.command = async function(message, params) {
 		rt_issues.push('Range level ' + stats.range.level + ' < 95');
 	if (stats.defence.level < 90)
 		rt_issues.push('Defence level ' + stats.defence.level + ' < 90');
-	if (stats.herblore.level < 78)
-		rt_issues.push('Herblore level ' + stats.herblore.level + ' < 78');
 	if (cb_level < 105)
 		rt_issues.push('Combat level ' + cb_level + ' < 105');
-	if (stats.overall.level < 1750)
-		rt_issues.push('Total level ' + stats.overall.level + ' < 1750');
+	if (stats.overall.level < 1500)
+		rt_issues.push('Total level ' + stats.overall.level + ' < 1500');
 
 	if (s_issues.length > 0 && rt_issues.length > 0)
 	{
 		return 'Missing requirements for a standard application:\n' + s_issues.join('\n')
 			+ '\n\nMissing requirements for a range tank application:\n' + rt_issues.join('\n')
-			+ (post_link ? '\n\nForum app: ' + post_link : '\n\nForum app not found.')
+			+ (post_link ? '\n\nForum app: ' + Discord.link(post_link) : '\n\nForum app not found.');
 	}
 
-	return `-----------------------------
+	let accepted_form =
+`-----------------------------
 Accepted Applicant Form
 -----------------------------
-Username: ${ profile.name }
+Username: ${ profile.name || params[0] }
 Gear checked:
 Clean on RuneWatch: yes
 Clean on RSJ:
@@ -101,4 +103,11 @@ Combat: ${ Math.floor(cb_level) + (s_issues.length > 0 ? ' (Range tank)' : '') }
 Recruited by:
 
 ${ post_link ? 'Forum app: ' + post_link : 'Forum app not found.' }`;
+
+	if (old_threads.length > 0)
+	{
+		accepted_form += '\n\nFound posts on previous thread:\n' + old_threads.map(p => Discord.link(p.showuser_link)).join('\n');
+	}
+
+	return accepted_form;
 };
