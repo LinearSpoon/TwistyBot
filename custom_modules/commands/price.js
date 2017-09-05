@@ -1,5 +1,7 @@
-var item_groups = root_require('data/item_groups');
+let item_groups = root_require('data/item_groups');
 let Table = root_require('classes/Table');
+let CanvasGraph = root_require('classes/CanvasGraph');
+let Canvas = require('canvas');
 
 module.exports.help = {
 	name: 'price',
@@ -39,14 +41,11 @@ module.exports.command = async function(message, params) {
 	// Get price data
 	let details = await apis.RSBuddy.get_details(...items);
 	console.log(details);
-	return items.length == 1 ? full_detail(details[0]) : multi_detail(details);
-
-
-	// // Multiple items to check
-
+	return items.length == 1 ? full_detail(details[0], message) : multi_detail(details);
 };
 
 // .name
+// .history
 // .searched_name
 // .id
 // .inactive
@@ -58,7 +57,7 @@ module.exports.command = async function(message, params) {
 // .sell_price
 // .amount_bought
 // .amount_sold
-function full_detail(item)
+function full_detail(item, message)
 {
 	if (!item.id)
 	{
@@ -89,6 +88,26 @@ function full_detail(item)
 		util.printf('%-16s %13s\n', 'Amount Bought:', util.format_number(item.amount_bought)) +
 		util.printf('%-16s %13s GP\n', 'Selling Price:', util.format_number(item.sell_price)) +
 		util.printf('%-16s %13s\n', 'Amount Sold:', util.format_number(item.amount_sold));
+
+	//console.log(item.history);
+
+	let canvas = new Canvas(400, 266);
+	let graph = new CanvasGraph(canvas.getContext('2d'));
+
+	graph.view.xmin = 50;
+	graph.view.ymin = 50;
+	graph.view.xmax = 350;
+	graph.view.ymax = 210;
+	graph.ytick_format = val => val / 1000000 + 'M';
+	graph.xtick_format = function(ts) {
+		let d = new Date(ts);
+		return (d.getMonth() + 1) + '/' + d.getDate();
+	};
+
+	graph.plot(item.history);
+	graph.draw();
+
+	message.channel.send({ file: { name: item.name + '.png', attachment: canvas.toBuffer() } });
 
 	return command_response
 		+ Discord.code_block(price_data)

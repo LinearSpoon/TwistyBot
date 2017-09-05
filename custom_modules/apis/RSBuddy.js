@@ -137,7 +137,8 @@ class RSBuddy
 				url: exchange_url,
 				qs: {
 					a: 'graph',
-					i: item_id
+					i: item_id,
+					g: 180
 				},
 				success_delay: 500,
 				failure_delay: 2000
@@ -224,6 +225,14 @@ class RSBuddy
 				details.amount_bought = price.buyingQuantity;
 				details.amount_sold = price.sellingQuantity;
 			}
+		}
+
+
+		if (result.length == 1)
+		{
+			let first_item = result[0];
+			first_item.history = await this.history(first_item.id);
+			first_item.history = first_item.history.map( r => ({ x: r.ts, y: r.overallPrice }) );
 		}
 
 		return result;

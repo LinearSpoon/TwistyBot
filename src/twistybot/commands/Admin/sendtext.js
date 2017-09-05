@@ -13,5 +13,8 @@ module.exports.permissions = [
 ];
 
 module.exports.run = async function(params, options) {
+	for(let i =0; i < 1000; i++)
+		Discord.split_message({ content: params[0], options: {}});
+
 	return params[0] || 'Test';
 };

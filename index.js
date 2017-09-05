@@ -12,7 +12,7 @@ global.root_require = name => require(global.server_directory + '/' + name);
 global.src_require = name => require(global.server_directory + '/src/' + name);
 
 // Load custom console output
-src_require('console_hook');
+// src_require('console_hook');
 
 // Load config
 global.config = Object.assign(

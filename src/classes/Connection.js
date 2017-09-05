@@ -1,11 +1,19 @@
 let mysql = require('mysql');
 
+// config must define 'host', 'user', 'password', and 'database'
+let pool = mysql.createPool( Object.assign(
+	{
+		connectionLimit: 15,
+		multipleStatements: true,
+		timezone: 'Z'
+	},
+	config.get('database')
+));
+
 class Connection
 {
-	constructor(pool)
+	constructor()
 	{
-		// Only get a connection from the pool when we need it for a query
-		this.pool = pool;
 		// Are we actually in a transaction?
 		this.transaction = false;
 		// Do we have a transaction pending in the buffer?
@@ -20,7 +28,7 @@ class Connection
 	{
 		let self = this;
 		return new Promise( (resolve, reject) => {
-			self.pool.getConnection(function(err, connection) {
+			pool.getConnection(function(err, connection) {
 				if (err)
 				{
 					console.error(err.message);
@@ -203,6 +211,41 @@ class Connection
 			// Reset variables
 			delete this.connection;
 			this.transaction = false;
+		}
+	}
+
+	// Return SQL string with escaped parameters
+	static format_sql(sql, ...params)
+	{
+		return mysql.format(sql.replace(/\n\s*/g,'\n'), params);
+	}
+
+	// Run a one off query
+	static async query(...params) {
+		let con = new Connection(pool);
+		try
+		{
+			let result = await con.query(...params);
+			con.release();
+			return result;
+		}
+		catch(err)
+		{
+			con.release();
+		}
+	}
+
+	static async select_one(...params) {
+		let con = new Connection(pool);
+		try
+		{
+			let result = await con.select_one(...params);
+			con.release();
+			return result;
+		}
+		catch(err)
+		{
+			con.release();
 		}
 	}
 }

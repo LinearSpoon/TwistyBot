@@ -1,6 +1,14 @@
-let fs = require('fs');
+// TwistyBot data caches
+module.exports.cache = require('./cache');
+
+// Functions to load/save TwistyBot data
+module.exports.savedata = require('./savedata');
+
+// String parsing functions
+module.exports.parsers = require('./parsers');
 
 // Dynamically loads all commands based on the folder structure
+let fs = require('fs');
 let commands = {
 	categories: {}, // For help command
 	names: {} // For interpretter
@@ -11,9 +19,6 @@ let folders = fs.readdirSync(__dirname);
 for(let i = 0; i < folders.length; i++)
 {
 	let category = folders[i];
-	if (category == 'index.js')
-		continue; // Skip this file
-
 	commands.categories[category] = [];
 
 	let folder = __dirname + '/' + category;
@@ -32,4 +37,4 @@ for(let i = 0; i < folders.length; i++)
 	});
 }
 
-module.exports = commands;
+module.exports.commands = commands;

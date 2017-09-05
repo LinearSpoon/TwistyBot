@@ -146,9 +146,11 @@ process.on('unhandledRejection', function(err) {
 // Login
 Discord.bot.login(config.get('token'));
 
-
+// %F0%9F%87%A6 = A
 Discord.bot.on('messageReactionAdd', function(reaction, user) {
-	console.log(reaction.emoji.name)
+	console.log(reaction.count);
+	console.log(reaction.emoji.identifier);
+	console.log(reaction.emoji.toString());
 
 });
 
@@ -199,6 +201,10 @@ Discord.bot.on('messageReactionAdd', function(reaction, user) {
 		check guild leader rules
 		else allow
 
+		// All possible permissions:
+		user, not_user, role, not_role, channel, not_channel, guild, not_guild
+		leader, channel_type
+
 		Each rule can allow, block, or skip (if it does not match)
 		{ user: '217934790886686730', allow: true }
 		{ not_channel: '1212121212121212121', block: true }
@@ -217,7 +223,7 @@ Discord.bot.on('messageReactionAdd', function(reaction, user) {
 		not_role: allow/block
 		channel: allow/block
 		not_channel: allow/block
-		!permission, allow, user, <user_id>
+		!permission, allow, user, <user_id>, <user_id>, ...
 		!permission, block, not_channel, <channel_id>
 		!permission, clear, role, <role_id>
 		!permission
@@ -236,5 +242,22 @@ Discord.bot.on('messageReactionAdd', function(reaction, user) {
 		# messages received
 		# each command
 
+	// Response Types
+		textonly
+			SEND_MESSAGES
+		embed
+			SEND_MESSAGES + EMBED_LINKS
+
+		reaction
+			ADD_REACTIONS
+		files (text or embed?)
+			ATTACH_FILES
+
+	// Options
+	{
+		embeds: true
+		files: false
+
+	}
 
 */
