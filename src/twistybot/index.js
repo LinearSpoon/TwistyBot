@@ -1,13 +1,36 @@
-// TwistyBot data caches
-module.exports.cache = require('./cache');
+global.twistybot = {};
 
-// Functions to load/save TwistyBot data
-module.exports.savedata = require('./savedata');
+// TwistyBot data caches
+twistybot.cache = require('./cache');
 
 // String parsing functions
-module.exports.parsers = require('./parsers');
+twistybot.parsers = require('./parsers');
+
+// TwistyBot helper functions
+twistybot.check_permission = require('./lib/check_permission');
+twistybot.send_response = require('./lib/send_response');
+twistybot.split_message = require('./lib/split_message');
+twistybot.helptext = require('./lib/helptext');
 
 // Dynamically loads all commands based on the folder structure
+/*
+	commands
+		names[cmd_name] = cmd
+		categories[category_name][] = cmd
+
+	cmd
+		.help
+			.description
+			.parameters
+			.details
+		.params
+			.min
+			.max
+			.parser
+			.check
+		.permissions[] = rule
+		.run
+*/
 let fs = require('fs');
 let commands = {
 	categories: {}, // For help command
@@ -15,13 +38,13 @@ let commands = {
 };
 
 // Top level folders are categories
-let folders = fs.readdirSync(__dirname);
+let folders = fs.readdirSync(__dirname + '/commands');
 for(let i = 0; i < folders.length; i++)
 {
 	let category = folders[i];
 	commands.categories[category] = [];
 
-	let folder = __dirname + '/' + category;
+	let folder = __dirname + '/commands/' + category;
 
 	// Files in category folders are commands
 	fs.readdirSync(folder).forEach(function(file) {
@@ -37,4 +60,4 @@ for(let i = 0; i < folders.length; i++)
 	});
 }
 
-module.exports.commands = commands;
+twistybot.commands = commands;

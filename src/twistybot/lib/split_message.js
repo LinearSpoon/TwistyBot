@@ -1,5 +1,3 @@
-let markdown_parser = src_require('parsers/markdown');
-
 // Accepts a { content, options } object and returns an array of { content, options } where content in each is small enough to send on Discord
 function split_message(message)
 {
@@ -9,7 +7,7 @@ function split_message(message)
 		return [ message ];
 
 	let message_array = [];
-	let parsed = markdown_parser(message.content);
+	let parsed = twistybot.parsers.markdown(message.content);
 	let current = { content: '', options: message.options };
 
 	let parents = [];

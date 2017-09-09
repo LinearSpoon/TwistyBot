@@ -3,25 +3,25 @@
 // Rules are evaluated in the order passed, the first rule that matches decides the result
 // If no rules match, the default is to allow
 
-module.exports = function(...permissions) {
+module.exports = function(message, ...permissions) {
 	// Flatten parameters into an array of single rules
 	let rules = [].concat(...permissions);
 
-	let user_id = this.author.id;
-	let channel_id = this.channel.id;
-	let channel_type = this.channel.type;
+	let user_id = message.author.id;
+	let channel_id = message.channel.id;
+	let channel_type = message.channel.type;
 
-	let is_guild = this.channel.type == 'text';
+	let is_guild = message.channel.type == 'text';
 	if (is_guild)
 	{
 		// Don't use let so variables are visible below this block
-		var owner = this.guild.ownerID;
-		var guild_id = this.guild.id;
+		var owner = message.guild.ownerID;
+		var guild_id = message.guild.id;
 		// Invisible members are not always available in large guilds (250+ members?)
 		// https://github.com/hydrabolt/discord.js/issues/1165
 		// We can either fetch their profile with guild.fetchMember(user_id) or just assume they have no roles
 		// TODO: Fetch their roles properly
-		var roles = (this.member ? this.member.roles : new Map());
+		var roles = (message.member ? message.member.roles : new Map());
 	}
 
 	// Find the first matching rule

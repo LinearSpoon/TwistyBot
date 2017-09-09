@@ -5,6 +5,7 @@ module.exports.help = {
 };
 
 module.exports.params = {
+	min: 1,
 	max: 1
 };
 
@@ -12,8 +13,6 @@ module.exports.permissions = [
 	{ user: '*', block: true }
 ];
 
-
-let mp = src_require('parsers/markdown');
 module.exports.run = async function(params, options) {
-	return Discord.json(mp(params[0]));
+	return Discord.json(twistybot.parsers.markdown(params[0]));
 };

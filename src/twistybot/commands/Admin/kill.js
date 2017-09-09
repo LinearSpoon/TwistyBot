@@ -1,11 +1,10 @@
 module.exports.help = {
-	description: 'Send a plain text message.',
-	parameters: '<text>',
+	description: 'Terminates process.',
+	parameters: '',
 	details: ''
 };
 
 module.exports.params = {
-	max: 1
 };
 
 module.exports.permissions = [
@@ -13,5 +12,8 @@ module.exports.permissions = [
 ];
 
 module.exports.run = async function(params, options) {
-	return params[0] || 'Test';
+	options.channel.send('Bye!')
+		.then( () => Discord.bot.destroy() )
+		.then( () => process.exit(0) )
+		.catch( () => process.exit(0) );
 };
