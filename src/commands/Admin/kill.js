@@ -11,7 +11,7 @@ module.exports.permissions = [
 	{ user: '*', block: true }
 ];
 
-module.exports.run = async function(params, options) {
+module.exports.run = async function(twistybot, params, options) {
 	options.channel.send('Bye!')
 		.then( () => Discord.bot.destroy() )
 		.then( () => process.exit(0) )

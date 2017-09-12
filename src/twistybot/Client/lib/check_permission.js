@@ -3,7 +3,7 @@
 // Rules are evaluated in the order passed, the first rule that matches decides the result
 // If no rules match, the default is to allow
 
-module.exports = function(message, ...permissions) {
+module.exports = async function(message, ...permissions) {
 	// Flatten parameters into an array of single rules
 	let rules = [].concat(...permissions);
 

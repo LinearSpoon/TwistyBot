@@ -5,23 +5,27 @@ module.exports.params = {
 module.exports.permissions = [];
 
 let global_permissions = config.get('global_permissions');
-module.exports.run = async function(params, options) {
+module.exports.run = async function(twistybot, params, options) {
 	if (params.length == 1)
 	{
 		// First parameter is a specific command to get help for
-		if (params[0].toLowerCase() == 'help')
+		let command = params[0].toLowerCase();
+		if (command == 'help')
 			return Discord.code_block('Quit playing around!');
 
-		let help = twistybot.helptext(params[0], options);
-		return Discord.code_block(help || 'Command not found!');
+		if (!twistybot.commands_by_name[command])
+			return Discord.code_block(command + ' is not a command!');
+
+		let help = twistybot.help_text(command, options);
+		return Discord.code_block(help || (command + ' has no help information!'));
 	}
 
 	// Build a listing of commands this user can access
 	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';
-	for(let category in twistybot.commands.categories)
+	for(let category in twistybot.commands_by_category)
 	{
 		let accessible = [];
-		for(let cmd of twistybot.commands.categories[category])
+		for(let cmd of twistybot.commands_by_category[category])
 		{
 			// If help properties are not defined, skip it
 			if (!cmd.help)

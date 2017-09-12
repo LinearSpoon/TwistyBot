@@ -1,13 +1,15 @@
+let markdown_parser = require('../../parsers/markdown');
+
 // Accepts a { content, options } object and returns an array of { content, options } where content in each is small enough to send on Discord
 function split_message(message)
 {
-	const MSG_HARD_LIMIT = 120;
-	const MSG_SOFT_LIMIT = 110;
+	const MSG_HARD_LIMIT = 200;
+	const MSG_SOFT_LIMIT = 180;
 	if (message.content < MSG_HARD_LIMIT)
 		return [ message ];
 
 	let message_array = [];
-	let parsed = twistybot.parsers.markdown(message.content);
+	let parsed = markdown_parser(message.content);
 	let current = { content: '', options: message.options };
 
 	let parents = [];
@@ -120,16 +122,5 @@ function split_message(message)
 
 	return message_array;
 }
-
-
-
-	// for each
-	//		if content > 2000
-	//			just break it anywhere, there's no good place
-	//		if it fits, add it
-	//		if not, see if the children can fit
-	//			if not, break the message here
-	//			repair closing tags and reset current with opening tags
-
 
 module.exports = split_message;

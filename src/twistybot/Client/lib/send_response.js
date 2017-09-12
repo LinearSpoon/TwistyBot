@@ -1,4 +1,5 @@
 let Timer = src_require('classes/Timer');
+let split_message = require('./split_message');
 
 // Sends an array of command responses
 // Valid responses are strings, Discord.RichEmbed, or { content, options } (passed to message.send)
@@ -37,7 +38,7 @@ function send_response(responses, options)
 
 	// Identify any messages which are beyond the 2000 character limit and split them up
 	let t = new Timer();
-	let split_messages = [].concat(...messages.map(twistybot.split_message));
+	let split_messages = [].concat(...messages.map(split_message));
 	console.log('Split messages (' + t.check() + ' ms):');
 	split_messages.forEach(function(message) {
 		console.log('-------------------------------------');

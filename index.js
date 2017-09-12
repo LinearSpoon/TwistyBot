@@ -27,11 +27,15 @@ global.config = Object.assign(
 /***************************************************************
  *                      Set up bot
  ***************************************************************/
+// Twistybot also makes "Discord" global
 let twistybot = src_require('twistybot');
 let bot = new twistybot.Client(
 	{
+		default_prefix: '!',
 		guild_settings: src_require('settings/guild')
 	}
 );
+
+bot.add_command_directory(__dirname + '/src/commands');
 
 bot.login(config.get('token'));

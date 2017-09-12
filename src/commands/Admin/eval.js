@@ -5,7 +5,7 @@ module.exports.help = {
 };
 
 module.exports.params = {
-	parser: twistybot.parsers.raw
+	parser: 'raw'
 };
 
 module.exports.permissions = [
@@ -13,7 +13,7 @@ module.exports.permissions = [
 ];
 
 const vm = require('vm');
-module.exports.run = async function(params, options) {
+module.exports.run = async function(twistybot, params, options) {
 	try
 	{
 		let answer = vm.runInThisContext(params, { timeout: 500 });

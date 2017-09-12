@@ -5,14 +5,13 @@ module.exports.help = {
 };
 
 module.exports.params = {
-	min: 1,
-	max: 1
+	parser: 'raw'
 };
 
 module.exports.permissions = [
 	{ user: '*', block: true }
 ];
 
-module.exports.run = async function(params, options) {
-	return Discord.json(twistybot.parsers.markdown(params[0]));
+module.exports.run = async function(twistybot, params, options) {
+	return Discord.json(twistybot.parsers.markdown(params));
 };

@@ -5,13 +5,13 @@ module.exports.help = {
 };
 
 module.exports.params = {
-	max: 1
+	parser: 'raw'
 };
 
 module.exports.permissions = [
 	{ user: '*', block: true }
 ];
 
-module.exports.run = async function(params, options) {
-	return params[0] || 'Test';
+module.exports.run = async function(twistybot, params, options) {
+	return params || 'Test';
 };
