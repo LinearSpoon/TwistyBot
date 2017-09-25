@@ -85,7 +85,6 @@ class Client extends Discord.Client
 	}
 }
 
-// Functions that do a lot of stuff
 Client.prototype.check_permission = require('./lib/check_permission');
 Client.prototype.send_response = require('./lib/send_response');
 

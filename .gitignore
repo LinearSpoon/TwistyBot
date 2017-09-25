@@ -5,10 +5,3 @@
 .eslintrc.js
 
 node_modules
-compiled
-storage
-scripts
-
-# Ignore everything in config, except the default file
-config/*
-!config/default_config.js

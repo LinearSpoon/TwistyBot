@@ -1,30 +1,19 @@
 {
   "name": "twistybot",
   "version": "1.0.0",
-  "description": "stop bothering me about descriptions",
-  "main": "main.js",
+  "description": "TwistyBot's Discord command framework",
+  "main": "src/index.js",
   "dependencies": {
-    "canvas": "^1.6.6",
-    "chalk": "^1.1.3",
-    "cheerio": "^0.22.0",
-    "cli-table2": "https://github.com/LinearSpoon/cli-table2/archive/master.tar.gz",
-    "cron": "^1.1.1",
-    "discord.js": "^11.1.0",
-    "google-spreadsheet": "^2.0.3",
-    "he": "^1.1.1",
-    "heap": "^0.2.6",
-    "moment": "^2.17.1",
-    "moment-timezone": "^0.5.10",
-    "mysql": "^2.12.0",
-    "node-ipc": "^8.9.2",
-    "node-tweet-stream": "^2.0.1",
-    "printf": "^0.2.5"
+    "discord.js": "^11.1.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "UNLICENSED",
-  "repository": ".git"
+  "repository": "https://github.com/LinearSpoon/TwistyBot.git",
+  "bugs": "https://github.com/LinearSpoon/TwistyBot/issues",
+  "engines": {
+    "node": ">=7.10.0"
+  }
 }
