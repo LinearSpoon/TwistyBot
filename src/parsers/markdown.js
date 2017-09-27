@@ -165,7 +165,6 @@ let styles = [
 
 function parse_markdown(content)
 {
-	console.log(content);
 	let result = [];
 	let again = true;
 	while(again)
