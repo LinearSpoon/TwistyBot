@@ -23,9 +23,9 @@ module.exports.parsers = require('./parsers');
 module.exports.Settings = require('./Settings');
 
 // Load hooks of Discord.js classes
-require('./Channel');
-require('./Guild');
-require('./Message');
+require('./extensions/Channel');
+require('./extensions/Guild');
+require('./extensions/Message');
 
 // Export custom client class
 module.exports.Client = require('./Client');
