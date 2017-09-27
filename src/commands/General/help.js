@@ -20,14 +20,18 @@ module.exports.run = async function(Discord, client, params, options) {
 		return Discord.code_block(help || (command + ' has no help information!'));
 	}
 
-	// Build a listing of commands this user can access
-	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';
+
+	// Filter out commands that the user can't use
+	let accessible = {}; // arrays of accessible commands indexed by category
+	let longest = 0; // length of the longest command name in this category
+
 	for(let category in client.commands_by_category)
 	{
-		let accessible = [];
+
+		accessible[category] = [];
 		for(let cmd of client.commands_by_category[category])
 		{
-			// If help properties are not defined, skip it
+			// Skip commands without help properties
 			if (!cmd.help)
 				continue;
 
@@ -42,18 +46,27 @@ module.exports.run = async function(Discord, client, params, options) {
 
 			if (allowed)
 			{
-				accessible.push(cmd);
+				accessible[category].push(cmd);
+				longest = Math.max(cmd.name.length, longest);
 			}
 		}
+	}
 
+
+	// Build help text response
+	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';
+	for(let category in client.commands_by_category)
+	{
 		// Sort alphabetically and append the help text
-		if (accessible.length > 0)
+		if (accessible[category].length > 0)
 		{
+			let padlen = longest + 2;
 			help += '\n\n' + category + ':\n';
-			help += Discord.code_block(accessible
-				.sort( (a,b) => b.name < a.name )
-				.map( cmd => options.prefix + cmd.name + ' ' + cmd.help.description )
-				.join('\n')
+			help += Discord.code_block(
+				accessible[category]
+					.sort( (a,b) => b.name < a.name )
+					.map( cmd => options.prefix + cmd.name + ' '.repeat(padlen-cmd.name.length) + cmd.help.description )
+					.join('\n')
 			);
 		}
 	}
