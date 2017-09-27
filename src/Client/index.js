@@ -1,4 +1,5 @@
 let Discord = require('discord.js');
+let Command = require('../Command');
 
 class Client extends Discord.Client
 {
@@ -35,17 +36,19 @@ class Client extends Discord.Client
 
 	add_command(require_path, name, category)
 	{
-		let cmd = require(require_path);
+		let options = require(require_path);
 
 		// If name/category aren't defined, use the parameters
-		if (!cmd.name)
-			cmd.name = name;
-		if (!cmd.category)
-			cmd.category = category;
+		if (!options.name)
+			options.name = name;
+		if (!options.category)
+			options.category = category;
+
+		let command = new Command(options);
 
 		// Save the command under its category and by name
-		this.commands_by_category[cmd.category].push(cmd);
-		this.commands_by_name[cmd.name] = cmd;
+		this.commands_by_category[command.category].push(command);
+		this.commands_by_name[command.name] = command;
 	}
 
 	add_command_directory(directory)
@@ -71,21 +74,8 @@ class Client extends Discord.Client
 			}
 		}
 	}
-
-	help_text(command_name, options)
-	{
-		let command = this.commands_by_name[command_name];
-		if (!command || !command.help)
-			return; // Invalid command name or no help defined
-
-		let help = `Usage: ${ options.prefix }${ command.name } ${ command.help.parameters }`;
-		if (command.help.details && command.help.details.length > 0)
-			help += '\n\n' + command.help.details;
-		return help;
-	}
 }
 
-Client.prototype.check_permission = require('./lib/check_permission');
 Client.prototype.send_response = require('./lib/send_response');
 
 module.exports = Client;

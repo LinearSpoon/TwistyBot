@@ -2,22 +2,18 @@ module.exports.params = {
 	max: 1
 };
 
-module.exports.permissions = [];
-
-let global_permissions = config.get('global_permissions');
 module.exports.run = async function(Discord, client, params, options) {
+	// One parameter is a specific command to get help for
 	if (params.length == 1)
 	{
-		// First parameter is a specific command to get help for
-		let command = params[0].toLowerCase();
-		if (command == 'help')
-			return Discord.code_block('Quit playing around!');
+		let name = params[0].toLowerCase();
+		let command = client.commands_by_name[name];
 
-		if (!client.commands_by_name[command])
-			return Discord.code_block(command + ' is not a command!');
+		if (!command)
+			return Discord.code_block(name + ' is not a command!');
 
-		let help = client.help_text(command, options);
-		return Discord.code_block(help || (command + ' has no help information!'));
+		let help = command.helptext(options.prefix);
+		return Discord.code_block(help || (name + ' has no help information!'));
 	}
 
 
@@ -27,31 +23,21 @@ module.exports.run = async function(Discord, client, params, options) {
 
 	for(let category in client.commands_by_category)
 	{
-
 		accessible[category] = [];
-		for(let cmd of client.commands_by_category[category])
+		for(let command of client.commands_by_category[category])
 		{
 			// Skip commands without help properties
-			if (!cmd.help)
+			if (!command.help)
 				continue;
 
 			// Check if user can use this command
-			let allowed = client.check_permission(
-				options.message,
-				global_permissions,
-				cmd.permissions
-				// TODO: Guild leader rules
-			);
-
-
-			if (allowed)
+			if (command.check_permission(options.message))
 			{
-				accessible[category].push(cmd);
-				longest = Math.max(cmd.name.length, longest);
+				accessible[category].push(command);
+				longest = Math.max(command.name.length, longest);
 			}
 		}
 	}
-
 
 	// Build help text response
 	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';

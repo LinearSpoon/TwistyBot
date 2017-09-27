@@ -46,22 +46,19 @@ module.exports = async function(message) {
 	options.name = match[1].toLowerCase();
 
 	// Is this a real command?
-	let cmd = this.commands_by_name[options.name];
-	if (!cmd)
+	let command = this.commands_by_name[options.name];
+	if (!command)
 		return; // Not a real command
 
-	let allowed = await this.check_permission(
-		message,
-		// Global rules
-		config.get('global_permissions'),
-		// Command specific rules
-		cmd.permissions
-		// TODO: Guild leader rules
+	// Invisible members are not always available in large guilds (250+ members?)
+	// https://github.com/hydrabolt/discord.js/issues/1165
+	// Explicitly fetch their profile if it isn't defined
+	if (message.type == 'text' && !message.member)
+	{
+		message.member = await message.guild.members.fetch(message.author);
+	}
 
-		// Default allow
-	);
-
-	if (!allowed)
+	if (!command.check_permission(message))
 	{
 		console.log('Blocked ' + options.name);
 		return;
@@ -100,10 +97,10 @@ module.exports = async function(message) {
 
 	// Choose a parser
 	let parser;
-	if (typeof cmd.params.parser === 'string')
-		parser = this.parsers[cmd.params.parser];
-	if (typeof cmd.params.parser === 'function')
-		parser = cmd.params.parser;
+	if (typeof command.params.parser === 'string')
+		parser = this.parsers[command.params.parser];
+	if (typeof command.params.parser === 'function')
+		parser = command.params.parser;
 	parser = parser || this.parsers.comma_separated;
 
 	// Extract the parameters without command name
@@ -112,13 +109,18 @@ module.exports = async function(message) {
 
 	// Check parameters
 	let params_valid = true;
-	if (cmd.params.min && parsed_params.length < cmd.params.min) { params_valid = false; }
-	if (cmd.params.max && parsed_params.length > cmd.params.max) { params_valid = false; }
-	if (cmd.params.check && !cmd.params.check(parsed_params)) { params_valid = false; }
+	if (command.params.min && parsed_params.length < command.params.min) { params_valid = false; }
+	if (command.params.max && parsed_params.length > command.params.max) { params_valid = false; }
+
+	// If there is a check function, we want to make sure it gets the number of parameters it expects
+	if (!params_valid)
+		return this.send_response(Discord.code_block(command.helptext(options.prefix)), options);
+
+	if (command.params.check && !command.params.check(parsed_params)) { params_valid = false; }
 	if (!params_valid)
 	{
 		// Send an help message explaining how to use the command
-		this.send_response(Discord.code_block(this.help_text(options.name, options)), options);
+		this.send_response(Discord.code_block(command.helptext(options.prefix)), options);
 		return;
 	}
 
@@ -131,7 +133,7 @@ module.exports = async function(message) {
 
 	try
 	{
-		let response = await cmd.run(Discord, this, parsed_params, options);
+		let response = await command.run(Discord, this, parsed_params, options);
 		await this.send_response(response, options);
 	}
 	catch(err)
