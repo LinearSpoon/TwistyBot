@@ -1,3 +1,5 @@
+let Discord = require('discord.js');
+
 module.exports = async function(message) {
 	console.log(`[New] [${ message.channel.friendly_name }] ${ message.author.username }: ${ message.string_content }`);
 
@@ -129,7 +131,7 @@ module.exports = async function(message) {
 
 	try
 	{
-		let response = await cmd.run(this, parsed_params, options);
+		let response = await cmd.run(Discord, this, parsed_params, options);
 		await this.send_response(response, options);
 	}
 	catch(err)

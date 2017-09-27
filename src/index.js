@@ -1,4 +1,4 @@
-global.Discord = require('discord.js');
+let Discord = require('discord.js');
 
 // Discord markdown functions
 // https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
@@ -18,6 +18,9 @@ Discord.masked_link            = function(text, link) { return '[' + text + ']('
 
 // Export command parsers
 module.exports.parsers = require('./parsers');
+
+// Export default settings class
+module.exports.Settings = require('./Settings');
 
 // Load hooks of Discord.js classes
 require('./Channel');
