@@ -64,18 +64,6 @@ class Command
 			return roles.has(rule);
 		}
 
-		// Flatten parameters into an array of single rules
-		// Rules are evaluated in ascending order, the first rule that matches decides the result
-		// If no rules match, the default is to allow
-		let rules = [].concat(
-			// Global rules
-			this.client.global_permissions,
-			// Command specific rules
-			this.permissions,
-			// Guild leader rules
-			await message.guild.settings.get('permissions') || []
-		);
-
 		let command_name = this.name;
 
 		let user_id = message.author.id;
@@ -85,11 +73,23 @@ class Command
 		let is_guild = message.channel.type == 'text';
 		if (is_guild)
 		{
-			// Don't use let so variables are visible below this block
 			var owner = message.guild.ownerID;
 			var guild_id = message.guild.id;
 			var roles = message.member.roles;
+			var custom_rules = await message.guild.settings.get('permissions');
 		}
+
+		// Flatten parameters into an array of single rules
+		// Rules are evaluated in ascending order, the first rule that matches decides the result
+		// If no rules match, the default is to allow
+		let rules = [].concat(
+			// Global rules
+			this.client.global_permissions,
+			// Command specific rules
+			this.permissions,
+			// Guild leader rules
+			await custom_rules || []
+		);
 
 		// Find the first matching rule
 		let match = rules.find(function(rule) {
