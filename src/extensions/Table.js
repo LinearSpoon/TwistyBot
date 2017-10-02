@@ -84,6 +84,12 @@ class Table
 		this.rows.pop();
 	}
 
+	// Remove all rows from the table
+	empty()
+	{
+		this.rows = [];
+	}
+
 	// Convert the table to a string
 	toString()
 	{

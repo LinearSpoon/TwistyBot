@@ -41,19 +41,25 @@ module.exports.run = async function(Discord, client, params, options) {
 
 	// Build help text response
 	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';
+
+	let table = new Discord.Table(2);
+	table.borders = false;
+	table.min_width(longest, 1);
+	table.align('ll');
+
 	for(let category in client.commands_by_category)
 	{
-		// Sort alphabetically and append the help text
+		// If there are any accessible commands in this category...
 		if (accessible[category].length > 0)
 		{
-			let padlen = longest + 2;
-			help += '\n\n' + category + ':\n';
-			help += Discord.code_block(
-				accessible[category]
-					.sort( (a,b) => b.name < a.name )
-					.map( cmd => options.prefix + cmd.name + ' '.repeat(padlen-cmd.name.length) + cmd.help.description )
-					.join('\n')
-			);
+			// Sort alphabetically by command name
+			accessible[category].sort( (a,b) => b.name < a.name );
+			// Add commands to table
+			accessible[category].forEach(cmd => table.push([ options.prefix + cmd.name, cmd.help.description ]));
+			// Append category to help response
+			help += '\n\n' + category + ':' + Discord.code_block(table.toString());
+			// Reset table for next category
+			table.empty();
 		}
 	}
 
