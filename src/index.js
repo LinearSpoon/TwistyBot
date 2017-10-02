@@ -15,6 +15,7 @@ Discord.inline_code            = function(text) { return '`' + text + '`'; };
 Discord.json                   = function(value) { return '```json\n' + JSON.stringify(value, null, 2) + '```'; };
 Discord.link                   = function(link) { return '<' + link + '>'; };
 Discord.masked_link            = function(text, link) { return '[' + text + '](' + link + ')'; };
+Discord.Table                  = require('./extensions/Table');
 
 // Export command parsers
 module.exports.parsers = require('./parsers');

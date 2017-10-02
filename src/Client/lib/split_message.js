@@ -3,8 +3,8 @@ let markdown_parser = require('../../parsers/markdown');
 // Accepts a { content, options } object and returns an array of { content, options } where content in each is small enough to send on Discord
 function split_message(message)
 {
-	const MSG_HARD_LIMIT = 260;
-	const MSG_SOFT_LIMIT = 240;
+	const MSG_HARD_LIMIT = 1990;
+	const MSG_SOFT_LIMIT = 1970;
 	if (message.content < MSG_HARD_LIMIT)
 		return [ message ];
 

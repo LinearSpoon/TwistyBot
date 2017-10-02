@@ -23,6 +23,9 @@ function send_response(responses, options)
 			if (response instanceof Discord.RichEmbed)
 				return { content: '', options: { embed: response } };
 
+			if (response instanceof Discord.Table)
+				return { content: response.toString(), options: {} };
+
 			if (typeof response === 'object' && response !== null)
 				return response; // assume it is already a { content, options } object
 
