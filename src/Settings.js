@@ -6,11 +6,8 @@ class Settings
 		this.cache = {};
 	}
 
-	async get(key, default_value)
+	async get(key)
 	{
-		if (typeof this.cache[key] === 'undefined' && typeof default_value !== 'undefined')
-			await this.set(key, default_value);
-
 		return this.cache[key];
 	}
 
