@@ -13,7 +13,7 @@ module.exports.run = async function(Discord, client, params, options) {
 			return Discord.code_block(name + ' is not a command!');
 
 		let help = command.helptext(options.prefix);
-		return Discord.code_block(help || (name + ' has no help information!'));
+		return help || Discord.code_block(name + ' has no help information!');
 	}
 
 
@@ -30,8 +30,8 @@ module.exports.run = async function(Discord, client, params, options) {
 			if (!command.help)
 				continue;
 
-			// Check if user can use this command
-			if (command.check_permission(options.message))
+			// Check if user can use this command.
+			if (await command.check_permission(options.message))
 			{
 				accessible[category].push(command);
 				longest = Math.max(command.name.length, longest);

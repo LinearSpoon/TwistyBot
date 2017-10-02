@@ -16,6 +16,7 @@ class Client extends Discord.Client
 
 		// Other settings
 		this.default_prefix = options.default_prefix || '!';
+		this.global_permissions = options.global_permissions || [];
 
 		// key = command name, value = command object
 		this.commands_by_name = {};
@@ -44,7 +45,7 @@ class Client extends Discord.Client
 		if (!options.category)
 			options.category = category;
 
-		let command = new Command(options);
+		let command = new Command(this, options);
 
 		// Save the command under its category and by name
 		this.commands_by_category[command.category].push(command);

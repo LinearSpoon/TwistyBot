@@ -1,7 +1,10 @@
+let Discord = require('discord.js');
+
 class Command
 {
-	constructor(options)
+	constructor(client, options)
 	{
+		this.client = client;
 		this.help = options.help;
 		this.params = options.params || {};
 		this.permissions = options.permissions || [];
@@ -15,17 +18,35 @@ class Command
 		if (!this.help)
 			return ''; // No help defined
 
-		let help = `Usage: ${ prefix }${ this.name } ${ this.help.parameters }\n\n${ this.help.description }`;
+		// Usage
+		let help = Discord.bold('Usage:') + Discord.code_block(`${ prefix }${ this.name } ${ this.help.parameters }`);
+
+		// Description
+		help += Discord.bold('\n\Description:\n') + `${ this.help.description }`;
+
+		// Details
 		if (this.help.details && this.help.details.length > 0)
 			help += '\n\n' + this.help.details;
+
+		// Examples
 		if (this.help.examples && this.help.examples.length > 0)
-			help += '\n\nExamples:\n' + this.help.examples.map(e => `${ prefix }${ this.name } ${ e }`).join('\n');
+		{
+			let name = this.name;
+			help += '\n\n' + Discord.bold('Examples:') + '\n' + this.help.examples
+				.map(function(example) {
+					if (typeof example === 'string')
+						return Discord.code_block(`${ prefix }${ name } ${ example }`); // + '\n';
+					else
+						return `${ example.result }    ` + Discord.code_block(`${ prefix }${ name } ${ example.params }`);
+				})
+				.join('');
+		}
 		return help;
 	}
 
 	// Evaluates permissions in the context of a message
 	// Returns true if the action is allowed
-	check_permission(message)
+	async check_permission(message)
 	{
 		function is_match(id, rule)
 		{
@@ -48,12 +69,14 @@ class Command
 		// If no rules match, the default is to allow
 		let rules = [].concat(
 			// Global rules
-			config.get('global_permissions'),
+			this.client.global_permissions,
 			// Command specific rules
-			this.permissions
-			// TODO: Guild leader rules
-
+			this.permissions,
+			// Guild leader rules
+			await message.guild.settings.get('permissions') || []
 		);
+
+		let command_name = this.name;
 
 		let user_id = message.author.id;
 		let channel_id = message.channel.id;
@@ -70,6 +93,10 @@ class Command
 
 		// Find the first matching rule
 		let match = rules.find(function(rule) {
+			// TODO: Aliases
+			if (rule.command && !(rule.command == '*' || rule.command == command_name))
+				return; // Wrong command
+
 			if (!is_guild && (rule.guild || rule.role || rule.not_leader || rule.leader || rule.not_guild || rule.not_role))
 				return; // This rule is only for guilds
 
@@ -88,7 +115,7 @@ class Command
 			if (rule.user && !is_match(user_id, rule.user))
 				return;	// Wrong user
 
-			if (rule.not_user && !is_match(user_id, rule.not_user))
+			if (rule.not_user && is_match(user_id, rule.not_user))
 				return;
 
 			if (rule.role && !is_role_match(roles, rule.role))

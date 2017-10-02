@@ -30,7 +30,7 @@ module.exports = async function(message) {
 	}
 
 	// Does the message start with the prefix?
-	let content = message.cleanContent;
+	let content = message.content;
 	if (!content.startsWith(options.prefix))
 		return; // Prefix not found
 
@@ -58,7 +58,7 @@ module.exports = async function(message) {
 		message.member = await message.guild.members.fetch(message.author);
 	}
 
-	if (!command.check_permission(message))
+	if (!await command.check_permission(message))
 	{
 		console.log('Blocked ' + options.name);
 		return;
@@ -112,15 +112,12 @@ module.exports = async function(message) {
 	if (command.params.min && parsed_params.length < command.params.min) { params_valid = false; }
 	if (command.params.max && parsed_params.length > command.params.max) { params_valid = false; }
 
-	// If there is a check function, we want to make sure it gets the number of parameters it expects
-	if (!params_valid)
-		return this.send_response(Discord.code_block(command.helptext(options.prefix)), options);
-
-	if (command.params.check && !command.params.check(parsed_params)) { params_valid = false; }
+	// Don't call check function if the number of parameters is wrong
+	if (params_valid && command.params.check && !command.params.check(parsed_params)) { params_valid = false; }
 	if (!params_valid)
 	{
 		// Send an help message explaining how to use the command
-		this.send_response(Discord.code_block(command.helptext(options.prefix)), options);
+		this.send_response(command.helptext(options.prefix), options);
 		return;
 	}
 
