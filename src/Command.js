@@ -19,10 +19,10 @@ class Command
 			return ''; // No help defined
 
 		// Usage
-		let help = Discord.bold('Usage:') + Discord.code_block(`${ prefix }${ this.name } ${ this.help.parameters }`);
+		let help = Discord.underline('Usage:') + Discord.code_block(`${ prefix }${ this.name } ${ this.help.parameters }`);
 
 		// Description
-		help += Discord.bold('\n\Description:\n') + `${ this.help.description }`;
+		help += Discord.underline('\n\Description:\n') + `${ this.help.description }`;
 
 		// Details
 		if (this.help.details && this.help.details.length > 0)
@@ -32,14 +32,14 @@ class Command
 		if (this.help.examples && this.help.examples.length > 0)
 		{
 			let name = this.name;
-			help += '\n\n' + Discord.bold('Examples:') + '\n' + this.help.examples
-				.map(function(example) {
-					if (typeof example === 'string')
-						return Discord.code_block(`${ prefix }${ name } ${ example }`); // + '\n';
-					else
-						return `${ example.result }    ` + Discord.code_block(`${ prefix }${ name } ${ example.params }`);
-				})
-				.join('');
+			help += '\n\n' + Discord.underline('Examples:') + '\n';
+
+			this.help.examples.forEach( function(example) {
+				if (typeof example === 'string')
+					help += Discord.code_block(`${ prefix }${ name } ${ example }`);
+				else
+					help += '\n' + example.result + Discord.code_block(`${ prefix }${ name } ${ example.params }`);
+			});
 		}
 		return help;
 	}
