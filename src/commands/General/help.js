@@ -44,7 +44,7 @@ module.exports.run = async function(Discord, client, params, options) {
 
 	let table = new Discord.Table(2);
 	table.borders = false;
-	table.min_width(longest, 1);
+	table.min_width(longest + options.prefix.length, 1);
 	table.align('ll');
 
 	for(let category in client.commands_by_category)
@@ -55,9 +55,9 @@ module.exports.run = async function(Discord, client, params, options) {
 			// Sort alphabetically by command name
 			accessible[category].sort( (a,b) => b.name < a.name );
 			// Add commands to table
-			accessible[category].forEach(cmd => table.push([ options.prefix + cmd.name, cmd.help.description ]));
+			accessible[category].forEach(cmd => table.push(options.prefix + cmd.name, cmd.help.description));
 			// Append category to help response
-			help += '\n\n' + category + ':' + Discord.code_block(table.toString());
+			help += '\n' + category + ':' + Discord.code_block(table.toString());
 			// Reset table for next category
 			table.empty();
 		}

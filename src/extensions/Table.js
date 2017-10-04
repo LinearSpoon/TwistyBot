@@ -17,7 +17,7 @@ function align(value, width, alignment)
 
 class Table
 {
-	constructor(num_columns)
+	constructor(num_columns, borders = true)
 	{
 		this.rows = [];
 		this.cols = num_columns;
@@ -32,7 +32,7 @@ class Table
 		this._min_width = Array(num_columns).fill(1);
 
 		// Should borders be used between cells?
-		this.borders = true;
+		this.borders = borders;
 	}
 
 	align(a)
@@ -52,9 +52,9 @@ class Table
 
 	// Push a row of cells into the table
 	// If row is undefined, pushes a row of empty cells
-	push(row)
+	push(...row)
 	{
-		if (row)
+		if (row.length > 0)
 		{
 			// If there is a format function defined, use it, then convert cell to a string
 			row = row.map( (cell, index) => this._format[index] ? this._format[index](cell).toString() : cell.toString() );
@@ -72,8 +72,16 @@ class Table
 		);
 	}
 
+	// Push a "header" row (all centered, with a separator below it)
+	header(...row)
+	{
+		this.align('c'.repeat(this.cols));
+		this.push(...row);
+		this.div();
+	}
+
 	// Pushes a separator between rows
-	separator()
+	div()
 	{
 		this.rows.push( { separator: true } );
 	}
@@ -96,7 +104,6 @@ class Table
 		// Find column widths
 		let col_widths = this.rows.reduce(function(value, row) {
 			if (row.separator) { return value; }
-			console.log(row.data);
 			return row.data.map( (cell, index) => Math.max(cell.length, value[index]) );
 		}, this._min_width);
 

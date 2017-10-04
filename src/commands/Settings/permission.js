@@ -181,10 +181,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		return Discord.code_block('No rules!');
 
 	let table = new Discord.Table(4);
-	// Header row
-	table.align('cccc');
-	table.push(['Command', 'Action', 'Type', 'IDs']);
-	table.separator();
+	table.header('Command', 'Action', 'Type', 'IDs');
 
 	// Data rows
 	table.align('lllr');
@@ -196,7 +193,7 @@ module.exports.run = async function(Discord, client, params, options) {
 
 		// The easy case
 		if (rule[type] === '*')
-			return table.push([ rule.command, action, type, '*' ]);
+			return table.push(rule.command, action, type, '*');
 
 		// Resolve ids to names
 		let ids = rule[type];
@@ -225,8 +222,8 @@ module.exports.run = async function(Discord, client, params, options) {
 			});
 		}
 
-		return table.push([ rule.command, action, type, ids.join(',') ]);
+		return table.push(rule.command, action, type, ids.join(','));
 	});
 
-	return Discord.code_block(table.toString());
+	return table;
 };
