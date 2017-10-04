@@ -1,3 +1,4 @@
+// Optional: Help options
 module.exports.help = {
 	// Required: A short, one line description of the command used for !help
 	description: 'My favorite command',
@@ -22,6 +23,7 @@ module.exports.help = {
 	]
 };
 
+// Optional: Parameter options
 module.exports.params = {
 	// Optional: Minimum number of parameters
 	min: 2,
@@ -45,7 +47,7 @@ module.exports.params = {
 	}
 };
 
-// Required: An array of permission rules for this command
+// Optional: An array of permission rules for this command
 module.exports.permissions = [
 	{ user: '*', block: true }
 ];
