@@ -156,8 +156,6 @@ module.exports.run = async function(Discord, client, params, options) {
 					id = match[1];
 				}
 
-				console.log(match, id);
-
 				// Make sure the user/channel/role ID is valid
 				// Possible TODO: Fetch guild member?
 				if (cache.has(id))

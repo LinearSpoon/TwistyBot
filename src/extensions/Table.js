@@ -135,8 +135,6 @@ class Table
 
 			let str = '';
 
-			console.log(aligned);
-
 			// Top border
 			if (aligned.length > 0 && aligned[0].full)
 				str += '┌─' + separator.join(full_above_below) + '─┐\n';
@@ -195,6 +193,17 @@ class Table
 
 			return columns.join('\n');
 		}
+	}
+
+	get length()
+	{
+		let length = 0;
+		this.rows.forEach(function(row) {
+			if (row.separator) { return; }
+			length += 1;
+		});
+
+		return length;
 	}
 }
 
