@@ -26,6 +26,9 @@ function send_response(responses, options)
 			if (response instanceof Discord.Table)
 				return { content: Discord.code_block(response.toString()), options: {} };
 
+			if (response instanceof Discord.Attachment)
+				return { content: '', options: response };
+
 			if (typeof response === 'object' && response !== null)
 				return response; // assume it is already a { content, options } object
 
