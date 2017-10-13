@@ -10,11 +10,11 @@ class Client extends Discord.Client
 		// Command parsers
 		this.parsers = require('../parsers');
 
-		// Classes that manage saving and loading settings for guild/users
-		this.guild_settings = options.guild_settings || require('../Settings');
-		this.user_settings = options.user_settings || require('../Settings');
+		// Classes that manage saving and loading config for guild/users
+		this.guild_config = options.guild_config || require('../Config');
+		this.user_config = options.user_config || require('../Config');
 
-		// Other settings
+		// Other config
 		this.default_prefix = options.default_prefix || '!';
 		this.global_permissions = options.global_permissions || [];
 

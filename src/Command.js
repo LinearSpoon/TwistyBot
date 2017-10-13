@@ -76,7 +76,7 @@ class Command
 			var owner = message.guild.ownerID;
 			var guild_id = message.guild.id;
 			var roles = message.member.roles;
-			var custom_rules = await message.guild.settings.get('permissions');
+			var custom_rules = await message.guild.config.get('permissions');
 		}
 
 		// Flatten parameters into an array of single rules

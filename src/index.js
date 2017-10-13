@@ -20,13 +20,15 @@ Discord.Table                  = require('./extensions/Table');
 // Export command parsers
 module.exports.parsers = require('./parsers');
 
-// Export default settings class
-module.exports.Settings = require('./Settings');
+// Export default config class
+module.exports.config = require('./Config');
 
 // Load hooks of Discord.js classes
 require('./extensions/Channel');
 require('./extensions/Guild');
+require('./extensions/GuildMember');
 require('./extensions/Message');
+require('./extensions/User');
 
 // Export custom client class
 module.exports.Client = require('./Client');

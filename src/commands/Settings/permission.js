@@ -87,14 +87,14 @@ module.exports.permissions = [
 ];
 
 module.exports.run = async function(Discord, client, params, options) {
-	let permissions = await options.message.guild.settings.get('permissions') || [];
+	let permissions = await options.message.guild.config.get('permissions') || [];
 
 	// Clear command permissions
 	if (params.length == 2)
 	{
 		let command = params[0].toLowerCase();
 		permissions = permissions.filter( rule => !(command == '*' || command == rule.command) );
-		await options.message.guild.settings.set('permissions', permissions);
+		await options.message.guild.config.set('permissions', permissions);
 	}
 
 	// Add new permission
@@ -171,7 +171,7 @@ module.exports.run = async function(Discord, client, params, options) {
 
 		// Insert it
 		permissions.push(rule);
-		await options.message.guild.settings.set('permissions', permissions);
+		await options.message.guild.config.set('permissions', permissions);
 	}
 
 	// Finally, print out the current permissions set

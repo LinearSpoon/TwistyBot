@@ -26,7 +26,7 @@ module.exports = async function(message) {
 	if (message.guild)
 	{
 		// Override the default prefix with the guild's preference
-		options.prefix = await message.guild.settings.get('cmd_prefix') || options.prefix;
+		options.prefix = await message.guild.config.get('cmd_prefix') || options.prefix;
 	}
 
 	// Does the message start with the prefix?
