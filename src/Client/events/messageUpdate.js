@@ -1,3 +1,3 @@
-module.exports = function(message) {
-	console.log(`[Mod] [${ message.channel.friendly_name }] ${ message.author.username }: ${ message.string_content }`);
+module.exports = function(old_message, new_message) {
+	console.log(`[Mod] [${ new_message.channel.friendly_name }] ${ new_message.author.username }: ${ new_message.string_content }`);
 };

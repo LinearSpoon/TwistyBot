@@ -84,7 +84,7 @@ class Command
 		// If no rules match, the default is to allow
 		let rules = [].concat(
 			// Global rules
-			this.client.global_permissions,
+			this.client.permissions,
 			// Command specific rules
 			this.permissions,
 			// Guild leader rules

@@ -15,7 +15,7 @@ module.exports = async function(message) {
 		// Command name
 		name: null,
 		// Command prefix
-		prefix: this.default_prefix,
+		prefix: this.prefix,
 		// Response type permissions (does the channel support text, embeds, etc?)
 		text: true,
 		embeds: true,
@@ -26,7 +26,7 @@ module.exports = async function(message) {
 	if (message.guild)
 	{
 		// Override the default prefix with the guild's preference
-		options.prefix = await message.guild.config.get('cmd_prefix') || options.prefix;
+		options.prefix = await message.guild.config.get('prefix') || options.prefix;
 	}
 
 	// Does the message start with the prefix?
