@@ -121,25 +121,29 @@ module.exports = async function(message) {
 		return;
 	}
 
-	// TODO: statistics
-	//   commands[cmd.name]
-	//     count
-	//     time
-
 	options.channel.startTyping();
 
+	// Record time when command starts executing
+	let start_time = process.hrtime();
+	// Command response
+	let response;
 	try
 	{
-		let response = await command.run(Discord, this, parsed_params, options);
-		await this.send_response(response, options);
+		response = await command.run(Discord, this, parsed_params, options);
+		let timediff = process.hrtime(start_time);
+		command.completed(timediff[0] * 1000 + timediff[1] / 1000000);
 	}
 	catch(err)
 	{
 		// Something terrible happened
+		response = Discord.code_block('An error occurred while running the command:\n' + err.message);
+		let timediff = process.hrtime(start_time);
+		command.errored(timediff[0] * 1000 + timediff[1] / 1000000);
 		console.warn(err.stack);
-		// No await here, just let unhandledRejection catch it
-		this.send_response(Discord.code_block('An error occurred while running the command:\n' + err.message), options);
 	}
+
+	// Always send a response
+	await this.send_response(response, options);
 
 	// Always stop typing
 	options.channel.stopTyping();

@@ -1,6 +1,23 @@
 let Discord = require('discord.js');
 let Command = require('../Command');
 
+/*
+	Client
+		.parsers
+			.raw
+			.markdown
+			.comma_separated
+		.guild_config
+		.user_config
+		.config
+		.prefix
+		.permissions
+		.commands_by_name[name]
+			{command}
+		.commands_by_category[category][]
+			{command}
+*/
+
 class Client extends Discord.Client
 {
 	constructor(options)
@@ -36,6 +53,12 @@ class Client extends Discord.Client
 
 		// Load built in commands
 		this.add_command_directory(__dirname + '/../commands');
+	}
+
+	get_command(command_name)
+	{
+		// TODO: Aliases
+		return this.commands_by_name[command_name];
 	}
 
 	add_command(require_path, name, category)

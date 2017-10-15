@@ -11,6 +11,47 @@ class Command
 		this.run = options.run;
 		this.name = options.name;
 		this.category = options.category;
+
+		// Statistics
+		this.use_count = 0;
+		this.err_count = 0;
+		this.timings = [];
+	}
+
+	stats()
+	{
+		if (this.timings.length == 0)
+		{
+			return {
+				uses: this.use_count,
+				errors: this.err_count,
+				average_time_ms: -1
+			};
+		}
+
+		let total_time_ms = 0;
+		for(let i = 0; i < this.timings.length; i++)
+			total_time_ms += this.timings[i];
+
+		return {
+			uses: this.use_count,
+			errors: this.err_count,
+			average_time_ms: total_time_ms / this.timings.length
+		};
+	}
+
+	completed(time)
+	{
+		this.use_count += 1;
+		this.timings.push(time);
+		if (this.timings.length > 10)
+			this.timings.shift();
+	}
+
+	errored(time)
+	{
+		this.err_count += 1;
+		this.completed(time);
 	}
 
 	helptext(prefix)
