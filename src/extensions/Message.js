@@ -29,7 +29,7 @@ Object.defineProperty(Message.prototype, 'string_content',
 
 			if (this.attachments.size > 0)
 			{
-				let attachment = this.attachments[0];
+				let attachment = this.attachments.first();
 				let options = {
 					filename: attachment.filename,
 					url: attachment.url,

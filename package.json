@@ -1,6 +1,6 @@
 {
   "name": "twistybot",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "TwistyBot's Discord command framework",
   "main": "src/index.js",
   "dependencies": {
