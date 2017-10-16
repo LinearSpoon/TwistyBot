@@ -37,6 +37,7 @@ class Client extends Discord.Client
 		// Other config
 		this.prefix = options.prefix || '!';
 		this.permissions = options.global_permissions || [];
+		this.error_channel = options.error_channel;
 
 		// key = command name, value = command object
 		this.commands_by_name = {};

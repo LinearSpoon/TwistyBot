@@ -140,6 +140,18 @@ module.exports = async function(message) {
 		let timediff = process.hrtime(start_time);
 		command.errored(timediff[0] * 1000 + timediff[1] / 1000000);
 		console.warn(err.stack);
+		if (this.error_channel)
+		{
+			let error_channel = this.channels.get(this.error_channel);
+			if (!error_channel)
+				return;
+			error_channel.send(Discord.code_block(
+				'Channel: ' + options.message.channel.friendly_name +
+				'\nAuthor:  ' + options.message.author.tag +
+				'\nMessage: ' + options.message.cleanContent +
+				'\n' + err.stack
+			));
+		}
 	}
 
 	// Always send a response
