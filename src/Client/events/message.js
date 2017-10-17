@@ -139,23 +139,18 @@ module.exports = async function(message) {
 		response = Discord.code_block('An error occurred while running the command:\n' + err.message);
 		let timediff = process.hrtime(start_time);
 		command.errored(timediff[0] * 1000 + timediff[1] / 1000000);
-		console.warn(err.stack);
-		if (this.error_channel)
-		{
-			let error_channel = this.channels.get(this.error_channel);
-			if (!error_channel)
-				return;
-			error_channel.send(Discord.code_block(
-				'Channel: ' + options.message.channel.friendly_name +
-				'\nAuthor:  ' + options.message.author.tag +
-				'\nMessage: ' + options.message.cleanContent +
-				'\n' + err.stack
-			));
-		}
+		this.log_error(err, options.message);
 	}
 
-	// Always send a response
-	await this.send_response(response, options);
+	// Try sending the response
+	try
+	{
+		await this.send_response(response, options);
+	}
+	catch(err)
+	{
+		this.log_error(err, options.message);
+	}
 
 	// Always stop typing
 	options.channel.stopTyping();

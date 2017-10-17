@@ -102,6 +102,43 @@ class Client extends Discord.Client
 			}
 		}
 	}
+
+	// Sends a message to the bot's error channel
+	async log_error(err, message)
+	{
+		let emsg = err.stack;
+
+		// Append request path if it's a Discord API error, since the stacks for those are boring
+		if (err instanceof Discord.DiscordAPIError)
+			emsg += '\nSpecifically [' + err.code + '] ' + err.path;
+
+		// If there was a message, append its details
+		if (message)
+		{
+			emsg = 'Channel: ' + message.channel.friendly_name +
+				'\nAuthor:  ' + message.author.tag +
+				'\nMessage: ' + message.cleanContent + '\n' + emsg;
+		}
+
+		console.warn(emsg);
+
+		if (this.error_channel)
+		{
+			let channel = this.channels.get(this.error_channel);
+			if (!channel)
+				return;
+			
+			// Send the message
+			try
+			{
+				await channel.send(Discord.code_block(emsg));
+			}
+			catch(err2)
+			{
+				console.warn('Failed to deliver error to log channel: ' + err2.stack);
+			}
+		}
+	}
 }
 
 Client.prototype.send_response = require('./lib/send_response');

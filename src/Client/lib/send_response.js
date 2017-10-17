@@ -42,7 +42,7 @@ function send_response(responses, options)
 	// If the response is redirected to the user's DM, add an explanation to the first message
 	if (options.redirected)
 	{
-		messages[0].content = `Hi, ${ this.user.username } doesn't have permission to respond in ${ options.channel.friendly_name }\n`
+		messages[0].content = `Hi, ${ this.user.username } doesn't have permission to respond in ${ options.message.channel.friendly_name }\n`
 			+ options.message.cleanContent + '\n' + messages[0].content;
 	}
 
