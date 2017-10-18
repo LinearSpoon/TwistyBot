@@ -55,6 +55,12 @@ module.exports.permissions = [
 // Optional: An array of aliases (alternate names) for this command
 module.exports.aliases = [ 'my_favorite' ];
 
+// Optional: The command name. If this is not set, the filename (minus extension) is used as the name.
+module.exports.name = 'my_command';
+
+// Optional: Category name. If this is not set, the folder name is used.
+module.exports.category = 'Help';
+
 // Required: A function that runs the command and returns the result
 module.exports.run = async function(Discord, client, params, options) {
 	return Number(params[0]) + Number(params[1]);
