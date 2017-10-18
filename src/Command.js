@@ -11,6 +11,7 @@ class Command
 		this.run = options.run;
 		this.name = options.name;
 		this.category = options.category;
+		this.aliases = options.aliases || [];
 
 		// Statistics
 		this.use_count = 0;
@@ -40,18 +41,23 @@ class Command
 		};
 	}
 
-	completed(time)
+	completed(hr_start_time)
 	{
-		this.use_count += 1;
-		this.timings.push(time);
+		// Calculate elapsed time and push it into the recent timings array
+		let timediff = process.hrtime(hr_start_time);
+		this.timings.push(timediff[0] * 1000 + timediff[1] / 1000000);
+
+		// Clear the oldest time if we have too many times saved
 		if (this.timings.length > 10)
 			this.timings.shift();
+
+		this.use_count += 1;
 	}
 
-	errored(time)
+	errored(hr_start_time)
 	{
 		this.err_count += 1;
-		this.completed(time);
+		this.completed(hr_start_time);
 	}
 
 	helptext(prefix)
@@ -82,6 +88,11 @@ class Command
 					help += '\n' + example.result + Discord.code_block(`${ prefix }${ name } ${ example.params }`);
 			});
 		}
+
+		// Aliases
+		if (this.aliases.length > 0)
+			help += '\n' + Discord.underline('Aliases:\n') + this.aliases.join(', ');
+
 		return help;
 	}
 

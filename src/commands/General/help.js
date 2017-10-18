@@ -2,12 +2,14 @@ module.exports.params = {
 	max: 1
 };
 
+module.exports.aliases = [ 'commands' ];
+
 module.exports.run = async function(Discord, client, params, options) {
 	// One parameter is a specific command to get help for
 	if (params.length == 1)
 	{
-		let name = params[0].toLowerCase();
-		let command = client.commands_by_name[name];
+		let name = params[0];
+		let command = client.get_command(name);
 
 		if (!command)
 			return Discord.code_block(name + ' is not a command!');

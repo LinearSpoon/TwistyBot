@@ -43,10 +43,10 @@ module.exports = async function(message) {
 		return; // Couldn't parse
 
 	// Save command name
-	options.name = match[1].toLowerCase();
+	options.name = match[1];
 
 	// Is this a real command?
-	let command = this.commands_by_name[options.name];
+	let command = this.get_command(options.name);
 	if (!command)
 		return; // Not a real command
 
@@ -63,8 +63,6 @@ module.exports = async function(message) {
 		console.log('Blocked ' + options.name);
 		return;
 	}
-
-	// TODO: save recent commands?
 
 	// Determine where the reply will be sent and what features we can use in the response
 	if (message.guild)
@@ -109,8 +107,8 @@ module.exports = async function(message) {
 
 	// Check parameters
 	let params_valid = true;
-	if (command.params.min && parsed_params.length < command.params.min) { params_valid = false; }
-	if (command.params.max && parsed_params.length > command.params.max) { params_valid = false; }
+	if (typeof command.params.min === 'number' && parsed_params.length < command.params.min) { params_valid = false; }
+	if (typeof command.params.max === 'number' && parsed_params.length > command.params.max) { params_valid = false; }
 
 	// Don't call check function if the number of parameters is wrong
 	if (params_valid && command.params.check && !command.params.check(parsed_params)) { params_valid = false; }
@@ -130,15 +128,13 @@ module.exports = async function(message) {
 	try
 	{
 		response = await command.run(Discord, this, parsed_params, options);
-		let timediff = process.hrtime(start_time);
-		command.completed(timediff[0] * 1000 + timediff[1] / 1000000);
+		command.completed(start_time);
 	}
 	catch(err)
 	{
 		// Something terrible happened
 		response = Discord.code_block('An error occurred while running the command:\n' + err.message);
-		let timediff = process.hrtime(start_time);
-		command.errored(timediff[0] * 1000 + timediff[1] / 1000000);
+		command.errored(start_time);
 		this.log_error(err, options.message);
 	}
 

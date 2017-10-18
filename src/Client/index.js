@@ -58,7 +58,7 @@ class Client extends Discord.Client
 
 	get_command(command_name)
 	{
-		// TODO: Aliases
+		command_name = command_name.toLowerCase();
 		return this.commands_by_name[command_name];
 	}
 
@@ -72,11 +72,31 @@ class Client extends Discord.Client
 		if (!options.category)
 			options.category = category;
 
+		// Create the command
 		let command = new Command(this, options);
 
-		// Save the command under its category and by name
+		// Save the command under its category
 		this.commands_by_category[command.category].push(command);
-		this.commands_by_name[command.name] = command;
+
+		// Check if the command already exists and warn
+		let existing = this.get_command(command.name);
+		if (existing)
+		{
+			console.warn(command.name + ' will overwrite ' + existing.name + ' or one of its aliases!');
+		}
+		// Save the command under its name
+		this.commands_by_name[command.name.toLowerCase()] = command;
+
+		// Save the command under its aliases
+		command.aliases.forEach(function(alias) {
+			let existing = this.get_command(alias);
+			if (existing)
+			{
+				console.warn(command.name + '\'s alias ' + alias + ' will overwrite ' + existing.name + ' or one of its aliases!');
+			}
+
+			this.commands_by_name[alias.toLowerCase()] = command;
+		}, this);
 	}
 
 	add_command_directory(directory)
@@ -127,7 +147,7 @@ class Client extends Discord.Client
 			let channel = this.channels.get(this.error_channel);
 			if (!channel)
 				return;
-			
+
 			// Send the message
 			try
 			{
