@@ -52,6 +52,9 @@ module.exports.permissions = [
 	{ user: '*', block: true }
 ];
 
+// Optional: An array of aliases (alternate names) for this command
+module.exports.aliases = [ 'my_favorite' ];
+
 // Required: A function that runs the command and returns the result
 module.exports.run = async function(Discord, client, params, options) {
 	return Number(params[0]) + Number(params[1]);
