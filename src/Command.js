@@ -9,16 +9,40 @@ class Command
 		this.params = options.params || {};
 		this.permissions = options.permissions || [];
 		this.run = options.run;
+		this.init_fn = options.init;
 		this.name = options.name;
 		this.category = options.category;
 		this.aliases = options.aliases || [];
 
-		// Statistics
+		// Recent command run times, limited to 10 entries
+		this.timings = [];
 		this.use_count = 0;
 		this.err_count = 0;
-		this.timings = [];
 	}
 
+	// Called after the command is first created, to load asynchronous data
+	async init()
+	{
+		// Load stats
+		let commandstats = await this.client.config.get('commandstats');
+		if (commandstats && commandstats[this.name])
+		{
+			this.use_count = commandstats[this.name].use_count;
+			this.err_count = commandstats[this.name].err_count;
+		}
+
+		// If the user passed an init_fn, call it
+		if (typeof this.init_fn === 'function')
+			await this.init_fn();
+	}
+
+	// Returns error statistics
+	/*
+		result
+			.uses
+			.errors
+			.average_time_ms
+	*/
 	stats()
 	{
 		if (this.timings.length == 0)
@@ -41,7 +65,15 @@ class Command
 		};
 	}
 
-	completed(hr_start_time)
+	reset_stats()
+	{
+		this.use_count = 0;
+		this.err_count = 0;
+		this.timings = [];
+	}
+
+	// Called when a command completes successfully
+	async completed(hr_start_time)
 	{
 		// Calculate elapsed time and push it into the recent timings array
 		let timediff = process.hrtime(hr_start_time);
@@ -52,14 +84,41 @@ class Command
 			this.timings.shift();
 
 		this.use_count += 1;
+		await this._save_stats();
 	}
 
-	errored(hr_start_time)
+	// Called when a command throws an error
+	async errored(hr_start_time)
 	{
+		// Calculate elapsed time and push it into the recent timings array
+		let timediff = process.hrtime(hr_start_time);
+		this.timings.push(timediff[0] * 1000 + timediff[1] / 1000000);
+
+		// Clear the oldest time if we have too many times saved
+		if (this.timings.length > 10)
+			this.timings.shift();
+
+		this.use_count += 1;
 		this.err_count += 1;
-		this.completed(hr_start_time);
+		await this._save_stats();
 	}
 
+	async _save_stats()
+	{
+		// Load or create commandstats object
+		let commandstats = await this.client.config.get('commandstats') || {};
+
+		// Update statistics
+		commandstats[this.name] = {
+			use_count: this.use_count,
+			err_count: this.err_count
+		};
+
+		// Save it
+		await this.client.config.set('commandstats', commandstats);
+	}
+
+	// Return command help text
 	helptext(prefix)
 	{
 		if (!this.help)

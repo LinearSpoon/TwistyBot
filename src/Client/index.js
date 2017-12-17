@@ -1,5 +1,9 @@
 let Discord = require('discord.js');
 let Command = require('../Command');
+let fs = require('fs');
+let util = require('util');
+let fs_readdir = util.promisify(fs.readdir);
+let fs_stat = util.promisify(fs.stat);
 
 /*
 	Client
@@ -12,10 +16,10 @@ let Command = require('../Command');
 		.config
 		.prefix
 		.permissions
+		.commands[]
+			{Command}
 		.commands_by_name[name]
-			{command}
-		.commands_by_category[category][]
-			{command}
+			{Command}
 */
 
 class Client extends Discord.Client
@@ -39,88 +43,126 @@ class Client extends Discord.Client
 		this.permissions = options.global_permissions || [];
 		this.error_channel = options.error_channel;
 
-		// key = command name, value = command object
+		// Array of all registered command objects
+		this.commands = [];
+		// Map of command name/alias to command object
 		this.commands_by_name = {};
-		// key = category name, value = array of command objects
-		this.commands_by_category = {};
 
 		// Load event handlers
-		let fs = require('fs');
 		fs.readdirSync(__dirname + '/events').forEach(function(file) {
 			// Filename is the event name, but we need to remove the extension
 			let event_name = file.replace(/\.[^\.]*/,'');
 			this.on(event_name, require(__dirname + '/events/' + file));
 		}.bind(this));
-
-		// Load built in commands
-		this.add_command_directory(__dirname + '/../commands');
 	}
 
+	// Find a command by its name or alias
+	// Returns undefined if not found
 	get_command(command_name)
 	{
 		command_name = command_name.toLowerCase();
 		return this.commands_by_name[command_name];
 	}
 
-	add_command(require_path, name, category)
+	// Adds the default commands found in src/commands folder
+	async add_default_commands()
 	{
-		let options = require(require_path);
+		await this.add_command_directory(__dirname + '/../commands');
+	}
 
-		// If name/category aren't defined, use the parameters
-		if (!options.name)
-			options.name = name;
-		if (!options.category)
-			options.category = category;
-
+	// Registers a new command
+	async add_command(options)
+	{
 		// Create the command
 		let command = new Command(this, options);
 
-		// Save the command under its category
-		this.commands_by_category[command.category].push(command);
-
-		// Check if the command already exists and warn
+		// Warn if the name is already used
 		let existing = this.get_command(command.name);
 		if (existing)
 		{
 			console.warn(command.name + ' will overwrite ' + existing.name + ' or one of its aliases!');
 		}
-		// Save the command under its name
+
+		// Save the command by name
 		this.commands_by_name[command.name.toLowerCase()] = command;
 
-		// Save the command under its aliases
 		command.aliases.forEach(function(alias) {
+			// Warn if the alias is already used
 			let existing = this.get_command(alias);
 			if (existing)
 			{
 				console.warn(command.name + '\'s alias ' + alias + ' will overwrite ' + existing.name + ' or one of its aliases!');
 			}
 
+			// Save the command by alias
 			this.commands_by_name[alias.toLowerCase()] = command;
 		}, this);
+
+		// Save the command
+		this.commands.push(command);
+
+		// Do any startup/caching work asynchronously
+		await command.init();
 	}
 
-	add_command_directory(directory)
+	// Loads a folder of command files with the following structure:
+	// directory
+	//  ├category1
+	//  │ ├command1.js
+	//  │ ├command2.js
+	//  │ └command3.js
+	//  └category2
+	//    └command4.js
+	//
+	// Subfolders are treated as command categories, with the name of the subfolder used as the category name
+	// Files within the subfolder should export command options that can be passed to client.add_command()
+	// The filename will automatically be used as the command name, minus the file extension
+	async add_command_directory(folder)
 	{
-		let fs = require('fs');
+		let self = this;
+		let promises = [];
 
-		let folders = fs.readdirSync(directory);
-		for(let i = 0; i < folders.length; i++)
+		// Load top level files and folders
+		let files = await fs_readdir(folder);
+		for(let i = 0; i < files.length; i++)
 		{
-			// Top level should be category folders
-			let category = folders[i];
-			if (!this.commands_by_category[category])
-				this.commands_by_category[category] = [];
+			let path = folder + '/' + files[i];
+			let stats = await fs_stat(path);
 
-			// Files in category folders should be require-able modules that export a command object
-			let folder = directory + '/' + category;
-			let files = fs.readdirSync(folder);
-			for(let j = 0; j < files.length; j++)
+			if (stats.isDirectory())
 			{
-				let file_no_ext = files[j].replace(/\.[^\.]*/,'');
-				// The file name is the command name, the folder is the category
-				this.add_command(folder + '/' + file_no_ext, file_no_ext, category);
+				// Subfolders use the folder name as the category
+				let category = files[i];
+				let subfiles = await fs_readdir(path);
+
+				subfiles.forEach(function(subfile) {
+					// Strip the file extension
+					subfile = subfile.replace(/\.[^\.]*/,'');
+					// Load command options
+					let options = require(path + '/' + subfile);
+					// Apply command name and category if they weren't already defined
+					if (!options.name)
+						options.name = subfile;
+					if (!options.category)
+						options.category = category;
+					promises.push( self.add_command(options) );
+				});
+			}
+			else if (stats.isFile())
+			{
+				// Top level files assume General category
+				let options = require(path);
+				// Apply command name and category if they weren't already defined
+				if (!options.name)
+					options.name = files[i].replace(/\.[^\.]*/,'');
+				if (!options.category)
+					options.category = 'General';
+				promises.push( self.add_command(options) );
 			}
 		}
+
+		// Wait for all commands to init
+		await Promise.all(promises);
 	}
 
 	// Sends a message to the bot's error channel

@@ -128,13 +128,13 @@ module.exports = async function(message) {
 	try
 	{
 		response = await command.run(Discord, this, parsed_params, options);
-		command.completed(start_time);
+		await command.completed(start_time);
 	}
 	catch(err)
 	{
 		// Something terrible happened
 		response = Discord.code_block('An error occurred while running the command:\n' + err.message);
-		command.errored(start_time);
+		command.errored(start_time).catch(err => console.warn(err));
 		this.log_error(err, options.message);
 	}
 

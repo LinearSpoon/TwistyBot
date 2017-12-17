@@ -18,26 +18,25 @@ module.exports.run = async function(Discord, client, params, options) {
 		return help || Discord.code_block(name + ' has no help information!');
 	}
 
-
-	// Filter out commands that the user can't use
+	// Build a listing of all commands the user can access
 	let accessible = {}; // arrays of accessible commands indexed by category
-	let longest = 0; // length of the longest command name in this category
+	let longest = 0; // length of the longest command name (to align columns in different tables)
 
-	for(let category in client.commands_by_category)
+	for(let command of client.commands)
 	{
-		accessible[category] = [];
-		for(let command of client.commands_by_category[category])
+		// Skip commands without help properties
+		if (!command.help)
+			continue;
+		// Check if user can use this command
+		if (await command.check_permission(options.message))
 		{
-			// Skip commands without help properties
-			if (!command.help)
-				continue;
-
-			// Check if user can use this command.
-			if (await command.check_permission(options.message))
+			if (!accessible[command.category])
 			{
-				accessible[category].push(command);
-				longest = Math.max(command.name.length, longest);
+				accessible[command.category] = [];
 			}
+
+			accessible[command.category].push(command);
+			longest = Math.max(command.name.length, longest);
 		}
 	}
 
@@ -49,20 +48,16 @@ module.exports.run = async function(Discord, client, params, options) {
 	table.min_width(longest + options.prefix.length, 1);
 	table.align('ll');
 
-	for(let category in client.commands_by_category)
+	for(let category in accessible)
 	{
-		// If there are any accessible commands in this category...
-		if (accessible[category].length > 0)
-		{
-			// Sort alphabetically by command name
-			accessible[category].sort( (a,b) => b.name < a.name );
-			// Add commands to table
-			accessible[category].forEach(cmd => table.push(options.prefix + cmd.name, cmd.help.description));
-			// Append category to help response
-			help += '\n' + category + ':' + Discord.code_block(table.toString());
-			// Reset table for next category
-			table.empty();
-		}
+		// Sort alphabetically by command name
+		accessible[category].sort( (a,b) => b.name < a.name );
+		// Add commands to table
+		accessible[category].forEach(cmd => table.push(options.prefix + cmd.name, cmd.help.description));
+		// Append category to help response
+		help += '\n' + category + ':' + Discord.code_block(table.toString());
+		// Reset table for next category
+		table.empty();
 	}
 
 	return help;
