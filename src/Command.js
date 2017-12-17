@@ -186,6 +186,12 @@ class Command
 		{
 			var owner = message.guild.ownerID;
 			var guild_id = message.guild.id;
+
+			// Invisible users aren't always cached and we need to explicitly fetch them
+			if (!message.member)
+			{
+				message.member = await message.guild.fetchMember(message.author);
+			}
 			var roles = message.member.roles;
 			var custom_rules = await message.guild.config.get('permissions');
 		}
