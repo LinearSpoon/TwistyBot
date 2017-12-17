@@ -168,18 +168,36 @@ class Client extends Discord.Client
 	// Sends a message to the bot's error channel
 	async log_error(err, message)
 	{
-		let emsg = err.stack;
+		let emsg;
 
-		// Append request path if it's a Discord API error, since the stacks for those are boring
-		if (err instanceof Discord.DiscordAPIError)
-			emsg += '\nSpecifically [' + err.code + '] ' + err.path;
-
-		// If there was a message, append its details
+		// If a message object is passed, add some useful details
 		if (message)
 		{
 			emsg = 'Channel: ' + message.channel.friendly_name +
 				'\nAuthor:  ' + message.author.tag +
-				'\nMessage: ' + message.cleanContent + '\n' + emsg;
+				'\nMessage: ' + message.cleanContent + '\n';
+		}
+
+		// Add a stacktrace
+		emsg += err.stack;
+
+		// // Append request path if it's a Discord API error, since the stacks for those are boring
+		// if (err instanceof Discord.DiscordAPIError)
+		// 	emsg += '\nSpecifically [' + err.code + '] ' + err.path;
+
+		// Add other keys of the error object
+		let keys = Object.keys(err);
+		if (keys.length > 0)
+		{
+			emsg += '\n\nExtra:';
+			for(let key of keys)
+			{
+				// Skip keys printed by the stack trace
+				if (key == 'message' || key == 'stack')
+					continue;
+				
+				emsg += '\n    ' + key + ' = ' + err[key].toString();
+			}
 		}
 
 		console.warn(emsg);
