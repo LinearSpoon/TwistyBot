@@ -176,11 +176,14 @@ class Client extends Discord.Client
 			emsg = 'Channel: ' + message.channel.friendly_name +
 				'\nAuthor:  ' + message.author.tag +
 				'\nMessage: ' + message.cleanContent + '\n';
+			// Add a stacktrace
+			emsg += err.stack;
 		}
-
-		// Add a stacktrace
-		emsg += err.stack;
-
+		else
+		{
+			emsg = err.stack;
+		}
+		
 		// // Append request path if it's a Discord API error, since the stacks for those are boring
 		// if (err instanceof Discord.DiscordAPIError)
 		// 	emsg += '\nSpecifically [' + err.code + '] ' + err.path;

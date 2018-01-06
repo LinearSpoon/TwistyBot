@@ -1,7 +1,7 @@
 // Parameters are comma separated, eg !price hammer, tinderbox, knife
 module.exports = function(content) {
 	// Split parameters into an array
-	let match = content.match(/('[^']*'|"[^"]*"|[^,])+/g);
+	let match = content.match(/([^,]+|'[^']*'|"[^"]*"|^(?=,))+/g);
 
 	if (!match)
 		return [];

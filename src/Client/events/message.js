@@ -38,7 +38,7 @@ module.exports = async function(message) {
 	content = content.slice(options.prefix.length);
 
 	// Extract command name
-	let match = content.match(/^([a-zA-Z_]+)\s*,?/);
+	let match = content.match(/^([a-zA-Z_]+) *,?/);
 	if (!match)
 		return; // Couldn't parse
 
@@ -102,7 +102,7 @@ module.exports = async function(message) {
 	parser = parser || this.parsers.comma_separated;
 
 	// Extract the parameters without command name
-	let raw_params = content.slice(match[0].length).trim();
+	let raw_params = content.slice(match[0].length);
 	let parsed_params = parser(raw_params);
 
 	// Check parameters
