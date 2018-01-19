@@ -11,7 +11,9 @@
 - [class: Table](#class-table)
 - [Discord.js extensions](#discordjs-extensions)
 - [extension: Channel](#extension-channel)
+	* [Channel.friendly_name](#channel-friendly-name)
 - [extension: Guild](#extension-guild)
+	* [Guild.config](#guild-config)
 - [extension: GuildMember](#extension-guild)
 - [extension: Message](#extension-guild)
 - [extension: User](#extension-guild)
@@ -36,8 +38,7 @@
 
 
 ### class: Client
-
-* extends: [`Discord.Client`](https://discord.js.org/#/docs/main/stable/class/Client)
+* extends: [Discord.Client](https://discord.js.org/#/docs/main/stable/class/Client)
 
 #### <a name="client-add-command"></a>client.add_command(options)
 - `options` <[Object]>
@@ -58,7 +59,17 @@
 TwistyBot adds some extra functionality to the base Discord.js features. That is to say, you can access all the functions and variables of the original Discord.js classes, plus these additional functions defined by TwistyBot.
 
 ### extension: Channel
+* extends: [Discord.Channel](https://discord.js.org/#/docs/main/stable/class/Channel)
+
+#### <a name="channel-friendly-name"></a>Channel.friendly_name
+- returns: <[String]> A friendly name for the channel. For example, a DM channel with user#1234 would be returned as `DM.user#1234`.
+
 ### extension: Guild
+* extends: [Discord.Guild](https://discord.js.org/#/docs/main/stable/class/Guild)
+
+#### <a name="guild-config"></a>Guild.config
+- returns: <[Config]> Settings for this guild.
+
 ### extension: GuildMember
 ### extension: Message
 ### extension: User
@@ -119,6 +130,8 @@ A shortcut for making a JSON language code block using the stringified value.
 - returns: <[String]>
 
 <!-- Link defines -->
+[Config]: #class-config
+
 [Function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function "Function"
 [Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
 [Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
