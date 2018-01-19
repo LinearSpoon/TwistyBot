@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [class: Client](#class-client)
-	* [client.add_command(options)](#client)
+	* [client.add_command(options)](#client-add-command)
 
 
 ### class: Client
