@@ -3,6 +3,44 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
+- [TwistyBot](#twistybot)
+	- [class: Client](#class-client)
+		- [Client.add_command(options)](#client-add-command)
+		- [Client.add_command_directory(folder)](#client-add-command-folder)
+		- [Client.add_default_commands()](#client-add-default-commands)
+		- [Client.get_command(command_name)](#client-get-command)
+		- [Client.log_error(err, message)](#client-log-error)
+	- [class: Command](#class-command)
+	- [class: Config](#class-config)
+	- [class: Table](#class-table)
+- [Discord.js extensions](#discordjs-extensions)
+	- [extension: Channel](#extension-channel)
+		- [Channel.friendly_name](#channel-friendly-name)
+	- [extension: Guild](#extension-guild)
+		- [Guild.config](#guild-config)
+	- [extension: GuildMember](#extension-guildmember)
+		- [GuildMember.config](#guildmember-config)
+	- [extension: Message](#extension-message)
+		- [Message.string_content](#message-string-content)
+	- [extension: User](#extension-user)
+		- [User.config](#user-config)
+	- [extension: Markdown Functions](#extension-markdown-functions)
+		- [Discord.italics(text)](#markdown-italics)
+		- [Discord.bold(text)](#markdown-bold)
+		- [Discord.bold_italics(text)](#markdown-bold-italics)
+		- [Discord.strikeout(text)](#markdown-strikeout)
+		- [Discord.underline(text)](#markdown-underline)
+		- [Discord.underline_italics(text)](#markdown-underline-italics)
+		- [Discord.underline_bold(text)](#markdown-underline-bold)
+		- [Discord.underline_bold_italics(text)](#markdown-underline-bold-italics)
+		- [Discord.code_block(text)](#markdown-code-block)
+		- [Discord.inline_code(text)](#markdown-inline-code)
+		- [Discord.link(link)](#markdown-link)
+		- [Discord.masked_link(text, link)](#markdown-masked-link)
+		- [Discord.json(value)](#markdown-json)
+
+
 ## TwistyBot
 
 ```javascript
@@ -46,6 +84,24 @@ let bot = new TwistyBot.Client();
 
 - returns: <[Promise]> Resolves when TwistyBot finishes initializing the command.
 
+#### <a name="client-add-command-folder"></a>Client.add_command_directory(folder)
+- `folder` <[String]> Path to a folder of commands
+
+- returns: <[Promise]> Resolves when TwistyBot finishes initializing all commands in the folder.
+
+This function provides a convenient way to load an organized folder of commands, with the following structure:
+```
+folder
+ ├category1
+ │ ├command1.js
+ │ ├command2.js
+ │ └command3.js
+ └category2
+   └command4.js
+```
+Subfolders are treated as command categories, with the name of the subfolder used as the category name. Files within the subfolder should export command options that can be passed to [Client.add_command()](#client-add-command). The filename will automatically be used as the command name, excluding the file extension. An example command folder can be found at /src/commands, which contains TwistyBot's default commands.
+
+
 #### <a name="client-add-default-commands"></a>Client.add_default_commands()
 - returns: <[Promise]> Resolves when TwistyBot finishes initializing the commands.
 
@@ -55,6 +111,19 @@ Adds the default commands. The default commands include `help`, `permission`, an
 - returns: <?[Command]>
 
 Finds a command by its name or alias. If no such command exists, this function returns undefined.
+
+#### <a name="client-log-error"></a>Client.log_error(err, message)
+- `err` <[Error]> The error that was raised.
+- `message` <[Discord.Message] The command message that was being processed.
+
+This function delivers a stack trace of the error to the bot's Discord error channel. You can specify this channel by passing a channel ID to the bot constructor:
+```javascript
+let bot = new TwistyBot.Client({
+	error_channel: '212345627062207890'
+});
+```
+
+- returns: <[Promise]>
 
 ### class: Command
 ### class: Config
@@ -82,13 +151,13 @@ TwistyBot adds some extra functionality to the base Discord.js features. That is
 - returns: <[Config]> Settings for this user.
 
 ### extension: Message
-* extends: [Discord.Message](https://discord.js.org/#/docs/main/stable/class/Message)
+* extends: [Discord.Message]
 
 #### <a name="message-string-content"></a>Message.string_content
 - returns: <[String]> A string representation of the message content. Embeds and file attachments are also stringified after the main message text content.
 
 ### extension: User
-* extends: [Discord.User](https://discord.js.org/#/docs/main/stable/class/User)
+* extends: [Discord.User]
 
 #### <a name="user-config"></a>User.config
 - returns: <[Config]> Settings for this user.
@@ -156,6 +225,9 @@ A shortcut for making a JSON language code block using the stringified value.
 [Config]: #class-config
 [Command]: #class-command
 
+[Discord.Message]: https://discord.js.org/#/docs/main/stable/class/Message "Discord.Message"
+[Discord.User]: https://discord.js.org/#/docs/main/stable/class/User "Discord.User"
+
 [Function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function "Function"
 [Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
 [Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
@@ -163,3 +235,4 @@ A shortcut for making a JSON language code block using the stringified value.
 [Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array "Array"
 [Boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type "Boolean"
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise"
+[Error]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error "Error"
