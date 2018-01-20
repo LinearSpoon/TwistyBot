@@ -14,9 +14,12 @@
 	* [Channel.friendly_name](#channel-friendly-name)
 - [extension: Guild](#extension-guild)
 	* [Guild.config](#guild-config)
-- [extension: GuildMember](#extension-guild)
-- [extension: Message](#extension-guild)
-- [extension: User](#extension-guild)
+- [extension: GuildMember](#extension-guildmember)
+	* [GuildMember.config](#guildmember-config)
+- [extension: Message](#extension-message)
+	* [Message.string_content](#message-string-content)
+- [extension: User](#extension-user)
+	* [User.config](#user-config)
 - [extension: Markdown Functions](#extension-markdown-functions)
 	* [Discord.italics(text)](#markdown-italics)
 	* [Discord.bold(text)](#markdown-bold)
@@ -71,8 +74,23 @@ TwistyBot adds some extra functionality to the base Discord.js features. That is
 - returns: <[Config]> Settings for this guild.
 
 ### extension: GuildMember
+* extends: [Discord.GuildMember](https://discord.js.org/#/docs/main/stable/class/GuildMember)
+
+#### <a name="guildmember-config"></a>GuildMember.config
+- returns: <[Config]> Settings for this user.
+
 ### extension: Message
+* extends: [Discord.Message](https://discord.js.org/#/docs/main/stable/class/Message)
+
+#### <a name="message-string-content"></a>Message.string_content
+- returns: <[String]> A string representation of the message content. Embeds and file attachments are also stringified after the main message text content.
+
 ### extension: User
+* extends: [Discord.User](https://discord.js.org/#/docs/main/stable/class/User)
+
+#### <a name="user-config"></a>User.config
+- returns: <[Config]> Settings for this user.
+
 ### extension: Markdown Functions
 The following are convenience functions for using Discord Markdown. They are made available as properties of the Discord.js module.
 
