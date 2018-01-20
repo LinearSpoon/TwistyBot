@@ -3,62 +3,64 @@
 
 ## Table of Contents
 
-- [TwistyBot](#twistybot)
-- [class: Client](#class-client)
-	* [client.add_command(options)](#client-add-command)
-- [class: Command](#class-command)
-- [class: Config](#class-config)
-- [class: Table](#class-table)
-- [Discord.js extensions](#discordjs-extensions)
-- [extension: Channel](#extension-channel)
-	* [Channel.friendly_name](#channel-friendly-name)
-- [extension: Guild](#extension-guild)
-	* [Guild.config](#guild-config)
-- [extension: GuildMember](#extension-guildmember)
-	* [GuildMember.config](#guildmember-config)
-- [extension: Message](#extension-message)
-	* [Message.string_content](#message-string-content)
-- [extension: User](#extension-user)
-	* [User.config](#user-config)
-- [extension: Markdown Functions](#extension-markdown-functions)
-	* [Discord.italics(text)](#markdown-italics)
-	* [Discord.bold(text)](#markdown-bold)
-	* [Discord.bold_italics(text)](#markdown-bold-italics)
-	* [Discord.strikeout(text)](#markdown-strikeout)
-	* [Discord.underline(text)](#markdown-underline)
-	* [Discord.underline_italics(text)](#markdown-underline-italics)
-	* [Discord.underline_bold(text)](#markdown-underline-bold)
-	* [Discord.underline_bold_italics(text)](#markdown-underline-bold-italics)
-	* [Discord.code_block(text)](#markdown-code-block)
-	* [Discord.inline_code(text)](#markdown-inline-code)
-	* [Discord.link(link)](#markdown-link)
-	* [Discord.masked_link(text, link)](#markdown-masked-link)
-	* [Discord.json(value)](#markdown-json)
+## TwistyBot
 
+```javascript
+const TwistyBot = require('twistybot');
+let bot = new TwistyBot.Client();
 
-### TwistyBot
+(async function() {
+	// Register default commands
+	await bot.add_default_commands();
 
+	// Register a folder of commands
+	await bot.add_command_directory(__dirname + '/commands');
 
+	// Begin listening for commands
+	bot.login('your bot token');
+})();
+```
 
 ### class: Client
 * extends: [Discord.Client](https://discord.js.org/#/docs/main/stable/class/Client)
 
-#### <a name="client-add-command"></a>client.add_command(options)
+#### <a name="client-add-command"></a>Client.add_command(options)
 - `options` <[Object]>
-	- `help` <[Object]>
+	- `help` <?[Object]>
 		- `description` <[String]> A short, one line description of the command.
-		- `parameters` <[String]> Parameter usage information
-		- `details` <?[String]> A longer description of the command
-		- `examples` <?[Array]<[String]|[Object]>> An array of example commands and explanations
-			- `params` <[String]> The example's parameters
-			- `result` <[String]> The example's result
-- returns: <[Promise]>
+		- `parameters` <[String]> Parameter usage information.
+		- `details` <?[String]> A longer description of the command.
+		- `examples` <?[Array]<[String]|[Object]>> An array of example commands and explanations.
+			- `params` <[String]> The example's parameters.
+			- `result` <[String]> The example's result.
+	- `params` <?[Object]>
+		- `min` <?[Number]> The minimum number of parameters.
+		- `max` <?[Number]> The maximum number of parameters.
+		- `parser` <?[String]|?[Function]> A parser used to convert the raw parameter string to parsed parameters.
+		- `check` <?[Function]> A function used to check if the parameters are valid.
+	- `permissions` <[Array]<[Object]>>
+	- `aliases` <?[Array]<[String]>> A list of aliases for this command.
+	- `name` <[String]> The name of this command.
+	- `category` <[String]> The category of this command.
+	- `run` <[Function]> The main command function that prepares the command response.
+
+- returns: <[Promise]> Resolves when TwistyBot finishes initializing the command.
+
+#### <a name="client-add-default-commands"></a>Client.add_default_commands()
+- returns: <[Promise]> Resolves when TwistyBot finishes initializing the commands.
+
+Adds the default commands. The default commands include `help`, `permission`, and `setprefix`.
+
+#### <a name="client-get-command"></a>Client.get_command(command_name)
+- returns: <?[Command]>
+
+Finds a command by its name or alias. If no such command exists, this function returns undefined.
 
 ### class: Command
 ### class: Config
 ### class: Table
 
-### Discord.js extensions
+## Discord.js extensions
 TwistyBot adds some extra functionality to the base Discord.js features. That is to say, you can access all the functions and variables of the original Discord.js classes, plus these additional functions defined by TwistyBot.
 
 ### extension: Channel
@@ -131,24 +133,28 @@ console.log( Discord.bold('Hello world!') );
 - `text` <[String]> Text to format
 - returns: <[String]> Text formatted as an inline code block.
 #### <a name="markdown-link"></a>Discord.link(link)
-This function formats a link so that it does not automatically embed a preview of the url after the message.
-
 - `link` <[String]> Link to format
 - returns: <[String]>
-#### <a name="markdown-masked-link"></a>Discord.masked_link(text, link)
-Masked links display the given text instead of the url, allowing for nicer output. Masked links can only be used inside embeds, not regular text messages. Note that masked links are referred to as "spoopy links" within Discord.
 
+This function formats a link so that it does not automatically embed a preview of the url after the message.
+
+#### <a name="markdown-masked-link"></a>Discord.masked_link(text, link)
 - `text` <[String]> Text to be displayed
 - `link` <[String]> Link to format
 - returns: <[String]>
-#### <a name="markdown-json"></a>Discord.json(value)
-A shortcut for making a JSON language code block using the stringified value.
 
+Masked links display the given text instead of the url, allowing for nicer output. Masked links can only be used inside embeds, not regular text messages. Note that masked links are referred to as "spoopy links" within Discord.
+
+#### <a name="markdown-json"></a>Discord.json(value)
 - `value` <Any> Value to be formatted
 - returns: <[String]>
 
+A shortcut for making a JSON language code block using the stringified value.
+
+
 <!-- Link defines -->
 [Config]: #class-config
+[Command]: #class-command
 
 [Function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function "Function"
 [Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
