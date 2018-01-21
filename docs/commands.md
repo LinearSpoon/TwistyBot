@@ -126,7 +126,7 @@ When the user runs `!help`, these options produce:
 ![](/docs/images/mix-minihelp.png)
 
 ### options.params
-The params option specifies how parameters are parsed and validated prior to calling the [options.run](#options-run) function. For example, if you specify `{ min: 2 }`, it means the command requires 2 or more parameters. If the user passes 0 or 1 parameter, the run function will not be called and instead the command's help text will be returned.
+The params option specifies how parameters are parsed and validated prior to calling the [options.run](#optionsrun) function. For example, if you specify `{ min: 2 }`, it means the command requires 2 or more parameters. If the user passes 0 or 1 parameter, the run function will not be called and instead the command's help text will be returned.
 
 - `min` <?[Number]> The minimum number of parameters.
 - `max` <?[Number]> The maximum number of parameters.
@@ -157,7 +157,7 @@ The params option specifies how parameters are parsed and validated prior to cal
 An array of permission rules. See [Command Permissions](/docs/permissions.md) for an in depth explanation of the permission system.
 
 ### options.aliases
-An array of alternate names for the command. Note that [options.name](#options-name) is the name that will appear in the !help command.
+An array of alternate names for the command. Note that [options.name](#optionsname) is the name that will appear in the !help command.
 
 ### options.init
 An optional async function that loads any data necessary for running the command. This function should return a promise that resolves when the function finishes loading data. TwistyBot will not run the command until this function resolves.
