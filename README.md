@@ -33,8 +33,8 @@ let bot = new TwistyBot.Client();
 ```
 
 ## Documentation
-- [How do I get a bot account/token?](docs/bot_account.md)
-- [Writing Commands](docs/commands.md)
-- [Command Permissions](docs/permissions.md)
-- [API](docs/api.md)
+- [How do I get a bot account/token?](/docs/bot_account.md)
+- [Writing Commands](/docs/commands.md)
+- [Command Permissions](/docs/permissions.md)
+- [API](/docs/api.md)
 - [Discord.js](https://discord.js.org/#/docs/main/stable/general/welcome)
