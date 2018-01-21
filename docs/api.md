@@ -12,8 +12,24 @@
 		- [Client.get_command(command_name)](#client-get-command)
 		- [Client.log_error(err, message)](#client-log-error)
 	- [class: Command](#class-command)
+		- [Command.stats()](#command-stats)
+		- [Command.reset_stats()](#command-reset-stats)
+		- [Command.helptext(prefix)](#command-helptext)
 	- [class: Config](#class-config)
+		- [Config.get(key)](#config-get)
+		- [Config.set(key, value)](#config-set)
+		- [Config.clear()](#config-clear)
 	- [class: Table](#class-table)
+		- [Table.align(a)](#table-align)
+		- [Table.min_width(...w)](#table-min-width)
+		- [Table.push(...row)](#table-push)
+		- [Table.header(...row)](#table-header)
+		- [Table.full(value)](#table-full)
+		- [Table.div()](#table-div)
+		- [Table.pop()](#table-pop)
+		- [Table.empty()](#table-empty)
+		- [Table.toString()](#table-tostring)
+		- [Table.length](#table-length)
 - [Discord.js extensions](#discordjs-extensions)
 	- [extension: Channel](#extension-channel)
 		- [Channel.friendly_name](#channel-friendly-name)
@@ -114,7 +130,7 @@ Finds a command by its name or alias. If no such command exists, this function r
 
 #### <a name="client-log-error"></a>Client.log_error(err, message)
 - `err` <[Error]> The error that was raised.
-- `message` <[Discord.Message] The command message that was being processed.
+- `message` <[Discord.Message]> The command message that was being processed.
 
 This function delivers a stack trace of the error to the bot's Discord error channel. You can specify this channel by passing a channel ID to the bot constructor:
 ```javascript
@@ -126,8 +142,96 @@ let bot = new TwistyBot.Client({
 - returns: <[Promise]>
 
 ### class: Command
+
+#### <a name="command-stats"></a>Command.stats()
+- returns: <[Object]>
+	- `uses` <[Number]> The number of times the command was used.
+	- `errors` <[Number]> The number of times the command failed to complete (threw an error)
+	- `average_time_ms` <[Number]> Average running time of the command in milliseconds
+
+#### <a name="command-reset-stats"></a>Command.reset_stats()
+- returns: <[undefined]>
+
+Clears the usage/error statistics for this command.
+
+#### <a name="command-helptext"></a>Command.helptext(prefix)
+- `prefix` <[String]> The command prefix to use in examples and usage.
+
+- returns: <[String]> The formatted help text
+
 ### class: Config
+
+#### <a name="config-get"></a>Config.get(key)
+- `key` <[String]>
+
+- returns <[Promise]<Any>> Resolves with the value of key.
+
+#### <a name="config-set"></a>Config.set(key, value)
+- `key` <[String]>
+- `value` <Any>
+
+- returns: <[Promise]> Resolves when the key is set to value
+
+#### <a name="config-clear"></a>Config.clear()
+- returns: <[Promise]> Resolves when all keys are cleared
+
+
 ### class: Table
+
+#### <a name="table-align"></a>Table.align(a)
+- `a` <[String]> Specifies the alignments of each column. Valid characters are 'l' for left, 'r' for right, and 'c' fo center aligned. For example, 'llr' indicates the first two columns are left aligned, and the third column is right aligned.
+
+- returns: <[undefined]>
+
+#### <a name="table-min-width"></a>Table.min_width(...w)
+- `w` <[Number]> The minimum width in characters of each column.
+
+- returns: <[undefined]>
+
+#### <a name="table-push"></a>Table.push(...row)
+- `row` <Any> A row of table values.
+
+- returns: <[undefined]>
+
+This function adds a new row of values to the bottom of the table.
+
+#### <a name="table-header"></a>Table.header(...row)
+- `row` <Any> A row of table values.
+
+- returns: <[undefined]>
+
+This function adds a new row of center aligned values to the bottom of the table. A separator is added automatically after the row is inserted.
+
+#### <a name="table-full"></a>Table.full(value)
+- `value` <Any> A single value.
+
+- returns: <[undefined]>
+
+This function adds a full width, centered row to the bottom of the table.
+
+#### <a name="table-div"></a>Table.div()
+- returns: <[undefined]>
+
+This function adds a separator between the bottom row and the next row pushed.
+
+#### <a name="table-pop"></a>Table.pop()
+- returns: <[undefined]>
+
+This function removes the most recently pushed row.
+
+#### <a name="table-empty"></a>Table.empty()
+- returns: <[undefined]>
+
+This function removes all rows from the table.
+
+#### <a name="table-tostring"></a>Table.toString()
+- returns: <[String]>
+
+Stringifies the table. Does not add Discord code block tags.
+
+#### <a name="table-length"></a>Table.length
+- returns: <[Number]> The number of rows in the table.
+
 
 ## Discord.js extensions
 TwistyBot adds some extra functionality to the base Discord.js features. That is to say, you can access all the functions and variables of the original Discord.js classes, plus these additional functions defined by TwistyBot.
@@ -236,3 +340,4 @@ A shortcut for making a JSON language code block using the stringified value.
 [Boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type "Boolean"
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise"
 [Error]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error "Error"
+[undefined]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined "undefined"
