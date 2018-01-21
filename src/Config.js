@@ -1,4 +1,4 @@
-class config
+class Config
 {
 	constructor(id = null)
 	{
@@ -25,4 +25,4 @@ class config
 	}
 }
 
-module.exports = config;
+module.exports = Config;

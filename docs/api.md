@@ -96,6 +96,7 @@ let bot = new TwistyBot.Client();
 	- `aliases` <?[Array]<[String]>> A list of aliases for this command.
 	- `name` <[String]> The name of this command.
 	- `category` <[String]> The category of this command.
+	- `init` <[Function]> A function called to initialize any data the command uses.
 	- `run` <[Function]> The main command function that prepares the command response.
 
 - returns: <[Promise]> Resolves when TwistyBot finishes initializing the command.
