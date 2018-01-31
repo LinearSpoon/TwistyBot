@@ -1,8 +1,14 @@
 # TwistyBot
 
+Click [here](https://discordapp.com/oauth2/authorize?client_id=228019028755611648&permissions=0&scope=bot) if you are just looking to invite TwistyBot to your server.
+
+The rest of this page contains information for developers looking to create a new Discord bot using TwistyBot's command framework. If you need help using TwistyBot, use the `!help` command or DM Twisty Fork#0899 on Discord.
+
 Documentation in progress!
 
 ## What is TwistyBot?
+TwistyBot is a command framework that extends [Discord.js](https://discord.js.org/#/docs/main/stable/general/welcome). TwistyBot helps you build quickly build custom command for Discord chat bots. It includes a permission system, multiple command parsers, and helpful functions to simplify formatting your responses. 
+
 
 ## Installation
 Requirements
