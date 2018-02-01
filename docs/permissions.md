@@ -7,29 +7,29 @@ Global permissions apply to every command and take effect before command specifi
 
 Allow the bot owner to access all commands:
 ```javascript
-	let bot = new TwistyBot.Client({
-		global_permissions: [
-			{ user: 'YOUR USER ID', allow: true }
-		]
-	});
+let bot = new TwistyBot.Client({
+	global_permissions: [
+		{ user: 'YOUR USER ID', allow: true }
+	]
+});
 ```
 
 Block commands in every channel except two specific channels. This sort of rule is helpful in a development environment where you want to only let the bot respond in #dev channels.
 ```javascript
-	let bot = new TwistyBot.Client({
-		global_permissions: [
-			{ not_channel: ['#DEV CHANNEL 1 ID', '#DEV CHANNEL 2 ID'], block: true }
-		]
-	});
+let bot = new TwistyBot.Client({
+	global_permissions: [
+		{ not_channel: ['#DEV CHANNEL 1 ID', '#DEV CHANNEL 2 ID'], block: true }
+	]
+});
 ```
 
 Block commands in several specific channels. This is the opposite of the previous example, useful in the live environment to block the bot from responding in #dev channels.
 ```javascript
-	let bot = new TwistyBot.Client({
-		global_permissions: [
-			{ channel: ['#DEV CHANNEL 1 ID', '#DEV CHANNEL 2 ID'], block: true } }
-		]
-	}
+let bot = new TwistyBot.Client({
+	global_permissions: [
+		{ channel: ['#DEV CHANNEL 1 ID', '#DEV CHANNEL 2 ID'], block: true } }
+	]
+}
 ```
 
 ## Command Permissions
