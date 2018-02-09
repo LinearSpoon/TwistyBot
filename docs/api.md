@@ -1,5 +1,5 @@
 <!-- http://tmpvar.com/markdown.html -->
-# TwistyBot API v1.5.2
+# TwistyBot API v1.5.3
 
 ## Table of Contents
 
