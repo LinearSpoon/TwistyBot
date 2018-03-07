@@ -2,6 +2,7 @@
 *.pem
 *.sh
 
+docs/toc.txt
 .eslintrc.js
 
 node_modules

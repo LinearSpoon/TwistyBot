@@ -30,6 +30,7 @@
 		- [Table.empty()](#table-empty)
 		- [Table.toString()](#table-tostring)
 		- [Table.length](#table-length)
+		- [Table.width](#table-width)
 - [Discord.js extensions](#discordjs-extensions)
 	- [extension: Channel](#extension-channel)
 		- [Channel.friendly_name](#channel-friendly-name)
@@ -178,6 +179,7 @@ Clears the usage/error statistics for this command.
 
 
 ### class: Table
+- `theme` <?[String]> Specifies the theme of the table. There are two built-in themes: 'default' and 'borderless'.
 
 #### <a name="table-align"></a>Table.align(a)
 - `a` <[String]> Specifies the alignments of each column. Valid characters are 'l' for left, 'r' for right, and 'c' fo center aligned. For example, 'llr' indicates the first two columns are left aligned, and the third column is right aligned.
@@ -233,6 +235,8 @@ Stringifies the table. Does not add Discord code block tags.
 #### <a name="table-length"></a>Table.length
 - returns: <[Number]> The number of rows in the table.
 
+#### <a name="table-width"></a>Table.width
+- returns: <[Number]> The number of columns in the table.
 
 ## Discord.js extensions
 TwistyBot adds some extra functionality to the base Discord.js features. That is to say, you can access all the functions and variables of the original Discord.js classes, plus these additional functions defined by TwistyBot.
