@@ -17,194 +17,269 @@ function align(value, width, alignment)
 
 class Table
 {
-	constructor(num_columns, borders = true)
+	constructor(theme = 'default')
 	{
+		// Table data rows
 		this.rows = [];
-		this.cols = num_columns;
 
-		// Current column alignment
-		this._align = 'l'.repeat(num_columns);
+		// Table theme
+		this.theme = theme;
 
-		// Current cell format functions
-		this._format = Array(num_columns);
+		// Number of columns in the table
+		this.width = 0;
 
-		// Minimum width of columns
-		this._min_width = Array(num_columns).fill(1);
-
-		// Should borders be used between cells?
-		this.borders = borders;
+		// Minimum column widths
+		this.minw = [];
 	}
 
 	align(a)
 	{
-		this._align = a;
-	}
-
-	format(...f)
-	{
-		this._format = f;
+		this.alignment = a;
 	}
 
 	min_width(...w)
 	{
-		this._min_width = w;
+		this.minw = w;
 	}
 
 	// Push a row of cells into the table
-	// If row is undefined, pushes a row of empty cells
+	// If nothing is passed, pushes a row of empty cells
 	push(...row)
 	{
-		if (row.length > 0)
-		{
-			// If there is a format function defined, use it, then convert cell to a string
-			row = row.map( (cell, index) => this._format[index] ? this._format[index](cell).toString() : cell.toString() );
-		}
-		else
-		{
-			// Push an empty row instead of undefined/null
-			row = Array(this.cols).fill('');
-		}
-		this.rows.push(
-			{
-				data: row,
-				align: this._align
-			}
-		);
+		this.rows.push({
+			type: 'data',
+			align: this.alignment || 'l'.repeat(row.length),
+			data: row.map(cell => cell.toString()),
+			div: false
+		});
+
+		this.width = Math.max(this.width, row.length);
 	}
 
 	// Push a "header" row (all centered, with a separator below it)
 	header(...row)
 	{
-		this.align('c'.repeat(this.cols));
-		this.push(...row);
-		this.div();
+		this.rows.push({
+			type: 'data',
+			align: 'c'.repeat(row.length),
+			data: row.map(cell => cell.toString()),
+			div: true
+		});
+
+		this.width = Math.max(this.width, row.length);
 	}
 
 	// Push a "full width" centered row
 	full(value)
 	{
-		this.rows.push( { full: true, data: value } );
+		this.rows.push({
+			type: 'full',
+			data: value.toString(),
+			div: false
+		});
+
+		this.width = Math.max(this.width, 1);
 	}
 
 	// Pushes a separator between rows
 	div()
 	{
-		this.rows.push( { separator: true } );
+		if (this.rows.length > 0)
+		{
+			this.rows[this.rows.length - 1].div = true;
+		}
 	}
 
 	// Remove the most recently pushed row or separator
 	pop()
 	{
 		this.rows.pop();
+		// Update the column count
+		this.width = this.rows.reduce(
+			(width, row) => Math.max(row.type == 'full' ? 1 : row.data.length, width),
+			0
+		);
 	}
 
 	// Remove all rows from the table
 	empty()
 	{
 		this.rows = [];
+		this.width = 0;
+	}
+
+	// Process the table rows to make it "square", ie all columns are the same width
+	_make_square()
+	{
+		let width = this.width;
+		return this.rows.map(function(row)
+		{
+			if (row.type != 'data') { return row; }
+
+			// Make a copy of the row, padding if it is too short
+			return {
+				type: 'data',
+				data: row.data.concat(Array(width - row.data.length).fill('')),
+				align: row.align + 'l'.repeat(width - row.align.length),
+				div: row.div
+			};
+		});
 	}
 
 	// Convert the table to a string
 	toString()
 	{
-		// Find column widths and total width
-		let col_widths = this.rows.reduce(function(widths, row) {
-			if (row.separator) { return widths; }
-			if (row.full) { return widths; }
-			return row.data.map( (cell, index) => Math.max(cell.length, widths[index]) );
-		}, this._min_width);
+		if (this.length == 0)
+			return '';
+		
+		// Make a square copy of the table
+		let table = this._make_square();
 
-		let full_width = col_widths.reduce((a, v) => a + v, 0) + 3 * this.cols - 3;
+		// Get the theme variables
+		let theme = Table.themes[this.theme] || Table.themes.default;
 
-		// Align and pad the data out with spaces
-		let aligned = this.rows.map(function(row) {
-			if (row.separator) { return row; }
-			if (row.full) { return row; }
-			return row.data.map( (cell, index) => align(cell, col_widths[index], row.align[index]) );
+		// Determine total column width (characters)
+		let col_widths = [];
+		// For each column...
+		for (let i = 0; i < this.width; i++)
+		{
+			let width = this.minw[i] || 0;
+
+			// Find maximum column width
+			table.forEach(function(row) {
+				if (row.type == 'data' && row.data[i].length > width)
+					width = row.data[i].length;
+			});
+
+			// Add padding
+			// width += theme.padding * 2;
+
+			col_widths.push(width);
+		}
+
+		// Array of fillchar strings used for borders between rows
+		let borders = col_widths.map(w => theme.fillchar.repeat(w));
+
+		// Calculate total width in characters
+		let total_width = col_widths.reduce((total, width) => total + width, 0) + theme.data.middle.length * (this.width-1);
+		
+		// Appends a row to str using the given theme edge
+		let str = '';
+		function append_row(edge, row)
+		{
+			if (edge && row)
+			{
+				str += edge.left + row.join(edge.middle) + edge.right + '\n';
+			}
+		}
+
+		// Top row
+		append_row(
+			table[0].type == 'full' ? theme.top_flat : theme.top_down,
+			borders
+		);
+
+		// For each row		
+		table.forEach(function(row, row_idx) {
+			if (row.type == 'full')
+			{
+				// Full is basically a data row with one cell
+				append_row(theme.data, [ align(row.data, total_width, 'c') ]);
+				// If there is a next row and the current row has a div after it...
+				if (row.div && table[row_idx + 1])
+				{
+					// Add border
+					append_row(
+						table[row_idx + 1].type == 'full' ? theme.middle_flat : theme.middle_down,
+						borders
+					);
+				}
+			}
+			else
+			{
+				// Normal data row
+				append_row(theme.data, row.data.map((cell, col_idx) => align(cell, col_widths[col_idx], row.align[col_idx])));
+				// If there is a next row and the current row has a div after it...
+				if (row.div && table[row_idx+1])
+				{
+					// Add border
+					append_row(
+						table[row_idx + 1].type == 'full' ? theme.middle_up : theme.middle_updown,
+						borders
+					);
+				}
+			}
 		});
 
-		if (this.borders)
-		{
-			// Prepare separator row
-			let separator = col_widths.map(width => '─'.repeat(width));
+		// Bottom row
+		append_row(
+			table[table.length - 1].type == 'full' ? theme.bottom_flat : theme.bottom_up,
+			borders
+		);
 
-			let normal = '─┼─';
-			let full_above = '─┬─';
-			let full_below = '─┴─';
-			let full_above_below = '───';
-
-			let str = '';
-
-			// Top border
-			if (aligned.length > 0 && aligned[0].full)
-				str += '┌─' + separator.join(full_above_below) + '─┐\n';
-			else
-				str += '┌─' + separator.join(full_above) + '─┐\n';
-
-			// Data columns
-			let columns = aligned.map(function(row, index) {
-				if (row.separator)
-				{
-					let above = aligned[index-1] && aligned[index-1].full; // Is there a full row above?
-					let below = aligned[index+1] && aligned[index+1].full; // Is there a full row below?
-
-					if (above && below)
-						return '├─' + separator.join(full_above_below) + '─┤';
-					if (above)
-						return '├─' + separator.join(full_above) + '─┤';
-					if (below)
-						return '├─' + separator.join(full_below) + '─┤';
-
-					return '├─' + separator.join(normal) + '─┤';
-				}
-
-				if (row.full)
-				{
-					return '│ ' + align(row.data, full_width, 'c') + ' │';
-				}
-
-				return '│ ' + row.join(' │ ') + ' │';
-			});
-
-			str += columns.join('\n');
-
-			// Bottom border
-			if (aligned.length > 0 && aligned[aligned.length - 1].full)
-				str += '\n└─' + separator.join(full_above_below) + '─┘';
-			else
-				str += '\n└─' + separator.join(full_below) + '─┘';
-
-			return str;
-		}
-		else
-		{
-			// Prepare separator row
-			let separator = col_widths.map(width => '─'.repeat(width+2));
-
-			// Data columns
-			let columns = aligned.map(function(row) {
-				if (row.separator)
-					return separator.join(' ');
-				if (row.full)
-					return ' ' + align(row.data, full_width, 'c') + ' ';
-
-				return ' ' + row.join('   ') + ' ';
-			});
-
-			return columns.join('\n');
-		}
+		return str;
 	}
 
+	// Returns the number of rows in the table (excluding divs)
 	get length()
 	{
-		let length = 0;
-		this.rows.forEach(function(row) {
-			if (row.separator) { return; }
-			length += 1;
-		});
-
-		return length;
+		return this.rows.length;
 	}
 }
+
+Table.themes = {};
+
+// Default theme
+Table.themes.default = {
+	fillchar: '─',
+	data:
+		{ left: '│ ', middle: ' │ ', right: ' │' },
+
+	top_flat:
+		{ left: '┌─', middle: '───', right: '─┐' },
+	top_down:
+		{ left: '┌─', middle: '─┬─', right: '─┐' },
+
+	middle_flat:
+		{ left: '├─', middle: '───', right: '─┤' },
+	middle_up:
+		{ left: '├─', middle: '─┴─', right: '─┤' },
+	middle_down:
+		{ left: '├─', middle: '─┬─', right: '─┤' },
+	middle_updown:
+		{ left: '├─', middle: '─┼─', right: '─┤' },
+
+	bottom_up:
+		{ left: '└─', middle: '─┴─', right: '─┘' },
+	bottom_flat:
+		{ left: '└─', middle: '───', right: '─┘' },
+};
+
+// "Borderless" theme
+Table.themes.borderless = {
+	fillchar: '─',
+	data:
+		{ left: ' ', middle: '   ', right: ' ' },
+
+	top_flat:
+		null,
+	top_down:
+		null,
+
+	middle_flat:
+		{ left: '─', middle: '───', right: '─' },
+	middle_up:
+		{ left: '─', middle: '─ ─', right: '─' },
+	middle_down:
+		{ left: '─', middle: '───', right: '─' },
+	middle_updown:
+		{ left: '─', middle: '─ ─', right: '─' },
+
+	bottom_up:
+		null,
+	bottom_flat:
+		null,
+};
+
 
 module.exports = Table;

@@ -178,7 +178,7 @@ module.exports.run = async function(Discord, client, params, options) {
 	if (permissions.length == 0)
 		return Discord.code_block('No rules!');
 
-	let table = new Discord.Table(4);
+	let table = new Discord.Table();
 	table.header('Command', 'Action', 'Type', 'IDs');
 
 	// Data rows

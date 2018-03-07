@@ -43,8 +43,7 @@ module.exports.run = async function(Discord, client, params, options) {
 	// Build help text response
 	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';
 
-	let table = new Discord.Table(2);
-	table.borders = false;
+	let table = new Discord.Table('borderless');
 	table.min_width(longest + options.prefix.length, 1);
 	table.align('ll');
 
