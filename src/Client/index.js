@@ -102,7 +102,7 @@ class Client extends Discord.Client
 		this.commands.push(command);
 
 		// Do any startup/caching work asynchronously
-		await command.init();
+		await command._init();
 	}
 
 	// Loads a folder of command files with the following structure:

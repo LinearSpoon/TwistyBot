@@ -1,4 +1,5 @@
 let Discord = require('discord.js');
+let comma_separated = require('./parsers/comma_separated.js');
 
 class Command
 {
@@ -8,8 +9,10 @@ class Command
 		this.help = options.help;
 		this.params = options.params || {};
 		this.permissions = options.permissions || [];
+		this.before = options.before;
 		this.run = options.run;
-		this.init_fn = options.init;
+		this.after = options.after;
+		this.init = options.init;
 		this.name = options.name;
 		this.category = options.category;
 		this.aliases = options.aliases || [];
@@ -18,22 +21,99 @@ class Command
 		this.timings = [];
 		this.use_count = 0;
 		this.err_count = 0;
+
+		// Pre run function actions
+		this.cancel = Symbol.for('cancel');
+		this.continue = Symbol.for('continue');
+		this.syntax_error = Symbol.for('syntax_error');
 	}
 
-	// Called after the command is first created, to load asynchronous data
-	async init()
+	/*
+		Executes the command and returns a response
+		info
+			.message
+			.channel
+			.name
+			.prefix
+			.text
+			.embeds
+			.reactions
+	*/
+	async execute(raw_params, info)
 	{
-		// Load stats
-		let commandstats = await this.client.config.get('commandstats');
-		if (commandstats && commandstats[this.name])
+		// Record time when command starts executing
+		let start_time = process.hrtime();
+
+		// Prepare parameters
+		let params = comma_separated(raw_params);
+		params.raw = raw_params;
+
+		// Check parameters
+		if (typeof this.params.min === 'number' && params.length < this.params.min)
+			return this.helptext(info.prefix);
+		if (typeof this.params.max === 'number' && params.length > this.params.max)
+			return this.helptext(info.prefix);
+		
+		// Do we have a prerun function?
+		if (typeof this.before == 'function')
 		{
-			this.use_count = commandstats[this.name].use_count;
-			this.err_count = commandstats[this.name].err_count;
+			try
+			{
+				let action = await this.before(Discord, this.client, params, info);
+				// if prerun returns a value, it wants us to do something interesting
+				if (action)
+				{
+					if (action == this.cancel)
+						return; // No further processing
+					if (action == this.syntaxerr)
+						return this.helptext(info.prefix); // Syntax error - show help text
+					if (action != this.continue)
+						return action; // Anything other than continue is an actual response
+				}
+			}
+			catch(err)
+			{
+				// Prerun function might load data for run, we can't continue if it errored
+				this.client.log_error(err, info.message);
+				// Use the error message as the response
+				return Discord.code_block('An error occurred before running the command:\n' + err.message);
+			}
 		}
 
-		// If the user passed an init_fn, call it
-		if (typeof this.init_fn === 'function')
-			await this.init_fn();
+		// Run the command
+		let response = null;
+		info.channel.startTyping();
+		try
+		{
+			response = await this.run(Discord, this.client, params, info);
+			this._save_usage(start_time, false);
+		}
+		catch(err)
+		{
+			// Log the error
+			this._save_usage(start_time, true);
+			this.client.log_error(err, info.message);
+			// Use the error message as the response
+			response = Discord.code_block('An error occurred before running the command:\n' + err.message);
+		}
+		// Always stop typing
+		info.channel.stopTyping();
+
+		// Do we have a postrun function?
+		if (typeof this.after == 'function')
+		{
+			try
+			{
+				await this.after(Discord, this.client, params, info);
+			}
+			catch (err)
+			{
+				// Log the error, but push on since we have a valid response
+				this.client.log_error(err, info.message);
+			}
+		}
+
+		return response;
 	}
 
 	// Returns error statistics
@@ -72,52 +152,6 @@ class Command
 		this.timings = [];
 	}
 
-	// Called when a command completes successfully
-	async completed(hr_start_time)
-	{
-		// Calculate elapsed time and push it into the recent timings array
-		let timediff = process.hrtime(hr_start_time);
-		this.timings.push(timediff[0] * 1000 + timediff[1] / 1000000);
-
-		// Clear the oldest time if we have too many times saved
-		if (this.timings.length > 10)
-			this.timings.shift();
-
-		this.use_count += 1;
-		await this._save_stats();
-	}
-
-	// Called when a command throws an error
-	async errored(hr_start_time)
-	{
-		// Calculate elapsed time and push it into the recent timings array
-		let timediff = process.hrtime(hr_start_time);
-		this.timings.push(timediff[0] * 1000 + timediff[1] / 1000000);
-
-		// Clear the oldest time if we have too many times saved
-		if (this.timings.length > 10)
-			this.timings.shift();
-
-		this.use_count += 1;
-		this.err_count += 1;
-		await this._save_stats();
-	}
-
-	async _save_stats()
-	{
-		// Load or create commandstats object
-		let commandstats = await this.client.config.get('commandstats') || {};
-
-		// Update statistics
-		commandstats[this.name] = {
-			use_count: this.use_count,
-			err_count: this.err_count
-		};
-
-		// Save it
-		await this.client.config.set('commandstats', commandstats);
-	}
-
 	// Return command help text
 	helptext(prefix)
 	{
@@ -128,7 +162,7 @@ class Command
 		let help = Discord.underline('Usage:') + Discord.code_block(`${ prefix }${ this.name } ${ this.help.parameters }`);
 
 		// Description
-		help += Discord.underline('\n\Description:\n') + `${ this.help.description }`;
+		help += Discord.underline('\nDescription:\n') + `${ this.help.description }`;
 
 		// Details
 		if (this.help.details && this.help.details.length > 0)
@@ -261,6 +295,64 @@ class Command
 
 		// Default: Allow
 		return true;
+	}
+
+	// Internal: Called after the command is first created, to load asynchronous data
+	async _init()
+	{
+		// Load stats
+		try
+		{
+			let commandstats = await this.client.config.get('commandstats');
+			if (commandstats && commandstats[this.name])
+			{
+				this.use_count = commandstats[this.name].use_count;
+				this.err_count = commandstats[this.name].err_count;
+			}
+		}
+		catch(err)
+		{
+			console.warn(err);
+		}
+
+		// If the user passed an init function, call it
+		if (typeof this.init === 'function')
+			await this.init();
+	}
+
+	// Internal: Saves usage statistics
+	async _save_usage(hr_start_time, error)
+	{
+		this.use_count += 1;
+		if (error)
+			this.err_count += 1;
+
+		// Calculate elapsed time and push it into the recent timings array
+		let timediff = process.hrtime(hr_start_time);
+		this.timings.push(timediff[0] * 1000 + timediff[1] / 1000000);
+
+		// Clear the oldest time if we have too many times saved
+		if (this.timings.length > 10)
+			this.timings.shift();
+
+		try
+		{
+			// Load or create commandstats object
+			let commandstats = await this.client.config.get('commandstats') || {};
+
+			// Update statistics
+			commandstats[this.name] = {
+				use_count: this.use_count,
+				err_count: this.err_count
+			};
+
+			// Save it
+			await this.client.config.set('commandstats', commandstats);
+		}
+		catch(err)
+		{
+			console.warn(err);
+		}
 	}
 }
 
