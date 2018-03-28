@@ -51,7 +51,7 @@ class Client extends Discord.Client
 		// Load event handlers
 		fs.readdirSync(__dirname + '/events').forEach(function(file) {
 			// Filename is the event name, but we need to remove the extension
-			let event_name = file.replace(/\.[^\.]*/,'');
+			let event_name = file.replace(/\.[^.]*/,'');
 			this.on(event_name, require(__dirname + '/events/' + file));
 		}.bind(this));
 	}
@@ -137,7 +137,7 @@ class Client extends Discord.Client
 
 				subfiles.forEach(function(subfile) {
 					// Strip the file extension
-					subfile = subfile.replace(/\.[^\.]*/,'');
+					subfile = subfile.replace(/\.[^.]*/,'');
 					// Load command options
 					let options = require(path + '/' + subfile);
 					// Apply command name and category if they weren't already defined
@@ -154,7 +154,7 @@ class Client extends Discord.Client
 				let options = require(path);
 				// Apply command name and category if they weren't already defined
 				if (!options.name)
-					options.name = files[i].replace(/\.[^\.]*/,'');
+					options.name = files[i].replace(/\.[^.]*/,'');
 				if (!options.category)
 					options.category = 'General';
 				promises.push( self.add_command(options) );
@@ -198,8 +198,8 @@ class Client extends Discord.Client
 				// Skip keys printed by the stack trace
 				if (key == 'message' || key == 'stack')
 					continue;
-				
-				emsg += '\n    ' + key + ' = ' + err[key].toString();
+				// Don't use toString() here, it is not always defined for some values eg: null
+				emsg += '\n    ' + key + ' = ' + String(err[key]);
 			}
 		}
 

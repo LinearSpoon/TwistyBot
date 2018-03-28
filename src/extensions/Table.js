@@ -49,7 +49,7 @@ class Table
 		this.rows.push({
 			type: 'data',
 			align: this.alignment || 'l'.repeat(row.length),
-			data: row.map(cell => cell.toString()),
+			data: row.map(String),
 			div: false
 		});
 
@@ -62,7 +62,7 @@ class Table
 		this.rows.push({
 			type: 'data',
 			align: 'c'.repeat(row.length),
-			data: row.map(cell => cell.toString()),
+			data: row.map(String),
 			div: true
 		});
 
@@ -74,7 +74,7 @@ class Table
 	{
 		this.rows.push({
 			type: 'full',
-			data: value.toString(),
+			data: String(value),
 			div: false
 		});
 
