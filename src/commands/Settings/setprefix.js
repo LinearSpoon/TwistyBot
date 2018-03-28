@@ -19,7 +19,7 @@ module.exports.permissions = [
 	{ user: '*', block: true },
 ];
 
-module.exports.run = async function(Discord, client, params, options) {
-	await options.message.guild.config.set('prefix', params[0]);
+module.exports.run = async function(Discord, client, params, info) {
+	await info.message.guild.config.set('prefix', params[0]);
 	return Discord.code_block('Prefix set to: ' + params[0]);
 };

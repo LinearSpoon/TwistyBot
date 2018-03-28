@@ -4,7 +4,7 @@ module.exports.params = {
 
 module.exports.aliases = [ 'commands' ];
 
-module.exports.run = async function(Discord, client, params, options) {
+module.exports.run = async function(Discord, client, params, info) {
 	// One parameter is a specific command to get help for
 	if (params.length == 1)
 	{
@@ -14,7 +14,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		if (!command)
 			return Discord.code_block(name + ' is not a command!');
 
-		let help = command.helptext(options.prefix);
+		let help = command.helptext(info.prefix);
 		return help || Discord.code_block(name + ' has no help information!');
 	}
 
@@ -28,7 +28,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		if (!command.help)
 			continue;
 		// Check if user can use this command
-		if (await command.check_permission(options.message))
+		if (await command.check_permission(info.message))
 		{
 			if (!accessible[command.category])
 			{
@@ -41,10 +41,10 @@ module.exports.run = async function(Discord, client, params, options) {
 	}
 
 	// Build help text response
-	let help = 'Command specific help can be seen with ' + options.prefix + 'help <command>';
+	let help = 'Command specific help can be seen with ' + info.prefix + 'help <command>';
 
 	let table = new Discord.Table('borderless');
-	table.min_width(longest + options.prefix.length, 1);
+	table.min_width(longest + info.prefix.length, 1);
 	table.align('ll');
 
 	for(let category in accessible)
@@ -52,7 +52,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		// Sort alphabetically by command name
 		accessible[category].sort( (a,b) => b.name < a.name );
 		// Add commands to table
-		accessible[category].forEach(cmd => table.push(options.prefix + cmd.name, cmd.help.description));
+		accessible[category].forEach(cmd => table.push(info.prefix + cmd.name, cmd.help.description));
 		// Append category to help response
 		help += '\n' + category + ':' + Discord.code_block(table.toString());
 		// Reset table for next category

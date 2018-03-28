@@ -17,9 +17,6 @@ Discord.link                   = function(link) { return '<' + link + '>'; };
 Discord.masked_link            = function(text, link) { return '[' + text + '](' + link + ')'; };
 Discord.Table                  = require('./extensions/Table');
 
-// Export command parsers
-module.exports.parsers = require('./parsers');
-
 // Export default config class
 module.exports.config = require('./Config');
 
@@ -32,3 +29,6 @@ require('./extensions/User');
 
 // Export custom client class
 module.exports.Client = require('./Client');
+
+// Export command class
+module.exports.Command = require('./Command');

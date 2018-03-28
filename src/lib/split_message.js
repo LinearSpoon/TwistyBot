@@ -1,4 +1,4 @@
-let markdown_parser = require('../../parsers/markdown');
+let markdown_parser = require('./parse_markdown');
 
 // Class that manages markdown tags that need to be opened or closed
 class Tags

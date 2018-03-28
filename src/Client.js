@@ -1,16 +1,10 @@
 let Discord = require('discord.js');
-let Command = require('../Command');
-let fs = require('fs');
-let util = require('util');
-let fs_readdir = util.promisify(fs.readdir);
-let fs_stat = util.promisify(fs.stat);
+let Command = require('./Command');
+let walk_directory = require('./lib/walk_directory.js');
+let split_message = require('./lib/split_message.js');
 
 /*
 	Client
-		.parsers
-			.raw
-			.markdown
-			.comma_separated
 		.guild_config
 		.user_config
 		.config
@@ -27,9 +21,6 @@ class Client extends Discord.Client
 	constructor(options)
 	{
 		super(options);
-
-		// Command parsers
-		this.parsers = require('../parsers');
 
 		// Classes that manage saving and loading config for the bot/guilds/users
 		this.guild_config = options.guild_config || require('../Config');
@@ -49,11 +40,57 @@ class Client extends Discord.Client
 		this.commands_by_name = {};
 
 		// Load event handlers
-		fs.readdirSync(__dirname + '/events').forEach(function(file) {
-			// Filename is the event name, but we need to remove the extension
-			let event_name = file.replace(/\.[^.]*/,'');
-			this.on(event_name, require(__dirname + '/events/' + file));
+		walk_directory(__dirname + '/events', function(file) {
+			this.on(file.name_no_ext, require(file.path));
 		}.bind(this));
+	}
+
+	async send(responses, info)
+	{
+		// Convert response to an array
+		if (!Array.isArray(responses))
+		{
+			responses = [responses];
+		}
+
+		// Remove empty responses (null, undefined, "")
+		responses = responses.filter(response => response);
+		// Convert responses to { content, options } for channel.send
+		responses = responses.map(function(response) {
+			if (typeof response === 'string')
+				return { content: response, options: {} };
+			
+			if (response instanceof Discord.RichEmbed)
+				return { content: '', options: { embed: response } };
+			
+			if (response instanceof Discord.Table)
+				return { content: Discord.code_block(response.toString()), options: {} };
+			
+			if (response instanceof Discord.Attachment)
+				return { content: '', options: response };
+			
+			if (typeof response === 'object')
+				return response; // assume it is already a { content, options } object
+			
+			// Just hope it has a reasonable toString defined
+			return { content: String(response), options: {} };
+		});
+
+		if (responses.length == 0)
+			return; // Nothing to send
+
+		// If the response is redirected to the user's DM, add an explanation to the first message
+		if (info.redirected)
+		{
+			responses[0].content = `Hi, ${this.user.username} doesn't have permission to respond in ${info.message.channel.friendly_name}\n`
+				+ info.message.cleanContent + '\n' + responses[0].content;
+		}
+
+		// Identify and split responses which are beyond the 2000 character limit
+		let messages = [].concat(...responses.map(split_message));
+
+		// Send the messages
+		return Promise.all(messages.map(message => info.channel.send(message.content, message.options)));
 	}
 
 	// Find a command by its name or alias
@@ -67,7 +104,7 @@ class Client extends Discord.Client
 	// Adds the default commands found in src/commands folder
 	async add_default_commands()
 	{
-		await this.add_command_directory(__dirname + '/../commands');
+		await this.add_command_directory(__dirname + '/commands');
 	}
 
 	// Registers a new command
@@ -123,43 +160,35 @@ class Client extends Discord.Client
 		let promises = [];
 
 		// Load top level files and folders
-		let files = await fs_readdir(folder);
-		for(let i = 0; i < files.length; i++)
-		{
-			let path = folder + '/' + files[i];
-			let stats = await fs_stat(path);
-
-			if (stats.isDirectory())
+		walk_directory(folder, function(file) {
+			if (file.is_directory)
 			{
 				// Subfolders use the folder name as the category
-				let category = files[i];
-				let subfiles = await fs_readdir(path);
-
-				subfiles.forEach(function(subfile) {
-					// Strip the file extension
-					subfile = subfile.replace(/\.[^.]*/,'');
+				let category = file.name;
+				walk_directory(file.path, function(subfile) {
 					// Load command options
-					let options = require(path + '/' + subfile);
+					let options = require(subfile.path);
 					// Apply command name and category if they weren't already defined
 					if (!options.name)
-						options.name = subfile;
+						options.name = subfile.name_no_ext;
 					if (!options.category)
 						options.category = category;
-					promises.push( self.add_command(options) );
+					promises.push(self.add_command(options));
 				});
 			}
-			else if (stats.isFile())
+			
+			if (file.is_file)
 			{
 				// Top level files assume General category
-				let options = require(path);
+				let options = require(file.path);
 				// Apply command name and category if they weren't already defined
 				if (!options.name)
-					options.name = files[i].replace(/\.[^.]*/,'');
+					options.name = file.name_no_ext;
 				if (!options.category)
 					options.category = 'General';
-				promises.push( self.add_command(options) );
+				promises.push(self.add_command(options));
 			}
-		}
+		});
 
 		// Wait for all commands to init
 		await Promise.all(promises);
@@ -168,32 +197,23 @@ class Client extends Discord.Client
 	// Sends a message to the bot's error channel
 	async log_error(err, message)
 	{
-		let emsg;
+		let emsg = err.stack;
 
 		// If a message object is passed, add some useful details
 		if (message)
 		{
 			emsg = 'Channel: ' + message.channel.friendly_name +
 				'\nAuthor:  ' + message.author.tag +
-				'\nMessage: ' + message.cleanContent + '\n';
-			// Add a stacktrace
-			emsg += err.stack;
+				'\nMessage: ' + message.cleanContent +
+				'\n' + emsg;
 		}
-		else
-		{
-			emsg = err.stack;
-		}
-		
-		// // Append request path if it's a Discord API error, since the stacks for those are boring
-		// if (err instanceof Discord.DiscordAPIError)
-		// 	emsg += '\nSpecifically [' + err.code + '] ' + err.path;
 
 		// Add other keys of the error object
 		let keys = Object.keys(err);
 		if (keys.length > 0)
 		{
 			emsg += '\n\nExtra:';
-			for(let key of keys)
+			for (let key of keys)
 			{
 				// Skip keys printed by the stack trace
 				if (key == 'message' || key == 'stack')
@@ -203,6 +223,7 @@ class Client extends Discord.Client
 			}
 		}
 
+		// Log error in case it can't be sent
 		console.warn(emsg);
 
 		if (this.error_channel)
@@ -216,14 +237,12 @@ class Client extends Discord.Client
 			{
 				await channel.send(Discord.code_block(emsg));
 			}
-			catch(err2)
+			catch (err2)
 			{
 				console.warn('Failed to deliver error to log channel: ' + err2.stack);
 			}
 		}
 	}
 }
-
-Client.prototype.send_response = require('./lib/send_response');
 
 module.exports = Client;

@@ -1,5 +1,5 @@
 let Discord = require('discord.js');
-let comma_separated = require('./parsers/comma_separated.js');
+let comma_separated = require('./lib/parse_csv_params.js');
 
 class Command
 {

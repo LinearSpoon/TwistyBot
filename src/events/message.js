@@ -1,5 +1,3 @@
-let Discord = require('discord.js');
-
 module.exports = async function(message) {
 	console.log(`[New] [${ message.channel.friendly_name }] ${ message.author.username }: ${ message.string_content }`);
 
@@ -93,50 +91,8 @@ module.exports = async function(message) {
 		}
 	}
 
-	// Choose a parser
-	let parser;
-	if (typeof command.params.parser === 'string')
-		parser = this.parsers[command.params.parser];
-	if (typeof command.params.parser === 'function')
-		parser = command.params.parser;
-	parser = parser || this.parsers.comma_separated;
-
-	// Extract the parameters without command name
-	let raw_params = content.slice(match[0].length);
-	let parsed_params = parser(raw_params);
-
-	// Check parameters
-	let params_valid = true;
-	if (typeof command.params.min === 'number' && parsed_params.length < command.params.min) { params_valid = false; }
-	if (typeof command.params.max === 'number' && parsed_params.length > command.params.max) { params_valid = false; }
-
-	// Don't call check function if the number of parameters is wrong
-	if (params_valid && command.params.check && !command.params.check(parsed_params)) { params_valid = false; }
-	if (!params_valid)
-	{
-		// Send an help message explaining how to use the command
-		this.send_response(command.helptext(options.prefix), options);
-		return;
-	}
-
-	options.channel.startTyping();
-
-	// Record time when command starts executing
-	let start_time = process.hrtime();
-	// Command response
-	let response;
-	try
-	{
-		response = await command.run(Discord, this, parsed_params, options);
-		await command.completed(start_time);
-	}
-	catch(err)
-	{
-		// Something terrible happened
-		response = Discord.code_block('An error occurred while running the command:\n' + err.message);
-		command.errored(start_time).catch(err => console.warn(err));
-		this.log_error(err, options.message);
-	}
+	// Run the command
+	let response = await command.execute(content.slice(match[0].length), options);
 
 	// Try sending the response
 	try
@@ -147,7 +103,4 @@ module.exports = async function(message) {
 	{
 		this.log_error(err, options.message);
 	}
-
-	// Always stop typing
-	options.channel.stopTyping();
 };

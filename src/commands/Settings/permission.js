@@ -52,17 +52,6 @@ module.exports.help = {
 module.exports.params = {
 	check: function(params) {
 
-		// List all permissions
-		if (params.length == 0)
-			return true;
-
-		// Clear command permissions
-		if (params.length == 2)
-		{
-			let action = params[1].toLowerCase();
-			return action == 'clear';
-		}
-
 		// Add new permission
 		if (params.length >= 4)
 		{
@@ -86,69 +75,101 @@ module.exports.permissions = [
 	{ user: '*', block: true },
 ];
 
-module.exports.run = async function(Discord, client, params, options) {
-	let permissions = await options.message.guild.config.get('permissions') || [];
-
+// Convert and validate parameters
+module.exports.before = async function(Discord, client, params, info) {
+	// List all commands
+	if (params.length == 0)
+	{
+		params.todo = 'list';
+		return this.continue;
+	}
+	
 	// Clear command permissions
 	if (params.length == 2)
 	{
-		let command = params[0].toLowerCase();
-		permissions = permissions.filter( rule => !(command == '*' || command == rule.command) );
-		await options.message.guild.config.set('permissions', permissions);
+		params.todo = params[1].toLowerCase();
+		params.command = params[0].toLowerCase();
+
+		// Action must be clear to continue
+		return params.todo == 'clear' ? this.continue : this.syntax;
 	}
 
 	// Add new permission
 	if (params.length >= 4)
 	{
+		params.todo = 'add';
+		params.command = params[0].toLowerCase();
+		params.action = params[1].toLowerCase();
+		params.rule_type = params[2].toLowerCase();
+		params.ids = params.slice(3);
+
+		// Validate action
+		if (params.action != 'allow' && params.action != 'block')
+			return this.sytnax;
+		// Validate rule_type
+		if (!(['user', 'not_user', 'role', 'not_role', 'channel', 'not_channel'].includes(params.rule_type)))
+			return this.syntax;
+
+		return this.continue;
+	}
+
+	return this.syntax;
+};
+
+module.exports.run = async function(Discord, client, params, info) {
+	let permissions = await info.message.guild.config.get('permissions') || [];
+
+	// Clear command permissions
+	if (params.todo == 'clear')
+	{
+		permissions = permissions.filter(rule => !(params.command == '*' || params.command == rule.command));
+		await info.message.guild.config.set('permissions', permissions);
+	}
+
+	// Add new permission
+	if (params.todo == 'add')
+	{
 		// Build a rule
 		let rule = {
-			guild: options.message.guild.id,
-			command: params[0].toLowerCase()
+			guild: info.message.guild.id,
+			command: params.command
 		};
+		rule[params.action] = true;
 
 		// TODO: Ensure command is valid
 
-		let action = params[1].toLowerCase();
-		rule[action] = true;
-
-		let rule_type = params[2].toLowerCase();
-		let ids = params.slice(3);
-		if (ids.includes('*'))
+		if (params.ids.includes('*'))
 		{
 			// Don't store as array if rule is *
-			rule[rule_type] = '*';
+			rule[params.rule_type] = '*';
 		}
 		else
 		{
-			// The ids could be  mentions or plain ids, we want only plain ids though
-
+			// The ids could be mentions or plain ids, we want only plain ids though
 			// Figure out which ID cache we should check and what our @mention regex is
 			let cache = null;
 			let regex = null;
-			switch(rule_type)
+			switch(params.rule_type)
 			{
 				case 'user':
 				case 'not_user':
-					cache = options.message.guild.members;
+					cache = info.message.guild.members;
 					regex = /^\\?<@!?(\d+)>$/;
 					break;
 				case 'channel':
 				case 'not_channel':
-					cache = options.message.guild.channels;
+					cache = info.message.guild.channels;
 					regex = /^<#(\d+)>$/;
 					break;
 				case 'role':
 				case 'not_role':
-					cache = options.message.guild.roles;
+					cache = info.message.guild.roles;
 					regex = /^<@&(\d+)>$/;
 					break;
 			}
 
 			let valid_ids = [];
-			for(let i = 0; i < ids.length; i++)
-			{
-				let id = ids[i];
-
+			params.ids.forEach(id => {
 				// Check if this is a mention, and extract just the ID if so
 				let match = regex.exec(id);
 				if (match)
@@ -160,23 +181,23 @@ module.exports.run = async function(Discord, client, params, options) {
 				// Possible TODO: Fetch guild member?
 				if (cache.has(id))
 					valid_ids.push(id);
-			}
+			});
 
 			// One last sanity check
 			if (valid_ids.length == 0)
 				return Discord.code_block('Could not find any of the mentions/ids in this server.');
 
-			rule[rule_type] = valid_ids;
+			rule[params.rule_type] = valid_ids;
 		}
 
 		// Insert it
 		permissions.push(rule);
-		await options.message.guild.config.set('permissions', permissions);
+		await info.message.guild.config.set('permissions', permissions);
 	}
 
 	// Finally, print out the current permissions set
 	if (permissions.length == 0)
-		return Discord.code_block('No rules!');
+		return Discord.code_block('No rules, for help adding one see ' + info.prefix + 'help permission');
 
 	let table = new Discord.Table();
 	table.header('Command', 'Action', 'Type', 'IDs');
@@ -198,7 +219,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		if (type == 'user' || type == 'not_user')
 		{
 			ids = ids.map(function(id) {
-				let member = options.message.guild.members.get(id);
+				let member = info.message.guild.members.get(id);
 				if (member) { return member.displayName; }
 				return '<@' + id + '>';
 			});
@@ -206,7 +227,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		else if (type == 'role' || type == 'not_role')
 		{
 			ids = ids.map(function(id) {
-				let role = options.message.guild.roles.get(id);
+				let role = info.message.guild.roles.get(id);
 				if (role) { return role.name; }
 				return '<@&' + id + '>';
 			});
@@ -214,7 +235,7 @@ module.exports.run = async function(Discord, client, params, options) {
 		else if (type == 'channel' || type == 'not_channel')
 		{
 			ids = ids.map(function(id) {
-				let channel = options.message.guild.channels.get(id);
+				let channel = info.message.guild.channels.get(id);
 				if (channel) { return channel.name; }
 				return '<#' + id + '>';
 			});
