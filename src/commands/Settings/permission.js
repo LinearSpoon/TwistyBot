@@ -49,25 +49,6 @@ module.exports.help = {
 	]
 };
 
-module.exports.params = {
-	check: function(params) {
-
-		// Add new permission
-		if (params.length >= 4)
-		{
-			let action = params[1].toLowerCase();
-			let rule_type = params[2].toLowerCase();
-			if ( (action == 'allow' || action == 'block') &&
-				['user', 'not_user', 'role', 'not_role', 'channel', 'not_channel'].includes(rule_type))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-};
-
 module.exports.permissions = [
 	// Allow guild leaders
 	{ leader: true, allow: true },
