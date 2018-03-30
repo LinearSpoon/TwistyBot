@@ -91,6 +91,7 @@ class Command
 		catch(err)
 		{
 			// Log the error
+			info.error = err;
 			this._save_usage(start_time, true);
 			this.client.log_error(err, info.message);
 			// Use the error message as the response
