@@ -97,7 +97,7 @@ module.exports = async function(message) {
 	// Try sending the response
 	try
 	{
-		await this.send_response(response, options);
+		await this.send(response, options);
 	}
 	catch(err)
 	{

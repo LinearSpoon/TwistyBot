@@ -235,7 +235,13 @@ class Client extends Discord.Client
 			// Send the message
 			try
 			{
-				await channel.send(Discord.code_block(emsg));
+				while(emsg.length > 0)
+				{
+					// Slice the first 1990 characters and send those
+					let m = emsg.slice(0, 1990);
+					emsg = emsg.slice(1990);
+					await channel.send(Discord.code_block(m));
+				}
 			}
 			catch (err2)
 			{
