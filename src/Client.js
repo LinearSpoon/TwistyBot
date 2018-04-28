@@ -20,6 +20,7 @@ class Client extends Discord.Client
 {
 	constructor(options)
 	{
+		options = options || {};
 		super(options);
 
 		// Classes that manage saving and loading config for the bot/guilds/users
